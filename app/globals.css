@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Reset & Base ──────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: #000000;
+  color: #E5E5E5;
+  scroll-behavior: auto; /* Lenis takes over smooth scroll */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: #000000;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ─── Custom scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 2px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 2px;
+}
+
+/* ─── Selection ─────────────────────────────────────────────────── */
+::selection {
+  background: rgba(229, 229, 229, 0.15);
+  color: #fff;
+}
+
+/* ─── Utility: invisible but in DOM ────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* ─── Phase overlay text ────────────────────────────────────────── */
+.phase-block {
+  opacity: 0;
+  transform: translateY(28px);
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+/* ─── Lenis override (prevent html scroll-behavior conflict) ────── */
+html.lenis {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ─── Button shimmer animation ──────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.btn-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+
+/* ─── Science grid lines ────────────────────────────────────────── */
+.grid-line {
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, #1A1A1A 30%, #1A1A1A 70%, transparent);
+}
