@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── shadcn / Radix CSS variables (dark = LIFECODE palette) ────── */
+:root {
+  --radius: 0.65rem;
+  --background:        0 0% 0%;
+  --foreground:        0 0% 90%;
+  --card:              0 0% 4%;
+  --card-foreground:   0 0% 90%;
+  --popover:           0 0% 19%;
+  --popover-foreground:0 0% 95%;
+  --muted:             0 0% 10%;
+  --muted-foreground:  0 0% 53%;
+  --accent:            0 0% 14%;
+  --accent-foreground: 0 0% 90%;
+  --border:            0 0% 10%;
+  --ring:              0 0% 50%;
+}
+
 /* ─── Reset & Base ──────────────────────────────────────────────── */
 *,
 *::before,
@@ -92,6 +109,11 @@ html.lenis {
   background-size: 200% auto;
   animation: shimmer 3s linear infinite;
 }
+
+/* ─── PromptBox textarea scrollbar ─────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar       { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
 
 /* ─── Science grid lines ────────────────────────────────────────── */
 .grid-line {

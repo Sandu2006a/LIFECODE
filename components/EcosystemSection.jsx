@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -196,7 +197,8 @@ export default function EcosystemSection() {
                 blur-sm
               "
             />
-            <button
+            <Link
+              href="/ecosystem"
               className="
                 relative
                 inline-flex items-center gap-4
@@ -207,7 +209,6 @@ export default function EcosystemSection() {
                 group-hover:bg-lc-silver
                 overflow-hidden
               "
-              type="button"
             >
               {/* Shimmer sweep */}
               <span className="btn-shimmer absolute inset-0 rounded-full" />
@@ -231,7 +232,7 @@ export default function EcosystemSection() {
                   />
                 </svg>
               </span>
-            </button>
+            </Link>
           </div>
         </div>
 

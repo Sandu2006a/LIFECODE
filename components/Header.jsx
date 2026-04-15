@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -70,20 +71,31 @@ export default function Header() {
         ))}
       </nav>
 
-      {/* CTA pill */}
-      <a
-        href="#ecosystem"
-        className="
-          hidden md:inline-flex items-center gap-2
-          px-5 py-2 rounded-full
-          border border-lc-line
-          font-body text-xs tracking-widest text-lc-silver uppercase
-          hover:border-lc-silver/40 hover:text-white
-          transition-all duration-500
-        "
-      >
-        Create Your Ecosystem
-      </a>
+      {/* Right side: Log In + CTA */}
+      <div className="hidden md:flex items-center gap-4">
+        <Link
+          href="/login"
+          className="
+            font-body text-xs tracking-widest text-lc-dim uppercase
+            hover:text-lc-silver transition-colors duration-300
+          "
+        >
+          Log In
+        </Link>
+        <a
+          href="#ecosystem"
+          className="
+            inline-flex items-center gap-2
+            px-5 py-2 rounded-full
+            border border-lc-line
+            font-body text-xs tracking-widest text-lc-silver uppercase
+            hover:border-lc-silver/40 hover:text-white
+            transition-all duration-500
+          "
+        >
+          Create Your Ecosystem
+        </a>
+      </div>
     </header>
   );
 }

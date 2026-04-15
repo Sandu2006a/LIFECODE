@@ -28,7 +28,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${spaceGrotesk.variable} ${dmSans.variable} dark`}>
       <body className="bg-lc-black text-lc-silver font-body antialiased">
         {children}
       </body>
