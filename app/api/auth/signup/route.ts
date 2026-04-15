@@ -35,7 +35,8 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error || !user) {
-      return NextResponse.json({ error: 'Failed to create user.' }, { status: 500 });
+      console.error('Supabase insert error:', JSON.stringify(error));
+      return NextResponse.json({ error: 'Failed to create user.', detail: error?.message }, { status: 500 });
     }
 
     // Sign JWT
