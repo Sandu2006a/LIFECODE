@@ -1,14 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 import { createBrowserClient } from '@supabase/ssr';
 
-// Fallback placeholders prevent crash at build time when env vars are absent
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
-// Server-side client (API routes)
-export const supabase = createClient(url, key);
+// Server-side admin client — uses service_role key to bypass RLS in API routes
+// Falls back to anon key if service role key not set (localhost dev)
+const serverKey = process.env.SUPABASE_SERVICE_ROLE_KEY || anonKey;
+export const supabase = createClient(url, serverKey, {
+  auth: { persistSession: false },
+});
 
-// Browser client (auth + session)
+// Browser client (auth + session) — uses anon key, respects RLS
 export function createSupabaseBrowser() {
-  return createBrowserClient(url, key);
+  return createBrowserClient(url, anonKey);
 }
