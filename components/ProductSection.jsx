@@ -5,7 +5,7 @@ import { gsap }          from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image             from 'next/image';
 
-/* ─── Product data ─────────────────────────────────────────────── */
+/* ─── Product data — order: Morning, Pure Pump, Endurance, Recovery ─ */
 const PRODUCTS = [
   {
     id: 'morning',
@@ -31,30 +31,51 @@ const PRODUCTS = [
     ],
   },
   {
-    id: 'training',
+    id: 'purepump',
     phase: '02',
-    title: 'Training Gel',
+    title: 'Pure Pump',
     tagline: 'Perform.',
     accent: 'rgba(210,210,210,0.8)',
     accentColor: '#d4d4d4',
     coming: false,
     description: 'Adaptive energy delivery engineered for peak performance windows. Sustains ATP synthesis during maximum output without metabolic debt.',
     ingredients: [
-      { name: 'L-Citrulline',          detail: 'Max nitric oxide / Vasodilation',           dose: '5000 mg'  },
-      { name: 'Beta-Alanine',          detail: 'Carnosine booster / Lactic acid buffer',     dose: '3000 mg'  },
-      { name: 'Taurine',               detail: 'Cellular hydration / CNS neuro-protection',  dose: '2000 mg'  },
-      { name: 'Glycerol',              detail: 'Hyper-hydration / Intracellular pressure',   dose: '2000 mg'  },
-      { name: 'Caffeine Anhydrous',    detail: 'Metabolic stimulant / Cognitive alertness',  dose: '200 mg'   },
-      { name: 'Himalayan Pink Salt',   detail: 'Trace minerals / Electrolyte balance',       dose: '250 mg'   },
-      { name: 'Natural Menthol',       detail: 'Respiratory optimization (Airflow effect)',  dose: '10 mg'    },
-      { name: 'Black Pepper Extract',  detail: 'Bio-availability enhancer (95% Piperine)',   dose: '5 mg'     },
-      { name: 'Vitamin B12',           detail: 'ATP production / Cellular energy (Thorne)',  dose: '500 mcg'  },
-      { name: 'Vitamin B6',            detail: 'Co-enzyme / Neurotransmitter synthesis',     dose: '10 mg'    },
+      { name: 'L-Citrulline',          detail: 'Max nitric oxide / Vasodilation',            dose: '5000 mg'  },
+      { name: 'Beta-Alanine',          detail: 'Carnosine booster / Lactic acid buffer',      dose: '3000 mg'  },
+      { name: 'Taurine',               detail: 'Cellular hydration / CNS neuro-protection',   dose: '2000 mg'  },
+      { name: 'Glycerol',              detail: 'Hyper-hydration / Intracellular pressure',    dose: '2000 mg'  },
+      { name: 'Caffeine Anhydrous',    detail: 'Metabolic stimulant / Cognitive alertness',   dose: '200 mg'   },
+      { name: 'Himalayan Pink Salt',   detail: 'Trace minerals / Electrolyte balance',        dose: '250 mg'   },
+      { name: 'Natural Menthol',       detail: 'Respiratory optimization (Airflow effect)',   dose: '10 mg'    },
+      { name: 'Black Pepper Extract',  detail: 'Bio-availability enhancer (95% Piperine)',    dose: '5 mg'     },
+      { name: 'Vitamin B12',           detail: 'ATP production / Cellular energy (Thorne)',   dose: '500 mcg'  },
+      { name: 'Vitamin B6',            detail: 'Co-enzyme / Neurotransmitter synthesis',      dose: '10 mg'    },
+    ],
+  },
+  {
+    id: 'endurance',
+    phase: '03',
+    title: 'Endurance Gel',
+    tagline: 'Sustain.',
+    accent: 'rgba(40,160,100,0.8)',
+    accentColor: '#28a064',
+    coming: false,
+    description: 'Primary fuel source for long-duration efforts. Dual-carb matrix with 2:1 ratio for maximum absorption and sustained energy without GI distress.',
+    ingredients: [
+      { name: 'Maltodextrin (Low DE)',   detail: 'Primary glucose source / Low osmotic stress',       dose: '18 000 mg' },
+      { name: 'Fructose',               detail: 'Secondary energy (GLUT5) / 2:1 ratio max absorption',dose: '9 000 mg'  },
+      { name: 'Glycerol (Liquid)',       detail: 'Hyper-hydration / Smooth mouthfeel',                dose: '1 500 mg'  },
+      { name: 'Sodium',                 detail: 'Himalayan Salt / Fluid balance / Anti-hyponatremia', dose: '250 mg'    },
+      { name: 'Potassium Citrate',      detail: 'Muscle function / Intracellular hydration',          dose: '100 mg'    },
+      { name: 'Magnesium Citrate',      detail: 'Cramp prevention / Metabolic cofactor',             dose: '100 mg'    },
+      { name: 'L-Carnitine Tartrate',   detail: 'Fat metabolism support',                            dose: '500 mg'    },
+      { name: 'Natural Menthol',        detail: 'Respiratory relief / Cooling effect',               dose: '10 mg'     },
+      { name: 'Vitamin B12',            detail: 'Thorne Standard / Bioactive energy metabolism',      dose: '250 mcg'   },
     ],
   },
   {
     id: 'recovery',
-    phase: '03',
+    phase: '04',
     title: 'Recovery Pack',
     tagline: 'Rebuild.',
     accent: 'rgba(30,80,180,0.8)',
@@ -74,7 +95,6 @@ function ProductCard({ p, cardRef }) {
   const toggle = () => {
     if (!listRef.current || !innerRef.current) return;
     if (!open) {
-      gsap.set(listRef.current, { height: 'auto', opacity: 1 });
       const h = innerRef.current.offsetHeight;
       gsap.fromTo(listRef.current,
         { height: 0, opacity: 0 },
@@ -89,7 +109,7 @@ function ProductCard({ p, cardRef }) {
   };
 
   return (
-    <div ref={cardRef} className="relative bg-lc-black opacity-0 px-7 py-8 flex flex-col">
+    <div ref={cardRef} className="relative bg-lc-black opacity-0 px-6 py-8 flex flex-col">
 
       {/* top accent line */}
       <div className="h-px w-full mb-7"
@@ -103,39 +123,36 @@ function ProductCard({ p, cardRef }) {
 
       {/* tagline */}
       <p className="font-sans font-700 leading-none tracking-tight mb-5"
-        style={{ fontSize: 'clamp(1.9rem,3.2vw,2.6rem)', color: p.accentColor, opacity: 0.35 }}>
+        style={{ fontSize: 'clamp(1.7rem,2.8vw,2.4rem)', color: p.accentColor, opacity: 0.32 }}>
         {p.tagline}
       </p>
 
-      {/* short description */}
+      {/* description */}
       <p className="font-body font-300 text-lc-dim/70 text-[11.5px] leading-loose tracking-wide mb-7">
         {p.description}
       </p>
 
-      {/* ── See More button ── */}
+      {/* See more button */}
       {!p.coming && (
-        <button
-          onClick={toggle}
-          className="flex items-center gap-2.5 group w-fit mb-4"
-        >
+        <button onClick={toggle} className="flex items-center gap-2.5 w-fit mb-4">
           <span className="font-body text-[9px] tracking-widest2 uppercase transition-colors duration-300"
-            style={{ color: open ? p.accentColor : 'rgba(160,160,160,0.6)' }}>
+            style={{ color: open ? p.accentColor : 'rgba(160,160,160,0.55)' }}>
             {open ? 'Hide' : 'See more'}
           </span>
-          <div className="relative w-5 h-px transition-all duration-300"
-            style={{ background: open ? p.accentColor : 'rgba(160,160,160,0.3)' }}>
+          <div className="relative w-5 h-px"
+            style={{ background: open ? p.accentColor : 'rgba(160,160,160,0.28)' }}>
             <div className="absolute right-0 top-1/2 -translate-y-1/2 transition-transform duration-300"
-              style={{ transform: open ? 'translateY(-50%) rotate(90deg)' : 'translateY(-50%) rotate(0deg)' }}>
+              style={{ transform: open ? 'translateY(-50%) rotate(90deg)' : 'translateY(-50%)' }}>
               <svg width="5" height="8" viewBox="0 0 5 8" fill="none">
-                <path d="M1 1l3 3-3 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round"
-                  style={{ color: open ? p.accentColor : 'rgba(160,160,160,0.5)' }} />
+                <path d="M1 1l3 3-3 3" stroke={open ? p.accentColor : 'rgba(160,160,160,0.5)'}
+                  strokeWidth="1" strokeLinecap="round" />
               </svg>
             </div>
           </div>
         </button>
       )}
 
-      {/* ── Collapsible ingredient list ── */}
+      {/* Collapsible ingredient list */}
       {!p.coming && (
         <div ref={listRef} style={{ height: 0, opacity: 0, overflow: 'hidden' }}>
           <div ref={innerRef} className="pt-2 border-t border-white/[0.06]">
@@ -158,7 +175,7 @@ function ProductCard({ p, cardRef }) {
         </div>
       )}
 
-      {/* ── Coming Soon ── */}
+      {/* Coming Soon */}
       {p.coming && (
         <div className="flex flex-col gap-3 mt-auto pt-4 border-t border-white/[0.06]">
           <div className="flex items-center gap-2">
@@ -214,7 +231,7 @@ export default function ProductSection() {
       if (validCards.length > 0) {
         gsap.fromTo(validCards,
           { opacity: 0, y: 55 },
-          { opacity: 1, y: 0, duration: 1, ease: 'power3.out', stagger: 0.18,
+          { opacity: 1, y: 0, duration: 1, ease: 'power3.out', stagger: 0.15,
             scrollTrigger: { trigger: validCards[0], start: 'top 88%' } }
         );
       }
@@ -234,20 +251,20 @@ export default function ProductSection() {
       </div>
 
       {/* image */}
-      <div ref={imgWrapRef} className="relative mx-auto opacity-0 px-6" style={{ maxWidth: 700 }}>
+      <div ref={imgWrapRef} className="relative mx-auto opacity-0 px-6" style={{ maxWidth: 740 }}>
         <div ref={glowRef} className="absolute inset-0 pointer-events-none opacity-25"
           style={{ background: 'radial-gradient(ellipse 75% 55% at 50% 58%, rgba(255,255,255,0.14) 0%, transparent 68%)', filter: 'blur(36px)' }} />
         <div className="absolute inset-0 pointer-events-none z-10"
-          style={{ background: 'linear-gradient(to right, #000 0%, transparent 16%, transparent 84%, #000 100%), linear-gradient(to bottom, #000 0%, transparent 10%, transparent 88%, #000 100%)' }} />
+          style={{ background: 'linear-gradient(to right, #000 0%, transparent 14%, transparent 86%, #000 100%), linear-gradient(to bottom, #000 0%, transparent 8%, transparent 88%, #000 100%)' }} />
         <div ref={imgRef}>
-          <Image src="/product.png" alt="LIFECODE Products" width={700} height={520}
+          <Image src="/products4.jpg" alt="LIFECODE Products" width={740} height={540}
             className="w-full h-auto object-contain select-none" priority />
         </div>
       </div>
 
-      {/* cards */}
-      <div className="mt-24 px-5 md:px-12 max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/[0.05]">
+      {/* cards — 4 col on desktop */}
+      <div className="mt-24 px-5 md:px-10 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.05]">
           {PRODUCTS.map((p, i) => (
             <ProductCard
               key={p.id}
