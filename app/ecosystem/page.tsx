@@ -83,7 +83,7 @@ export default function EcosystemPage() {
 
   return (
     <div className="min-h-screen bg-black text-lc-silver font-body">
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 py-6 border-b border-lc-line bg-black/90 backdrop-blur-md">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 md:px-16 py-5 md:py-6 border-b border-lc-line bg-black/90 backdrop-blur-md">
         <Link href="/" className="flex items-center gap-3 text-lc-dim hover:text-lc-silver transition-colors duration-300">
           <ArrowLeftIcon />
           <span className="font-body text-xs tracking-widest uppercase">Back</span>
@@ -92,15 +92,15 @@ export default function EcosystemPage() {
         <Link href="/login" className="font-body text-xs tracking-widest text-lc-dim hover:text-lc-silver transition-colors duration-300 uppercase">Log In</Link>
       </nav>
 
-      <main className="pt-36 pb-28 px-6 md:px-16 max-w-3xl mx-auto">
-        <div ref={headRef} className="mb-16">
-          <p className="hl font-body text-[10px] tracking-widest2 text-lc-dim uppercase mb-6" style={{ opacity: 0 }}>Create Your Ecosystem</p>
-          <h1 className="hl font-sans font-700 text-white leading-tight tracking-tight" style={{ fontSize: 'clamp(2.4rem,5vw,4.8rem)', opacity: 0 }}>Tell us about<br />yourself.</h1>
-          <p className="hl font-body font-300 text-lc-dim text-base leading-relaxed mt-5 max-w-md" style={{ opacity: 0 }}>Your biology is unique. Your protocol should be too.</p>
+      <main className="pt-28 md:pt-36 pb-20 md:pb-28 px-5 md:px-16 max-w-3xl mx-auto">
+        <div ref={headRef} className="mb-10 md:mb-16">
+          <p className="hl font-body text-[10px] tracking-widest2 text-lc-dim uppercase mb-5 md:mb-6" style={{ opacity: 0 }}>Create Your Ecosystem</p>
+          <h1 className="hl font-sans font-700 text-white leading-tight tracking-tight" style={{ fontSize: 'clamp(1.9rem,5vw,4.8rem)', opacity: 0 }}>Tell us about<br />yourself.</h1>
+          <p className="hl font-body font-300 text-lc-dim text-sm md:text-base leading-relaxed mt-4 md:mt-5 max-w-md" style={{ opacity: 0 }}>Your biology is unique. Your protocol should be too.</p>
         </div>
 
         <form ref={formRef} onSubmit={handleSubmit} noValidate>
-          <div className="grid grid-cols-2 gap-x-10 gap-y-11">
+          <div className="grid grid-cols-2 gap-x-6 md:gap-x-10 gap-y-8 md:gap-y-11">
 
             {/* Gender */}
             <div className="fi col-span-2 flex flex-col gap-2" style={{ opacity: 0 }}>
@@ -120,7 +120,7 @@ export default function EcosystemPage() {
               <label className="font-body text-[9px] tracking-widest2 text-lc-dim uppercase">Create Password</label>
               <input type="password" value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
                 placeholder="Min. 6 characters" autoComplete="new-password"
-                className="w-full bg-transparent border-0 border-b border-lc-line pb-3 pt-1 font-sans font-300 text-white text-xl tracking-tight placeholder:text-white/15 placeholder:font-body placeholder:text-sm focus:outline-none focus:border-lc-silver/40 transition-colors duration-300"
+                className="w-full bg-transparent border-0 border-b border-lc-line pb-3 pt-1 font-sans font-300 text-white text-lg md:text-xl tracking-tight placeholder:text-white/15 placeholder:font-body placeholder:text-sm focus:outline-none focus:border-lc-silver/40 transition-colors duration-300"
               />
             </div>
 
@@ -132,7 +132,7 @@ export default function EcosystemPage() {
                   onChange={e => handleChange(field.id, e.target.value)}
                   placeholder={field.placeholder} required={field.id === 'name'}
                   min={field.type === 'number' ? 0 : undefined}
-                  className="w-full bg-transparent border-0 border-b border-lc-line pb-3 pt-1 font-sans font-300 text-white text-xl tracking-tight placeholder:text-white/15 placeholder:font-body placeholder:text-sm focus:outline-none focus:border-lc-silver/40 transition-colors duration-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full bg-transparent border-0 border-b border-lc-line pb-3 pt-1 font-sans font-300 text-white text-lg md:text-xl tracking-tight placeholder:text-white/15 placeholder:font-body placeholder:text-sm focus:outline-none focus:border-lc-silver/40 transition-colors duration-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             ))}
@@ -140,9 +140,9 @@ export default function EcosystemPage() {
 
           {error && <p className="mt-8 font-body text-[11px] text-red-400/80 tracking-wide">{error}</p>}
 
-          <div className="mt-16">
+          <div className="mt-12 md:mt-16">
             <button type="submit" disabled={submitting || !form.password || !form.name.trim()}
-              className="sb group relative inline-flex items-center gap-4 px-10 py-4 rounded-full bg-white text-black font-sans font-600 text-sm tracking-widest uppercase transition-all duration-500 hover:bg-lc-silver overflow-hidden disabled:opacity-40"
+              className="sb group relative inline-flex items-center justify-center gap-4 w-full md:w-auto px-10 py-4 rounded-full bg-white text-black font-sans font-600 text-sm tracking-widest uppercase transition-all duration-500 hover:bg-lc-silver overflow-hidden disabled:opacity-40"
               style={{ opacity: 0 }}>
               <span className="btn-shimmer absolute inset-0 rounded-full" />
               <span className="relative z-10">{submitting ? 'Creating profile...' : 'Send Profile'}</span>
