@@ -52,6 +52,11 @@ export async function POST(req: NextRequest) {
 
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
+    const microsContext = micros
+      ? micros.map((m: { label: string; current: number; target: number; unit: string }) =>
+          `  ${m.label}: ${m.current}/${m.target}${m.unit}`).join('\n')
+      : '  No micro data.';
+
     const systemContext = `You are LIFECODE AI — an elite sports scientist and nutritionist with long-term memory. You remember everything the athlete tells you and use it in every response.
 
 ATHLETE: ${profile?.name}, ${profile?.gender}, ${profile?.age}y, ${profile?.height}cm, ${profile?.weight}kg
@@ -68,18 +73,22 @@ TODAY'S TOTALS: ${totals.calories}kcal | P:${totals.protein}g C:${totals.carbs}g
 ═══ TODAY'S WORKOUT SCHEDULE ═══
 ${workoutSummary}
 
-═══ DAILY TARGETS ═══
-${macros?.map((m: { label: string; current: number; target: number; unit: string }) => `  ${m.label}: ${m.current}/${m.target}${m.unit}`).join('\n')}
+═══ MICRONUTRIENT TRACKING (today's progress) ═══
+${microsContext}
 
 ═══ RESPONSE RULES ═══
 1. Keep responses to 2-4 sentences unless detail is requested
 2. Always apply long-term memory insights to your advice
 3. Reference workout schedule when giving nutrition timing advice
-4. When user logs food → short comment then on NEW LINE: LOG_FOOD:{"meal":"name","calories":0,"protein":0,"carbs":0,"fats":0}
+4. When user logs food → brief acknowledgment mentioning key micronutrients added, then on NEW LINE:
+   LOG_FOOD:{"meal":"name","calories":0,"protein":0,"carbs":0,"fats":0}
+   And on ANOTHER NEW LINE: LOG_MICROS:{"Vitamin D3":0,"Vitamin K2":0,"Zinc":0,"Magnesium":0,"B-Complex":0,"Omega-3":0,"Vitamin C":0,"Iron":0}
+   (fill in realistic micronutrient amounts in the same units as the tracking panel — IU for D3, mcg for K2, mg for others, % for B-Complex)
 5. When user shares a personal insight, feeling, preference, or experience → extract it and on NEW LINE: SAVE_MEMORY:{"memory":"exact insight","category":"nutrition|performance|recovery|preference"}
-8. When user says they took an energy gel → ALWAYS save: SAVE_MEMORY:{"memory":"Took energy gel before [workout type] at [time] — pre-workout fueling confirmed","category":"nutrition"}
-6. NEVER mention saving, logging, database, or memory system — just use the information naturally
-7. Be direct, data-driven, coach-like`;
+6. When user says they took an energy gel → ALWAYS save: SAVE_MEMORY:{"memory":"Took energy gel before [workout type] at [time] — pre-workout fueling confirmed","category":"nutrition"}
+7. NEVER mention saving, logging, database, or memory system — just use the information naturally
+8. Be direct, data-driven, coach-like
+9. When logging micros, calculate realistic values: e.g. 2 eggs ≈ Vitamin D3: 88 IU, Zinc: 2.5mg, B-Complex: 12%; avocado ≈ Magnesium: 29mg, Vitamin K2: 14mcg`;
 
     const history = messages.slice(0, -1).map((m: { role: string; text: string }) => ({
       role: m.role === 'user' ? 'user' : 'model',
@@ -112,6 +121,16 @@ ${macros?.map((m: { label: string; current: number; target: number; unit: string
       text = text.replace(/\n?LOG_FOOD:\{[^}]+\}/g, '').trim();
     }
 
+    // ── Extract micronutrient update if detected ───────────────────
+    let microsUpdate: Record<string, number> | null = null;
+    const microsMatch = text.match(/LOG_MICROS:(\{[^}]+\})/);
+    if (microsMatch) {
+      try {
+        microsUpdate = JSON.parse(microsMatch[1]);
+      } catch { /* silent */ }
+      text = text.replace(/\n?LOG_MICROS:\{[^}]+\}/g, '').trim();
+    }
+
     // ── Save memory if detected ────────────────────────────────────
     const memMatch = text.match(/SAVE_MEMORY:(\{[^}]+\})/);
     if (memMatch && user_id) {
@@ -127,7 +146,7 @@ ${macros?.map((m: { label: string; current: number; target: number; unit: string
     // Silent mode — don't return AI text to UI, just process side-effects
     if (silent) return NextResponse.json({ ok: true });
 
-    return NextResponse.json({ text });
+    return NextResponse.json({ text, microsUpdate });
   } catch (err) {
     console.error('Chat error:', err);
     return NextResponse.json({ text: 'Connection error — retrying protocol.' }, { status: 500 });
