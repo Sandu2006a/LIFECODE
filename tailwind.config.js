@@ -8,12 +8,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        /* ── LIFECODE brand tokens ─────────────────────── */
+        /* ── LIFECODE brand tokens (dark — dashboard) ──── */
         'lc-black':  '#000000',
         'lc-silver': '#E5E5E5',
         'lc-dim':    '#888888',
         'lc-line':   '#1A1A1A',
         'lc-accent': '#C8C8C8',
+        /* ── LIFECODE light theme (landing page) ────────── */
+        'lc-white':        '#FFFFFF',
+        'lc-maroon':       '#50000B',
+        'lc-crimson':      '#8B0015',
+        'lc-orange':       '#E8631A',
+        'lc-orange-light': '#FFF3EC',
+        'lc-maroon-dim':   '#8B4A52',
+        'lc-line-light':   '#EDE0E0',
 
         /* ── shadcn/radix CSS-variable tokens ──────────── */
         background:  'hsl(var(--background))',

@@ -1,10 +1,14 @@
-import SmoothScroll   from '@/components/SmoothScroll';
-import Header         from '@/components/Header';
-import HeroSection    from '@/components/HeroSection';
-import ScienceSection from '@/components/ScienceSection';
-import ProductSection from '@/components/ProductSection';
-import EcosystemSection from '@/components/EcosystemSection';
-import Footer         from '@/components/Footer';
+import SmoothScroll      from '@/components/SmoothScroll';
+import Header            from '@/components/Header';
+import HeroSection       from '@/components/HeroSection';
+import BrandMessage      from '@/components/BrandMessage';
+import MorningSection    from '@/components/MorningSection';
+import RecoverySection   from '@/components/RecoverySection';
+import AthleteStory      from '@/components/AthleteStory';
+import SystemSection     from '@/components/SystemSection';
+import ComparisonSection from '@/components/ComparisonSection';
+import EcosystemSection  from '@/components/EcosystemSection';
+import Footer            from '@/components/Footer';
 
 export default function Home() {
   return (
@@ -12,8 +16,12 @@ export default function Home() {
       <Header />
       <main>
         <HeroSection />
-        <ScienceSection />
-        <ProductSection />
+        <BrandMessage />
+        <MorningSection />
+        <RecoverySection />
+        <AthleteStory />
+        <SystemSection />
+        <ComparisonSection />
         <EcosystemSection />
       </main>
       <Footer />

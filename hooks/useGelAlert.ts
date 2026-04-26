@@ -42,6 +42,8 @@ export function useGelAlert(userId: string | null) {
     const taken   = getTaken();
 
     for (const w of workouts) {
+      if (w.workout_type === 'Recovery') continue;
+
       const [wH, wM]     = w.event_time.split(':').map(Number);
       const workoutMins  = wH * 60 + wM;
       const minutesUntil = workoutMins - nowMins;

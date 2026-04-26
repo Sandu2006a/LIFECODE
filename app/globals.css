@@ -2,21 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── shadcn / Radix CSS variables (dark = LIFECODE palette) ────── */
+/* ─── shadcn / Radix CSS variables ──────────────────────────────── */
 :root {
   --radius: 0.65rem;
-  --background:        0 0% 0%;
-  --foreground:        0 0% 90%;
-  --card:              0 0% 4%;
-  --card-foreground:   0 0% 90%;
-  --popover:           0 0% 19%;
-  --popover-foreground:0 0% 95%;
-  --muted:             0 0% 10%;
-  --muted-foreground:  0 0% 53%;
-  --accent:            0 0% 14%;
-  --accent-foreground: 0 0% 90%;
-  --border:            0 0% 10%;
-  --ring:              0 0% 50%;
+  --background:        0 0% 100%;
+  --foreground:        345 100% 16%;
+  --card:              0 0% 100%;
+  --card-foreground:   345 100% 16%;
+  --popover:           0 0% 98%;
+  --popover-foreground:345 100% 16%;
+  --muted:             20 30% 96%;
+  --muted-foreground:  345 30% 42%;
+  --accent:            20 80% 96%;
+  --accent-foreground: 345 100% 16%;
+  --border:            10 30% 88%;
+  --ring:              345 80% 30%;
 }
 
 /* ─── Reset & Base ──────────────────────────────────────────────── */
@@ -29,16 +29,16 @@
 }
 
 html {
-  background-color: #000000;
-  color: #E5E5E5;
-  scroll-behavior: auto; /* Lenis takes over smooth scroll */
+  background-color: #FFFFFF;
+  color: #50000B;
+  scroll-behavior: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
 body {
-  background-color: #000000;
+  background-color: #FFFFFF;
   overflow-x: hidden;
   cursor: default;
 }
@@ -48,17 +48,17 @@ body {
   width: 2px;
 }
 ::-webkit-scrollbar-track {
-  background: #000;
+  background: #F0E0E0;
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: #C0A0A0;
   border-radius: 2px;
 }
 
 /* ─── Selection ─────────────────────────────────────────────────── */
 ::selection {
-  background: rgba(229, 229, 229, 0.15);
-  color: #fff;
+  background: rgba(80, 0, 11, 0.15);
+  color: #50000B;
 }
 
 /* ─── Utility: invisible but in DOM ────────────────────────────── */
@@ -79,7 +79,7 @@ body {
   will-change: opacity, transform;
 }
 
-/* ─── Lenis override (prevent html scroll-behavior conflict) ────── */
+/* ─── Lenis override ─────────────────────────────────────────────── */
 html.lenis {
   height: auto;
 }
@@ -103,20 +103,20 @@ html.lenis {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.25) 50%,
     transparent 100%
   );
   background-size: 200% auto;
   animation: shimmer 3s linear infinite;
 }
 
-/* ─── PromptBox textarea scrollbar ─────────────────────────────── */
+/* ─── Dashboard scrollbar (dark panels) ─────────────────────────── */
 .custom-scrollbar::-webkit-scrollbar       { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
 
-/* ─── Science grid lines ────────────────────────────────────────── */
+/* ─── Science grid lines (light theme) ─────────────────────────── */
 .grid-line {
   width: 1px;
-  background: linear-gradient(to bottom, transparent, #1A1A1A 30%, #1A1A1A 70%, transparent);
+  background: linear-gradient(to bottom, transparent, #EDE0E0 30%, #EDE0E0 70%, transparent);
 }

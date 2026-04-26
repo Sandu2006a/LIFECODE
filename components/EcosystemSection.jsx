@@ -5,235 +5,95 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const ITEMS = [
-  {
-    step:  '01',
-    label: 'Choose your phases',
-    desc:  'Select the protocols that match your training calendar — individual or all three.',
-  },
-  {
-    step:  '02',
-    label: 'Calibrate the dose',
-    desc:  'Input your weight, activity level, and performance goals. We adjust every ratio.',
-  },
-  {
-    step:  '03',
-    label: 'Build the box',
-    desc:  'Your custom formulation, packaged without surplus. Delivered monthly on your schedule.',
-  },
+const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
+const STEP_GRADIENTS = [
+  'linear-gradient(135deg, #FFD54F, #FF8A00)',
+  'linear-gradient(135deg, #FF8A00, #C62828)',
+  'linear-gradient(135deg, #7C3AED, #1D4ED8)',
 ];
 
 export default function EcosystemSection() {
   const sectionRef = useRef(null);
-  const headRef    = useRef(null);
-  const stepsRef   = useRef(null);
-  const ctaRef     = useRef(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-
-    // Heading
-    gsap.fromTo(
-      headRef.current.querySelectorAll('.eco-line'),
-      { opacity: 0, y: 50 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1.1,
-        ease: 'power4.out',
-        stagger: 0.1,
-        scrollTrigger: {
-          trigger: headRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-        },
-      }
-    );
-
-    // Step items
-    gsap.fromTo(
-      stepsRef.current.querySelectorAll('.step-item'),
-      { opacity: 0, y: 40 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.9,
-        ease: 'power3.out',
-        stagger: 0.15,
-        scrollTrigger: {
-          trigger: stepsRef.current,
-          start: 'top 78%',
-          toggleActions: 'play none none none',
-        },
-      }
-    );
-
-    // CTA
-    gsap.fromTo(
-      ctaRef.current,
-      { opacity: 0, y: 30 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: ctaRef.current,
-          start: 'top 85%',
-          toggleActions: 'play none none none',
-        },
-      }
-    );
+    const ctx = gsap.context(() => {
+      gsap.fromTo('.eco-el',
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.06,
+          scrollTrigger: { trigger: sectionRef.current, start: 'top 92%' } }
+      );
+    }, sectionRef);
+    return () => ctx.revert();
   }, []);
 
   return (
     <section
       ref={sectionRef}
       id="ecosystem"
-      className="relative min-h-screen flex flex-col justify-center py-40 px-6 md:px-16 overflow-hidden"
+      className="relative overflow-hidden py-32 md:py-44 px-6 md:px-16"
+      style={{ background: 'linear-gradient(160deg, #FFF9F5 0%, #ffffff 45%, #F8F5FF 100%)' }}
     >
-      {/* Background: very subtle radial highlight */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse 70% 50% at 50% 80%, rgba(229,229,229,0.03) 0%, transparent 70%)',
-        }}
-      />
+      {/* Decorative glow */}
+      <div className="pointer-events-none absolute right-[-10%] top-1/2 -translate-y-1/2 w-[50vw] h-[80vh] opacity-[0.07]"
+        style={{ background: BOX_G, filter: 'blur(100px)', borderRadius: '50%' }} />
 
-      <div className="relative z-10 max-w-6xl mx-auto w-full">
+      <div className="relative z-10 max-w-[1440px] mx-auto">
 
-        {/* ── Eyebrow */}
-        <p className="font-body text-xs tracking-widest2 text-lc-dim uppercase mb-12">
-          Create Your Ecosystem
-        </p>
-
-        {/* ── Heading */}
-        <div ref={headRef} className="mb-28">
-          <h2
-            className="
-              font-sans font-700 text-white leading-tight
-              text-[clamp(2rem,5.5vw,5.5rem)] tracking-tight
-            "
-          >
-            {[
-              'Build the exact',
-              'protocol your',
-              'biology demands.',
-            ].map((line, i) => (
-              <span
-                key={i}
-                className="eco-line block"
-                style={{ opacity: 0 }}
-              >
-                {line}
-              </span>
-            ))}
-          </h2>
+        <div className="eco-el flex items-center gap-3 mb-10 opacity-0">
+          <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
+          <span className="font-body text-[9px] tracking-widest3 text-[#999] uppercase">Your Ecosystem</span>
         </div>
 
-        {/* ── Steps */}
-        <div
-          ref={stepsRef}
-          className="grid grid-cols-1 md:grid-cols-3 gap-px bg-lc-line mb-28"
+        <h2
+          className="eco-el font-sans font-700 leading-[0.9] tracking-tight mb-10 opacity-0 bg-clip-text text-transparent"
+          style={{ fontSize: 'clamp(3rem,8vw,8rem)', backgroundImage: BOX_G }}
         >
-          {ITEMS.map((item) => (
-            <div
-              key={item.step}
-              className="
-                step-item
-                bg-lc-black p-10 md:p-14
-                flex flex-col gap-5
-                group
-                hover:bg-[#080808] transition-colors duration-500
-              "
-              style={{ opacity: 0 }}
-            >
-              <span className="font-body text-xs tracking-widest2 text-lc-dim uppercase">
-                {item.step}
-              </span>
-              <h3
-                className="
-                  font-sans font-600 text-lc-silver text-lg tracking-tight
-                  group-hover:text-white transition-colors duration-500
-                "
-              >
-                {item.label}
-              </h3>
-              <p className="font-body font-300 text-lc-dim text-sm leading-loose">
-                {item.desc}
-              </p>
+          Build your<br />protocol.
+        </h2>
+
+        <p className="eco-el font-body font-300 text-[#888] text-base md:text-lg leading-loose max-w-lg mb-16 opacity-0">
+          Your biology is unique. Every box is calibrated to your body data, goals, and training calendar.
+          No generic stack. No guesswork. Just results.
+        </p>
+
+        {/* Steps */}
+        <div className="eco-el grid grid-cols-1 md:grid-cols-3 gap-5 mb-16 opacity-0">
+          {[
+            { n: '01', label: 'Choose your phases',  desc: 'Select the protocols that match your training calendar.' },
+            { n: '02', label: 'Calibrate the dose',  desc: 'Input your body data and goals. We adjust every ratio.' },
+            { n: '03', label: 'Build the box',       desc: 'Custom formulation. Packaged without surplus. Monthly delivery.' },
+          ].map((step, i) => (
+            <div key={step.n} style={{ padding: '1.5px', borderRadius: '16px', background: STEP_GRADIENTS[i] }}>
+              <div className="bg-white h-full p-8 hover:bg-[#fefefe] transition-colors duration-300" style={{ borderRadius: '14.5px' }}>
+                <span
+                  className="font-body text-[8px] tracking-widest3 uppercase block mb-5 bg-clip-text text-transparent"
+                  style={{ backgroundImage: STEP_GRADIENTS[i] }}
+                >
+                  {step.n}
+                </span>
+                <h3 className="font-sans font-600 text-[#222] text-base tracking-tight mb-3">{step.label}</h3>
+                <p className="font-body font-300 text-[#999] text-sm leading-loose">{step.desc}</p>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* ── CTA block */}
-        <div
-          ref={ctaRef}
-          className="flex flex-col md:flex-row items-start md:items-center justify-between gap-10"
-          style={{ opacity: 0 }}
-        >
-          {/* Support text */}
-          <p
-            className="
-              font-body font-300 text-lc-dim text-sm leading-loose
-              max-w-xs tracking-wide
-            "
+        {/* CTA */}
+        <div className="eco-el flex flex-col sm:flex-row items-start sm:items-center gap-6 opacity-0">
+          <Link
+            href="/pricing"
+            className="inline-flex items-center gap-4 px-10 py-4 rounded-full text-white font-sans font-600 text-sm tracking-widest uppercase hover:opacity-88 transition-opacity duration-300 group"
+            style={{ background: BOX_G }}
           >
-            Every box is made to order.
-            <br />
-            No standardised stack. No guesswork.
-          </p>
-
-          {/* Main CTA button */}
-          <div className="relative group">
-            {/* Glow ring */}
-            <div
-              className="
-                absolute -inset-0.5 rounded-full
-                bg-gradient-to-r from-lc-silver/20 via-white/10 to-lc-silver/20
-                opacity-0 group-hover:opacity-100
-                transition-opacity duration-700
-                blur-sm
-              "
-            />
-            <Link
-              href="/ecosystem"
-              className="
-                relative
-                inline-flex items-center gap-4
-                px-10 py-5 rounded-full
-                bg-white text-black
-                font-sans font-600 text-sm tracking-widest uppercase
-                transition-all duration-500
-                group-hover:bg-lc-silver
-                overflow-hidden
-              "
-            >
-              {/* Shimmer sweep */}
-              <span className="btn-shimmer absolute inset-0 rounded-full" />
-              <span className="relative z-10">Create Your Ecosystem</span>
-              <span
-                className="
-                  relative z-10
-                  w-5 h-5 rounded-full bg-black/10
-                  flex items-center justify-center
-                  transition-transform duration-500
-                  group-hover:translate-x-1
-                "
-              >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                  <path
-                    d="M2 5h6M5.5 2.5L8 5l-2.5 2.5"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-            </Link>
-          </div>
+            <span>Create Your Ecosystem</span>
+            <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M2 5h6M5.5 2.5L8 5l-2.5 2.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+          </Link>
+          <span className="font-body text-xs text-[#bbb] tracking-widest">Free to create · No credit card required</span>
         </div>
 
       </div>

@@ -4,236 +4,111 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-/* ─── Data ─────────────────────────────────────────────────────── */
-const METRICS = [
-  { value: '47',  unit: 'bioactive compounds', label: 'per formulation' },
-  { value: '99.3', unit: '%',                   label: 'absorption accuracy' },
-  { value: '3',   unit: 'phase protocol',       label: 'circadian-aligned' },
-];
-
-const PILLARS = [
+const PHASES = [
   {
-    index: '01',
+    n: '01',
     title: 'Molecular Precision',
-    body:
-      'Each compound is dosed at the exact threshold where biochemical response peaks — not rounded for convenience. We work at the intersection of clinical nutrition science and elite sports physiology.',
+    body: 'Each compound dosed at the exact biochemical threshold where cellular response peaks — not rounded for convenience.',
   },
   {
-    index: '02',
+    n: '02',
     title: 'Circadian Alignment',
-    body:
-      'Your endocrine system follows a 24-hour rhythm. Our three-phase protocol delivers specific nutrient profiles timed to your cortisol curve, anabolic window, and overnight cellular repair cycle.',
+    body: 'Three distinct nutrient profiles timed to your cortisol curve, anabolic window, and overnight repair cycle.',
   },
   {
-    index: '03',
-    title: 'Zero Compromise Stack',
-    body:
-      'No fillers, no proprietary blend obscurement, no artificial colouring. Every ingredient is declared, third-party verified, and selected because the evidence mandates it — nothing else.',
+    n: '03',
+    title: 'Zero Compromise',
+    body: 'No fillers. No proprietary blends. Every ingredient declared, third-party verified, evidence-mandated.',
   },
 ];
 
-/* ─── Component ─────────────────────────────────────────────────── */
+const STATS = [
+  { value: '47',    label: 'Bioactive compounds per formulation' },
+  { value: '99.3%', label: 'Absorption accuracy'                },
+  { value: '0',     label: 'Fillers or artificial additives'    },
+];
+
 export default function ScienceSection() {
-  const sectionRef  = useRef(null);
-  const headingRef  = useRef(null);
-  const metricsRef  = useRef(null);
-  const pillarsRef  = useRef(null);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    const ctx = gsap.context(() => {
 
-    // ── Heading fade-up
-    gsap.fromTo(
-      headingRef.current.querySelectorAll('.reveal-line'),
-      { opacity: 0, y: 50 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1.1,
-        ease: 'power4.out',
-        stagger: 0.12,
-        scrollTrigger: {
-          trigger: headingRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-        },
-      }
-    );
+      gsap.fromTo('.sci-head',
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0, duration: 1, ease: 'power4.out', stagger: 0.1,
+          scrollTrigger: { trigger: '.sci-head', start: 'top 80%' } }
+      );
 
-    // ── Metrics counter-reveal
-    const metricEls = metricsRef.current.querySelectorAll('.metric-item');
-    gsap.fromTo(
-      metricEls,
-      { opacity: 0, y: 40 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.9,
-        ease: 'power3.out',
-        stagger: 0.15,
-        scrollTrigger: {
-          trigger: metricsRef.current,
-          start: 'top 78%',
-          toggleActions: 'play none none none',
-        },
-      }
-    );
+      gsap.fromTo('.sci-stat',
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.14,
+          scrollTrigger: { trigger: '.sci-stat', start: 'top 82%' } }
+      );
 
-    // ── Pillar cards slide up
-    const pillarEls = pillarsRef.current.querySelectorAll('.pillar-card');
-    gsap.fromTo(
-      pillarEls,
-      { opacity: 0, y: 60 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: 'power3.out',
-        stagger: 0.18,
-        scrollTrigger: {
-          trigger: pillarsRef.current,
-          start: 'top 78%',
-          toggleActions: 'play none none none',
-        },
-      }
-    );
+      gsap.fromTo('.sci-phase',
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0, duration: 0.95, ease: 'power3.out', stagger: 0.16,
+          scrollTrigger: { trigger: '.sci-phase', start: 'top 82%' } }
+      );
 
-    // ── Vertical grid lines grow down
-    const lines = sectionRef.current.querySelectorAll('.grid-line');
-    gsap.fromTo(
-      lines,
-      { scaleY: 0, transformOrigin: 'top' },
-      {
-        scaleY: 1,
-        duration: 1.6,
-        ease: 'power4.inOut',
-        stagger: 0.1,
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 85%',
-          toggleActions: 'play none none none',
-        },
-      }
-    );
+    }, sectionRef);
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      id="science"
-      className="relative py-36 px-6 md:px-16 overflow-hidden"
-    >
-      {/* Decorative vertical grid lines */}
-      <div className="pointer-events-none absolute inset-0 flex justify-between px-16 md:px-32">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="grid-line h-full" style={{ scaleY: 0 }} />
-        ))}
-      </div>
+    <section ref={sectionRef} id="science" style={{ background: '#3A0008' }}>
 
-      <div className="relative z-10 max-w-6xl mx-auto">
+      {/* Top: heading + stats */}
+      <div className="px-6 md:px-16 pt-28 pb-20 max-w-[1440px] mx-auto">
 
-        {/* ── Eyebrow */}
-        <p className="font-body text-xs tracking-widest2 text-lc-dim uppercase mb-12">
-          The Science Behind
-        </p>
+        <div className="flex items-center gap-3 mb-12">
+          <div className="w-6 h-px bg-lc-orange" />
+          <span className="font-body text-[10px] tracking-widest3 text-lc-orange uppercase">The Science</span>
+        </div>
 
-        {/* ── Heading */}
-        <div ref={headingRef} className="mb-24 max-w-3xl">
-          <h2
-            className="
-              font-sans font-700 text-white leading-tight
-              text-[clamp(2rem,5vw,5rem)] tracking-tight
-            "
-          >
-            {[
-              'Biology runs on',
-              'precision inputs.',
-              'So do we.',
-            ].map((line, i) => (
-              <span
-                key={i}
-                className="reveal-line block"
-                style={{ opacity: 0 }}
-              >
-                {line}
-              </span>
-            ))}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-end mb-24">
+          <h2 className="sci-head font-sans font-700 text-white leading-tight tracking-tight opacity-0"
+            style={{ fontSize: 'clamp(2.2rem,5vw,5.2rem)' }}>
+            Biology runs on<br />
+            <span style={{ color: '#E8631A' }}>precision inputs.</span><br />
+            So do we.
           </h2>
+          <p className="sci-head font-body font-300 text-white/50 text-sm md:text-base leading-loose opacity-0 self-end max-w-sm">
+            We work at the intersection of clinical nutrition science and elite sports physiology —
+            delivering compounds that work, at doses that matter.
+          </p>
         </div>
 
-        {/* ── Metrics bar */}
-        <div
-          ref={metricsRef}
-          className="
-            grid grid-cols-1 md:grid-cols-3
-            border-t border-b border-lc-line
-            py-10 mb-28 gap-10 md:gap-0
-          "
-        >
-          {METRICS.map((m, i) => (
-            <div
-              key={i}
-              className="
-                metric-item
-                flex flex-col gap-1
-                md:border-r last:border-r-0 border-lc-line
-                md:pl-10 first:pl-0
-              "
-              style={{ opacity: 0 }}
-            >
-              <div className="flex items-baseline gap-2">
-                <span className="font-sans font-700 text-white text-5xl tracking-tight">
-                  {m.value}
-                </span>
-                <span className="font-body text-xs text-lc-dim uppercase tracking-wider">
-                  {m.unit}
-                </span>
-              </div>
-              <span className="font-body text-xs text-lc-dim tracking-widest uppercase">
-                {m.label}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Pillar cards */}
-        <div
-          ref={pillarsRef}
-          className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-px bg-lc-line"
-        >
-          {PILLARS.map((pillar) => (
-            <div
-              key={pillar.index}
-              className="
-                pillar-card
-                bg-lc-black p-10 md:p-14
-                flex flex-col gap-6
-                group
-                transition-colors duration-500
-                hover:bg-[#0A0A0A]
-              "
-              style={{ opacity: 0 }}
-            >
-              <span className="font-body text-xs tracking-widest2 text-lc-dim uppercase">
-                {pillar.index}
-              </span>
-              <h3
-                className="
-                  font-sans font-600 text-lc-silver
-                  text-xl tracking-tight leading-snug
-                  group-hover:text-white transition-colors duration-500
-                "
-              >
-                {pillar.title}
-              </h3>
-              <p className="font-body font-300 text-lc-dim text-sm leading-loose tracking-wide">
-                {pillar.body}
+        {/* Stats row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 border-t border-white/10 pt-12 gap-10 md:gap-0">
+          {STATS.map((s, i) => (
+            <div key={i} className="sci-stat opacity-0 md:border-r border-white/10 last:border-r-0 md:pr-12 md:pl-12 first:pl-0">
+              <p className="font-sans font-700 text-white leading-none mb-2" style={{ fontSize: 'clamp(2.8rem,4.5vw,5rem)' }}>
+                {s.value}
               </p>
+              <p className="font-body text-[10px] tracking-widest text-white/40 uppercase">{s.label}</p>
             </div>
           ))}
         </div>
-
       </div>
+
+      {/* Phases */}
+      <div className="border-t border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
+          {PHASES.map(p => (
+            <div key={p.n} className="sci-phase opacity-0 px-10 md:px-12 py-16 group hover:bg-white/[0.03] transition-colors duration-500">
+              <span className="font-sans font-700 text-lc-orange/40 text-5xl leading-none block mb-8">{p.n}</span>
+              <h3 className="font-sans font-600 text-white text-lg tracking-tight mb-5 group-hover:text-lc-orange transition-colors duration-400">
+                {p.title}
+              </h3>
+              <p className="font-body font-300 text-white/45 text-sm leading-loose">{p.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </section>
   );
 }

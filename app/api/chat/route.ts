@@ -4,6 +4,45 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
+// Robust JSON extractor — handles spaces, newlines, any formatting
+function extractJSONBlock(text: string, marker: string): Record<string, unknown> | null {
+  const idx = text.indexOf(marker);
+  if (idx === -1) return null;
+  const start = text.indexOf('{', idx + marker.length);
+  if (start === -1) return null;
+  let depth = 0;
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === '{') depth++;
+    else if (text[i] === '}') {
+      depth--;
+      if (depth === 0) {
+        try { return JSON.parse(text.slice(start, i + 1)); }
+        catch { return null; }
+      }
+    }
+  }
+  return null;
+}
+
+function stripMarker(text: string, marker: string): string {
+  const idx = text.indexOf(marker);
+  if (idx === -1) return text;
+  const start = text.indexOf('{', idx + marker.length);
+  if (start === -1) return text;
+  let depth = 0;
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === '{') depth++;
+    else if (text[i] === '}') {
+      depth--;
+      if (depth === 0) {
+        const removeFrom = (idx > 0 && text[idx - 1] === '\n') ? idx - 1 : idx;
+        return (text.slice(0, removeFrom) + text.slice(i + 1)).trim();
+      }
+    }
+  }
+  return text;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { messages, profile, macros, micros, user_id, silent } = await req.json();
@@ -80,15 +119,23 @@ ${microsContext}
 1. Keep responses to 2-4 sentences unless detail is requested
 2. Always apply long-term memory insights to your advice
 3. Reference workout schedule when giving nutrition timing advice
-4. When user logs food → brief acknowledgment mentioning key micronutrients added, then on NEW LINE:
-   LOG_FOOD:{"meal":"name","calories":0,"protein":0,"carbs":0,"fats":0}
-   And on ANOTHER NEW LINE: LOG_MICROS:{"Vitamin D3":0,"Vitamin K2":0,"Zinc":0,"Magnesium":0,"B-Complex":0,"Omega-3":0,"Vitamin C":0,"Iron":0}
-   (fill in realistic micronutrient amounts in the same units as the tracking panel — IU for D3, mcg for K2, mg for others, % for B-Complex)
+
+4. *** MANDATORY FOOD TRACKING ***
+   Trigger: whenever user says they ate, drank, or consumed ANYTHING (a lemon, a meal, a snack, water with lemon, anything).
+   Write your normal response FIRST (2-3 sentences). Then append EXACTLY these two lines — no extra text, no explanation:
+   LOG_FOOD:{"meal":"[exact food name]","calories":[N],"protein":[N],"carbs":[N],"fats":[N]}
+   LOG_MICROS:{"Vit A":[N],"Vit C":[N],"Vit D3":[N],"Vit E":[N],"Vit K2":[N],"Vit B12":[N],"B-Complex":[N],"Magnesium":[N],"Zinc":[N],"Copper":[N],"Selenium":[N],"Iodine":[N],"Chromium":[N],"Electrolytes":[N],"Creatine":0,"EAA Complex":0,"L-Glutamine":0,"HMB":0,"L-Theanine":0,"Taurine":[N],"Rhodiola":0,"Tart Cherry":0}
+   All [N] = numeric values only (no units inside JSON). Use 0 for nutrients absent in that food.
+   Units: Vit A mcg | Vit C mg | Vit D3 mcg | Vit E mg | Vit K2 mcg | Vit B12 mcg | B-Complex % | Magnesium mg | Zinc mg | Copper mg | Selenium mcg | Iodine mcg | Chromium mcg | Electrolytes mg | Taurine mg
+   EXAMPLE — user says "I ate a lemon":
+   Response text here.
+   LOG_FOOD:{"meal":"lemon","calories":17,"protein":1,"carbs":5,"fats":0}
+   LOG_MICROS:{"Vit A":2,"Vit C":53,"Vit D3":0,"Vit E":0,"Vit K2":0,"Vit B12":0,"B-Complex":2,"Magnesium":7,"Zinc":0,"Copper":0,"Selenium":0,"Iodine":0,"Chromium":0,"Electrolytes":116,"Creatine":0,"EAA Complex":0,"L-Glutamine":0,"HMB":0,"L-Theanine":0,"Taurine":0,"Rhodiola":0,"Tart Cherry":0}
+
 5. When user shares a personal insight, feeling, preference, or experience → extract it and on NEW LINE: SAVE_MEMORY:{"memory":"exact insight","category":"nutrition|performance|recovery|preference"}
-6. When user says they took an energy gel → ALWAYS save: SAVE_MEMORY:{"memory":"Took energy gel before [workout type] at [time] — pre-workout fueling confirmed","category":"nutrition"}
-7. NEVER mention saving, logging, database, or memory system — just use the information naturally
-8. Be direct, data-driven, coach-like
-9. When logging micros, calculate realistic values: e.g. 2 eggs ≈ Vitamin D3: 88 IU, Zinc: 2.5mg, B-Complex: 12%; avocado ≈ Magnesium: 29mg, Vitamin K2: 14mcg`;
+6. NEVER mention saving, logging, database, or memory system — just use the information naturally
+7. Be direct, data-driven, coach-like
+8. More food reference values: 2 eggs ≈ Vit D3:2, Zinc:2.5, B-Complex:12, Vit B12:1.2 | avocado ≈ Magnesium:29, Vit K2:14, Vit C:10 | chicken breast 150g ≈ Vit B12:0.3, Zinc:1, Selenium:27, Taurine:200 | spinach 100g ≈ Vit K2:145, Vit C:28, Magnesium:78, Vit A:469 | salmon 150g ≈ Vit D3:11, Vit B12:3.2, Selenium:40, Electrolytes:80 | banana ≈ Vit B12:0, Magnesium:27, Vit C:9, B-Complex:15 | orange ≈ Vit C:70, Vit A:14, Magnesium:10, B-Complex:6`;
 
     const history = messages.slice(0, -1).map((m: { role: string; text: string }) => ({
       role: m.role === 'user' ? 'user' : 'model',
@@ -107,43 +154,36 @@ ${microsContext}
     let text = result.response.text();
 
     // ── Save food log if detected ──────────────────────────────────
-    const logMatch = text.match(/LOG_FOOD:(\{[^}]+\})/);
-    if (logMatch && user_id) {
+    const foodData = extractJSONBlock(text, 'LOG_FOOD:') as { meal?: string; calories?: number; protein?: number; carbs?: number; fats?: number } | null;
+    if (foodData && user_id) {
       try {
-        const food = JSON.parse(logMatch[1]);
         await supabase.from('food_logs').insert({
-          user_id, meal: food.meal || 'Unknown',
-          calories: food.calories || 0, protein: food.protein || 0,
-          carbs: food.carbs || 0, fats: food.fats || 0,
+          user_id, meal: foodData.meal || 'Unknown',
+          calories: foodData.calories || 0, protein: foodData.protein || 0,
+          carbs: foodData.carbs || 0, fats: foodData.fats || 0,
           logged_at: new Date().toISOString(),
         });
       } catch { /* silent */ }
-      text = text.replace(/\n?LOG_FOOD:\{[^}]+\}/g, '').trim();
     }
+    text = stripMarker(text, 'LOG_FOOD:');
 
     // ── Extract micronutrient update if detected ───────────────────
     let microsUpdate: Record<string, number> | null = null;
-    const microsMatch = text.match(/LOG_MICROS:(\{[^}]+\})/);
-    if (microsMatch) {
-      try {
-        microsUpdate = JSON.parse(microsMatch[1]);
-      } catch { /* silent */ }
-      text = text.replace(/\n?LOG_MICROS:\{[^}]+\}/g, '').trim();
-    }
+    const microsData = extractJSONBlock(text, 'LOG_MICROS:') as Record<string, number> | null;
+    if (microsData) microsUpdate = microsData;
+    text = stripMarker(text, 'LOG_MICROS:');
 
     // ── Save memory if detected ────────────────────────────────────
-    const memMatch = text.match(/SAVE_MEMORY:(\{[^}]+\})/);
-    if (memMatch && user_id) {
+    const memData = extractJSONBlock(text, 'SAVE_MEMORY:') as { memory?: string; category?: string } | null;
+    if (memData && user_id) {
       try {
-        const mem = JSON.parse(memMatch[1]);
         await supabase.from('user_memories').insert({
-          user_id, memory: mem.memory, category: mem.category || 'general',
+          user_id, memory: memData.memory, category: memData.category || 'general',
         });
       } catch { /* silent */ }
-      text = text.replace(/\n?SAVE_MEMORY:\{[^}]+\}/g, '').trim();
     }
+    text = stripMarker(text, 'SAVE_MEMORY:');
 
-    // Silent mode — don't return AI text to UI, just process side-effects
     if (silent) return NextResponse.json({ ok: true });
 
     return NextResponse.json({ text, microsUpdate });

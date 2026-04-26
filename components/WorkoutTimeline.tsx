@@ -62,7 +62,7 @@ function parseTimeInput(raw: string): string | null {
   return null;
 }
 
-export default function WorkoutTimeline({ userId }: { userId: string }) {
+export default function WorkoutTimeline({ userId, onWorkoutsChange }: { userId: string; onWorkoutsChange?: (w: WorkoutEvent[]) => void }) {
   const [workouts,  setWorkouts]  = useState<WorkoutEvent[]>([]);
   const [adding,    setAdding]    = useState(false);
   const [timeInput, setTimeInput] = useState('');
@@ -107,7 +107,9 @@ export default function WorkoutTimeline({ userId }: { userId: string }) {
     const today = new Date().toISOString().split('T')[0];
     const res = await fetch(`/api/workouts?user_id=${userId}&date=${today}`);
     const { data } = await res.json();
-    setWorkouts(data || []);
+    const list = data || [];
+    setWorkouts(list);
+    onWorkoutsChange?.(list);
   };
 
   useEffect(() => { if (userId) load(); }, [userId]);
