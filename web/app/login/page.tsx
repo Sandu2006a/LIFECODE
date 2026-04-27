@@ -50,7 +50,18 @@ function LoginForm() {
 
     if (mode === 'signin') {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-      if (error) { setError(error.message); setLoading(false); return; }
+      if (error) {
+        setLoading(false);
+        if (error.message.toLowerCase().includes('invalid login') || error.message.toLowerCase().includes('credentials')) {
+          setError('');
+          switchMode('signup');
+          setEmail(email.trim());
+          setError('Nu am găsit acest cont. Completează câmpurile de mai jos pentru a-ți crea un cont nou.');
+        } else {
+          setError(error.message);
+        }
+        return;
+      }
       router.push('/');
       router.refresh();
       return;
