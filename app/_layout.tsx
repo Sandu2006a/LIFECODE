@@ -13,7 +13,7 @@ import {
   InterTight_700Bold,
 } from '@expo-google-fonts/inter-tight';
 import { View, ActivityIndicator } from 'react-native';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { supabase } from '../src/lib/supabase';
 
@@ -28,23 +28,43 @@ export default function RootLayout() {
     'InterTight-Bold': InterTight_700Bold,
   });
 
+  const [authReady, setAuthReady] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [onboardingDone, setOnboardingDone] = useState(false);
+
+  const checkOnboarding = async (userId: string) => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('onboarding_done')
+      .eq('id', userId)
+      .maybeSingle();
+    return data?.onboarding_done === true;
+  };
+
   useEffect(() => {
     if (!fontsLoaded) return;
 
-    // Check initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
-        router.replace('/(tabs)');
+        setIsLoggedIn(true);
+        const done = await checkOnboarding(session.user.id);
+        setOnboardingDone(done);
       } else {
-        router.replace('/login');
+        setIsLoggedIn(false);
       }
+      setAuthReady(true);
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session) {
-        router.replace('/(tabs)');
+        setIsLoggedIn(true);
+        const done = await checkOnboarding(session.user.id);
+        setOnboardingDone(done);
+        setAuthReady(true);
       } else {
+        setIsLoggedIn(false);
+        setOnboardingDone(false);
+        setAuthReady(true);
         router.replace('/login');
       }
     });
@@ -52,7 +72,21 @@ export default function RootLayout() {
     return () => subscription.unsubscribe();
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded || !authReady) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafaf7' }}>
+        <ActivityIndicator color="#0d0d0f" />
+      </View>
+    );
+  }
+
+  if (!isLoggedIn) {
+    router.replace('/login');
+    return null;
+  }
+
+  if (!onboardingDone) {
+    router.replace('/onboarding');
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafaf7' }}>
         <ActivityIndicator color="#0d0d0f" />
@@ -65,6 +99,7 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="onboarding" options={{ headerShown: false, animation: 'slide_from_right' }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'fade' }} />
       </Stack>
       <StatusBar style="dark" />
