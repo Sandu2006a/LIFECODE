@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { gsap } from 'gsap';
@@ -37,99 +37,20 @@ function Label({ text }) {
   return <p className="font-body text-[12px] tracking-widest2 uppercase text-[#bbb] mb-3 mt-7 first:mt-0">{text}</p>;
 }
 
-function EmailCapture({ plan, gradient, btnLabel }) {
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
-  const [err, setErr] = useState('');
-
-  const submit = async () => {
-    if (!name.trim()) { setErr('Please enter your name.'); return; }
-    if (!email.includes('@')) { setErr('Enter a valid email.'); return; }
-    setLoading(true);
-    setErr('');
-    try {
-      const res = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), name: name.trim(), plan }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setErr(data.error || 'Something went wrong.'); return; }
-      setDone(true);
-    } catch {
-      setErr('Could not connect. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (done) {
-    return (
-      <div className="mt-6 p-5 rounded-2xl border border-[#e8f5e9] bg-[#f9fff9]">
-        <p className="font-sans font-600 text-[13px] text-[#2e7d32] mb-1">You're in, {name.split(' ')[0]}! Check your email.</p>
-        <p className="font-body text-[12px] text-[#777] leading-relaxed">
-          We sent your activation code and login link to <strong>{email}</strong>.
-        </p>
-      </div>
-    );
-  }
-
+function PlanButton({ plan, gradient, label }) {
   return (
-    <div className="mt-6">
-      {!open ? (
-        <button
-          onClick={() => setOpen(true)}
-          className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-white font-sans font-600 text-[12px] tracking-widest uppercase hover:opacity-88 transition-opacity"
-          style={{ background: gradient }}
-        >
-          <span>{btnLabel}</span>
-          <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
-            <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-              <path d="M1.5 4h5M4 2L6 4l-2 2" stroke="white" strokeWidth="1.3" strokeLinecap="round"/>
-            </svg>
-          </span>
-        </button>
-      ) : (
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-3">
-            <input
-              autoFocus
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Your name"
-              className="flex-1 font-body text-[14px] text-[#333] bg-white border border-[#e0e0e0] rounded-full px-5 py-3.5 outline-none focus:border-[#bbb] placeholder-[#ccc]"
-            />
-          </div>
-          <div className="flex items-center gap-3">
-            <input
-              autoFocus
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && submit()}
-              placeholder="your@email.com"
-              className="flex-1 font-body text-[14px] text-[#333] bg-white border border-[#e0e0e0] rounded-full px-5 py-3.5 outline-none focus:border-[#bbb] placeholder-[#ccc]"
-            />
-            <button
-              onClick={submit}
-              disabled={loading}
-              className="px-6 py-3.5 rounded-full text-white font-sans font-600 text-[12px] tracking-widest uppercase transition-opacity hover:opacity-88 disabled:opacity-50 whitespace-nowrap"
-              style={{ background: gradient }}
-            >
-              {loading ? '...' : 'Get access →'}
-            </button>
-          </div>
-          {err && <p className="font-body text-[12px] text-red-500 pl-1">{err}</p>}
-          <p className="font-body text-[13px] text-[#ccc] tracking-widest uppercase">
-            Free while we launch · No credit card
-          </p>
-        </div>
-      )}
-    </div>
+    <Link
+      href={`/login?plan=${plan}`}
+      className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-white font-sans font-600 text-[14px] tracking-widest uppercase hover:opacity-88 transition-opacity mt-6"
+      style={{ background: gradient }}
+    >
+      <span>{label}</span>
+      <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+          <path d="M1.5 4h5M4 2L6 4l-2 2" stroke="white" strokeWidth="1.3" strokeLinecap="round"/>
+        </svg>
+      </span>
+    </Link>
   );
 }
 
@@ -253,7 +174,7 @@ export default function PricingPage() {
                     <span className="font-sans font-700 text-5xl text-[#ddd] tracking-tight">—</span>
                     <span className="font-body text-[13px] text-[#ddd] tracking-widest uppercase">Price coming soon</span>
                   </div>
-                  <EmailCapture plan="essentials" gradient={MG} btnLabel="Get Essentials" />
+                  <PlanButton plan="essentials" gradient={MG} label="Get Essentials" />
                   <p className="font-body text-[13px] text-[#ccc] tracking-widest uppercase mt-4">
                     Ships within 48h · 30-day guarantee
                   </p>
@@ -347,7 +268,7 @@ export default function PricingPage() {
                     <span className="font-sans font-700 text-5xl text-[#ddd] tracking-tight">—</span>
                     <span className="font-body text-[13px] text-[#ddd] tracking-widest uppercase">/ month · Price coming soon</span>
                   </div>
-                  <EmailCapture plan="protocol" gradient={BOX_G} btnLabel="Start Protocol" />
+                  <PlanButton plan="protocol" gradient={BOX_G} label="Start Protocol" />
                   <p className="font-body text-[13px] text-[#ccc] tracking-widest uppercase mt-4">
                     Free to start · Cancel anytime · No credit card required now
                   </p>
