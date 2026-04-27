@@ -65,7 +65,7 @@ export default function ScienceSection() {
 
         <div className="flex items-center gap-3 mb-12">
           <div className="w-6 h-px bg-lc-orange" />
-          <span className="font-body text-[12px] tracking-widest3 text-lc-orange uppercase">The Science</span>
+          <span className="font-body text-[14px] tracking-widest3 text-lc-orange uppercase">The Science</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-end mb-24">
@@ -88,7 +88,7 @@ export default function ScienceSection() {
               <p className="font-sans font-700 text-white leading-none mb-2" style={{ fontSize: 'clamp(2.8rem,4.5vw,5rem)' }}>
                 {s.value}
               </p>
-              <p className="font-body text-[13px] tracking-widest text-white/40 uppercase">{s.label}</p>
+              <p className="font-body text-[16px] tracking-widest text-white/40 uppercase">{s.label}</p>
             </div>
           ))}
         </div>

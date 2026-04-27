@@ -47,7 +47,7 @@ export default function ComparisonSection() {
 
         <div className="flex items-center gap-3 mb-6">
           <div className="h-px w-5" style={{ background: MG }} />
-          <span className="font-body text-[9px] tracking-widest3 text-[#999] uppercase">The comparison</span>
+          <span className="font-body text-[14px] tracking-widest3 text-[#999] uppercase">The comparison</span>
         </div>
 
         <h2
@@ -74,7 +74,7 @@ export default function ComparisonSection() {
           <table className="w-full min-w-[600px] border-collapse">
             <thead>
               <tr>
-                <th className="text-left pb-5 pr-4 font-body text-[9px] tracking-widest text-[#ccc] uppercase font-400 w-[28%]"></th>
+                <th className="text-left pb-5 pr-4 font-body text-[13px] tracking-widest text-[#ccc] uppercase font-400 w-[28%]"></th>
                 {/* LIFECODE column header */}
                 <th className="pb-5 px-4 w-[24%]">
                   <div className="cs-col opacity-0" style={{ padding: '1.5px', borderRadius: '12px', background: BOX_G }}>
@@ -83,20 +83,20 @@ export default function ComparisonSection() {
                         style={{ backgroundImage: BOX_G }}>
                         LIFECODE
                       </p>
-                      <p className="font-body text-[8px] tracking-widest text-[#ccc] uppercase mt-0.5">System</p>
+                      <p className="font-body text-[13px] tracking-widest text-[#ccc] uppercase mt-0.5">System</p>
                     </div>
                   </div>
                 </th>
                 <th className="pb-5 px-4 w-[24%]">
                   <div className="cs-col opacity-0 border border-[#f0f0f0] rounded-xl py-3 px-4 text-center">
                     <p className="font-sans font-600 text-[#bbb] text-sm tracking-tight">Typical blend</p>
-                    <p className="font-body text-[8px] tracking-widest text-[#ddd] uppercase mt-0.5">Single product</p>
+                    <p className="font-body text-[13px] tracking-widest text-[#ddd] uppercase mt-0.5">Single product</p>
                   </div>
                 </th>
                 <th className="pb-5 pl-4 w-[24%]">
                   <div className="cs-col opacity-0 border border-[#f0f0f0] rounded-xl py-3 px-4 text-center">
                     <p className="font-sans font-600 text-[#bbb] text-sm tracking-tight">Multiple brands</p>
-                    <p className="font-body text-[8px] tracking-widest text-[#ddd] uppercase mt-0.5">DIY stack</p>
+                    <p className="font-body text-[13px] tracking-widest text-[#ddd] uppercase mt-0.5">DIY stack</p>
                   </div>
                 </th>
               </tr>
@@ -109,22 +109,22 @@ export default function ComparisonSection() {
                   style={{ opacity: 0 }}
                 >
                   <td className="py-5 pr-4">
-                    <p className="font-body text-[10px] tracking-widest text-[#aaa] uppercase">{row.label}</p>
+                    <p className="font-body text-[15px] tracking-widest text-[#aaa] uppercase">{row.label}</p>
                   </td>
                   {/* LIFECODE value */}
                   <td className="py-5 px-4">
                     <div className="flex items-start gap-2">
                       <div className="flex-shrink-0 mt-[5px] w-1.5 h-1.5 rounded-full" style={{ background: BOX_G }} />
-                      <p className="font-sans font-600 text-[#222] text-[12px] leading-snug">{row.lifecode}</p>
+                      <p className="font-sans font-600 text-[#222] text-[17px] leading-snug">{row.lifecode}</p>
                     </div>
                   </td>
                   {/* Blend value */}
                   <td className="py-5 px-4">
-                    <p className="font-body text-[12px] text-[#bbb] leading-snug">{row.blend}</p>
+                    <p className="font-body text-[17px] text-[#bbb] leading-snug">{row.blend}</p>
                   </td>
                   {/* Multi value */}
                   <td className="py-5 pl-4">
-                    <p className="font-body text-[12px] text-[#bbb] leading-snug">{row.multi}</p>
+                    <p className="font-body text-[17px] text-[#bbb] leading-snug">{row.multi}</p>
                   </td>
                 </tr>
               ))}

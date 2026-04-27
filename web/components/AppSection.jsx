@@ -78,7 +78,7 @@ export default function AppSection() {
         <div className="mb-20 md:mb-28 max-w-3xl">
           <div className="app-head flex items-center gap-3 mb-8 opacity-0">
             <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
-            <span className="font-body text-[9px] tracking-widest3 text-[#aaa] uppercase">Your AI Performance Coach</span>
+            <span className="font-body text-[14px] tracking-widest3 text-[#aaa] uppercase">Your AI Performance Coach</span>
           </div>
 
           <h2
@@ -110,15 +110,15 @@ export default function AppSection() {
               >
                 <div className="bg-white h-full p-7 flex flex-col gap-4" style={{ borderRadius: '16.5px' }}>
                   <span
-                    className="font-body text-[8px] tracking-widest3 uppercase bg-clip-text text-transparent"
+                    className="font-body text-[14px] tracking-widest3 uppercase bg-clip-text text-transparent"
                     style={{ backgroundImage: f.gradient }}
                   >
                     {f.tag}
                   </span>
-                  <h3 className="font-sans font-700 text-[#111] text-base tracking-tight leading-snug">
+                  <h3 className="font-sans font-700 text-[#111] text-xl tracking-tight leading-snug">
                     {f.title}
                   </h3>
-                  <p className="font-body font-300 text-[#999] text-[13px] leading-loose">
+                  <p className="font-body font-300 text-[#999] text-[17px] leading-loose">
                     {f.body}
                   </p>
                 </div>
@@ -156,15 +156,15 @@ export default function AppSection() {
               >
                 <div className="bg-white h-full p-7 flex flex-col gap-4" style={{ borderRadius: '16.5px' }}>
                   <span
-                    className="font-body text-[8px] tracking-widest3 uppercase bg-clip-text text-transparent"
+                    className="font-body text-[14px] tracking-widest3 uppercase bg-clip-text text-transparent"
                     style={{ backgroundImage: f.gradient }}
                   >
                     {f.tag}
                   </span>
-                  <h3 className="font-sans font-700 text-[#111] text-base tracking-tight leading-snug">
+                  <h3 className="font-sans font-700 text-[#111] text-xl tracking-tight leading-snug">
                     {f.title}
                   </h3>
-                  <p className="font-body font-300 text-[#999] text-[13px] leading-loose">
+                  <p className="font-body font-300 text-[#999] text-[17px] leading-loose">
                     {f.body}
                   </p>
                 </div>
@@ -178,14 +178,14 @@ export default function AppSection() {
                 className="inline-flex items-center gap-4 px-8 py-3.5 rounded-full text-white font-sans font-600 text-[11px] tracking-widest uppercase hover:opacity-88 transition-opacity duration-300 group"
                 style={{ background: BOX_G }}
               >
-                <span>Start your protocol</span>
+                <span className="text-[14px]">Start your protocol</span>
                 <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
                   <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
                     <path d="M1.5 4.5h6M4.5 2L7 4.5 4.5 7" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
                   </svg>
                 </span>
               </Link>
-              <p className="font-body text-[10px] text-[#ccc] tracking-widest uppercase mt-4">
+              <p className="font-body text-[14px] text-[#ccc] tracking-widest uppercase mt-4">
                 Free to start · Available immediately after signup
               </p>
             </div>

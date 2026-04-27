@@ -44,7 +44,7 @@ export default function EcosystemSection() {
         {/* — App section — */}
         <div className="eco-el flex items-center gap-3 mb-10 opacity-0">
           <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
-          <span className="font-body text-[12px] tracking-widest3 text-[#999] uppercase">Your AI companion</span>
+          <span className="font-body text-[14px] tracking-widest3 text-[#999] uppercase">Your AI companion</span>
         </div>
 
         <h2
@@ -65,7 +65,7 @@ export default function EcosystemSection() {
             <div key={f.title} style={{ padding: '1.5px', borderRadius: '16px', background: BOX_G }}>
               <div className="bg-white h-full p-7" style={{ borderRadius: '14.5px' }}>
                 <span
-                  className="font-body text-[12px] tracking-widest3 uppercase block mb-4 bg-clip-text text-transparent"
+                  className="font-body text-[14px] tracking-widest3 uppercase block mb-4 bg-clip-text text-transparent"
                   style={{ backgroundImage: BOX_G }}
                 >
                   0{i + 1}

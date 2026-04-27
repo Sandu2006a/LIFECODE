@@ -32,7 +32,7 @@ export default function HeroSection() {
         <div className="flex flex-col gap-8">
           <div className="hs-tag flex items-center gap-3 opacity-0">
             <div className="w-6 h-[1.5px]" style={{ background: BOX_G }} />
-            <span className="font-body text-[12px] tracking-widest3 text-[#999] uppercase">Performance Nutrition System</span>
+            <span className="font-body text-[14px] tracking-widest3 text-[#999] uppercase">Performance Nutrition System</span>
           </div>
 
           <div>

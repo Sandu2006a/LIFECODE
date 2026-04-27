@@ -38,7 +38,7 @@ export default function Footer() {
               <Link
                 key={label}
                 href={href}
-                className="font-body text-[13px] tracking-widest text-[#aaa] hover:text-[#555] transition-colors duration-300 uppercase"
+                className="font-body text-[15px] tracking-widest text-[#aaa] hover:text-[#555] transition-colors duration-300 uppercase"
               >
                 {label}
               </Link>
@@ -47,7 +47,7 @@ export default function Footer() {
         </div>
 
         <div className="flex items-center justify-between pt-8">
-          <p className="font-body text-[13px] text-[#ccc] tracking-widest">
+          <p className="font-body text-[15px] text-[#ccc] tracking-widest">
             &copy; {year} LIFECODE. All rights reserved.
           </p>
         </div>
