@@ -77,11 +77,11 @@ export default function MorningSection() {
 
             <div className="ms-text opacity-0">
               <p className="font-sans font-600 text-[#222] text-xl md:text-2xl tracking-tight mb-4">
-                Start your day right.
+                Activate. Focus. Perform.
               </p>
               <p className="font-body font-300 text-[#888] text-sm md:text-base leading-loose max-w-md">
-                Clean daily energy, focus and clarity without complexity. Precision-dosed micronutrients
-                calibrated to your circadian rhythm — activating cellular respiration from the first hour.
+                11 clinically-dosed compounds. No fillers. No fluff. Vitamins, adaptogens and CoQ10
+                calibrated to ignite energy, sharpen focus, and prime your body from the first hour of the day.
               </p>
             </div>
 

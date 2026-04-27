@@ -29,7 +29,7 @@ function IngredientList({ ingredients, accentColor }) {
   return (
     <div>
       <button onClick={toggle} className="flex items-center gap-3 group mt-8">
-        <span className="font-body text-[9px] tracking-widest2 uppercase transition-colors duration-300"
+        <span className="font-body text-[12px] tracking-widest2 uppercase transition-colors duration-300"
           style={{ color: open ? accentColor : '#8B4A52' }}>
           {open ? 'Hide ingredients' : 'Full ingredient list'}
         </span>
@@ -45,10 +45,10 @@ function IngredientList({ ingredients, accentColor }) {
           {ingredients.map((ing, j) => (
             <div key={j} className="flex items-start justify-between gap-4 py-3 border-b border-lc-line-light last:border-0">
               <div>
-                <p className="font-sans font-500 text-lc-maroon text-[11px] tracking-wide">{ing.name}</p>
-                <p className="font-body font-300 text-lc-maroon-dim text-[9.5px] tracking-wide mt-0.5 leading-snug">{ing.detail}</p>
+                <p className="font-sans font-500 text-lc-maroon text-[14px] tracking-wide">{ing.name}</p>
+                <p className="font-body font-300 text-lc-maroon-dim text-[12px] tracking-wide mt-0.5 leading-snug">{ing.detail}</p>
               </div>
-              <span className="font-sans font-600 text-[10px] tabular-nums shrink-0 mt-0.5" style={{ color: accentColor }}>
+              <span className="font-sans font-600 text-[13px] tabular-nums shrink-0 mt-0.5" style={{ color: accentColor }}>
                 {ing.dose}
               </span>
             </div>
@@ -96,7 +96,7 @@ function FeaturedProduct({ product, imageLeft, index }) {
         </div>
         {/* Phase badge */}
         <div className="absolute top-6 left-6">
-          <span className="font-body text-[9px] tracking-widest3 uppercase" style={{ color: product.accentColor }}>
+          <span className="font-body text-[12px] tracking-widest3 uppercase" style={{ color: product.accentColor }}>
             Phase {product.phase}
           </span>
         </div>
@@ -106,7 +106,7 @@ function FeaturedProduct({ product, imageLeft, index }) {
       <div
         className={`flex flex-col justify-center px-10 md:px-16 py-14 bg-lc-white border border-lc-line-light ${imageLeft ? 'lg:order-2' : 'lg:order-1'}`}
       >
-        <span className="font-body text-[9px] tracking-widest2 uppercase mb-4" style={{ color: product.accentColor }}>
+        <span className="font-body text-[12px] tracking-widest2 uppercase mb-4" style={{ color: product.accentColor }}>
           {String(index + 1).padStart(2, '0')} / {product.phase === '01' ? 'Morning' : 'Recovery'}
         </span>
 
@@ -120,7 +120,7 @@ function FeaturedProduct({ product, imageLeft, index }) {
           {product.tagline}
         </p>
 
-        <p className="font-body font-300 text-lc-maroon-dim text-sm md:text-base leading-loose max-w-sm">
+        <p className="font-body font-300 text-lc-maroon-dim text-base md:text-lg leading-loose max-w-sm">
           {product.description}
         </p>
 
@@ -131,7 +131,7 @@ function FeaturedProduct({ product, imageLeft, index }) {
             href={`/products/${product.slug}`}
             className="inline-flex items-center gap-3 mt-8 group"
           >
-            <span className="font-body text-[9px] tracking-widest2 uppercase transition-colors duration-300 group-hover:opacity-70"
+            <span className="font-body text-[12px] tracking-widest2 uppercase transition-colors duration-300 group-hover:opacity-70"
               style={{ color: product.accentColor }}>
               Full product profile
             </span>
@@ -161,10 +161,10 @@ function LockedCard({ product }) {
   return (
     <div ref={ref} className="relative border border-lc-line-light bg-lc-white p-8 flex flex-col opacity-0">
       <div className="flex items-start justify-between mb-6">
-        <span className="font-body text-[9px] tracking-widest2 text-lc-maroon/20 uppercase">{product.phase}</span>
+        <span className="font-body text-[12px] tracking-widest2 text-lc-maroon/20 uppercase">{product.phase}</span>
         <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-lc-line-light">
           <Lock className="w-2.5 h-2.5 text-lc-maroon/25" />
-          <span className="font-body text-[8px] tracking-widest uppercase text-lc-maroon/25">Not added yet</span>
+          <span className="font-body text-[11px] tracking-widest uppercase text-lc-maroon/25">Not added yet</span>
         </div>
       </div>
       <div className="flex-1 flex items-center justify-center py-8">
@@ -174,7 +174,7 @@ function LockedCard({ product }) {
       </div>
       <h4 className="font-sans font-600 text-lc-maroon/25 text-lg tracking-tight mt-4">{product.title}</h4>
       <p className="font-sans font-700 text-2xl tracking-tight mt-1" style={{ color: '#EDE0E0' }}>{product.tagline}</p>
-      <p className="font-body text-[11px] text-lc-maroon/20 leading-relaxed mt-3">{product.teaser}</p>
+      <p className="font-body text-[13px] text-lc-maroon/20 leading-relaxed mt-3">{product.teaser}</p>
     </div>
   );
 }
@@ -187,7 +187,7 @@ const ACTIVE = [
     title: 'Morning Pack',
     tagline: 'Activate.',
     accentColor: '#8B0015',
-    image: '/Morning2.png',
+    image: '/Morning_deschis.png',
     description: 'Precision-dosed micronutrients calibrated to your circadian rhythm. Activates cellular respiration and metabolic priming at the molecular level.',
     ingredients: [
       { name: 'Vitamina A',   detail: 'Retinyl Palmitate (CWD)',  dose: '800 µg'   },
@@ -209,7 +209,7 @@ const ACTIVE = [
     title: 'Recovery Pack',
     tagline: 'Rebuild.',
     accentColor: '#E8631A',
-    image: '/Recovery2.png',
+    image: '/Recov_deschis.png',
     description: 'Master formula engineered for rapid post-effort repair. Anabolic shield, glycogen reloading, neuromuscular relaxation and gut recovery in a single 38g serving.',
     ingredients: [
       { name: 'Maltodextrin (Low DE)',  detail: 'Glycogen replenishment / Insulin-driven nutrient transport',    dose: '20 000 mg' },
@@ -253,13 +253,13 @@ export default function ProductSection() {
           <div>
             <div className="flex items-center gap-3 mb-5">
               <div className="w-6 h-px bg-lc-orange" />
-              <span className="font-body text-[10px] tracking-widest3 text-lc-orange uppercase">The Protocol</span>
+              <span className="font-body text-[12px] tracking-widest3 text-lc-orange uppercase">The Protocol</span>
             </div>
             <h2 className="font-sans font-700 text-lc-maroon tracking-tight" style={{ fontSize: 'clamp(2.2rem,5vw,5rem)' }}>
               Engineered for<br />every phase.
             </h2>
           </div>
-          <p className="font-body font-300 text-lc-maroon-dim text-sm leading-loose max-w-xs self-end pb-2">
+          <p className="font-body font-300 text-lc-maroon-dim text-base leading-loose max-w-xs self-end pb-2">
             Two active formulas. Two coming soon.
             Every compound declared. No proprietary blends.
           </p>
@@ -278,7 +278,7 @@ export default function ProductSection() {
       {/* Coming soon strip */}
       <div className="border-t border-lc-line-light px-6 md:px-16 py-16 max-w-[1440px] mx-auto">
         <div className="flex items-center gap-4 mb-10">
-          <span className="font-body text-[9px] tracking-widest3 text-lc-maroon/30 uppercase">Expanding soon</span>
+          <span className="font-body text-[12px] tracking-widest3 text-lc-maroon/30 uppercase">Expanding soon</span>
           <div className="flex-1 h-px bg-lc-line-light" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

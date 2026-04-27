@@ -34,17 +34,19 @@ function BulletList({ items, gradient }) {
 }
 
 function Label({ text }) {
-  return <p className="font-body text-[9px] tracking-widest2 uppercase text-[#bbb] mb-3 mt-7 first:mt-0">{text}</p>;
+  return <p className="font-body text-[12px] tracking-widest2 uppercase text-[#bbb] mb-3 mt-7 first:mt-0">{text}</p>;
 }
 
 function EmailCapture({ plan, gradient, btnLabel }) {
   const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [err, setErr] = useState('');
 
   const submit = async () => {
+    if (!name.trim()) { setErr('Please enter your name.'); return; }
     if (!email.includes('@')) { setErr('Enter a valid email.'); return; }
     setLoading(true);
     setErr('');
@@ -52,7 +54,7 @@ function EmailCapture({ plan, gradient, btnLabel }) {
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), plan }),
+        body: JSON.stringify({ email: email.trim(), name: name.trim(), plan }),
       });
       const data = await res.json();
       if (!res.ok) { setErr(data.error || 'Something went wrong.'); return; }
@@ -67,9 +69,9 @@ function EmailCapture({ plan, gradient, btnLabel }) {
   if (done) {
     return (
       <div className="mt-6 p-5 rounded-2xl border border-[#e8f5e9] bg-[#f9fff9]">
-        <p className="font-sans font-600 text-[13px] text-[#2e7d32] mb-1">You're in! Check your email.</p>
+        <p className="font-sans font-600 text-[13px] text-[#2e7d32] mb-1">You're in, {name.split(' ')[0]}! Check your email.</p>
         <p className="font-body text-[12px] text-[#777] leading-relaxed">
-          We sent you a login link and app download instructions to <strong>{email}</strong>.
+          We sent your activation code and login link to <strong>{email}</strong>.
         </p>
       </div>
     );
@@ -95,6 +97,16 @@ function EmailCapture({ plan, gradient, btnLabel }) {
           <div className="flex items-center gap-3">
             <input
               autoFocus
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Your name"
+              className="flex-1 font-body text-[14px] text-[#333] bg-white border border-[#e0e0e0] rounded-full px-5 py-3.5 outline-none focus:border-[#bbb] placeholder-[#ccc]"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              autoFocus
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
@@ -112,7 +124,7 @@ function EmailCapture({ plan, gradient, btnLabel }) {
             </button>
           </div>
           {err && <p className="font-body text-[12px] text-red-500 pl-1">{err}</p>}
-          <p className="font-body text-[10px] text-[#ccc] tracking-widest uppercase">
+          <p className="font-body text-[13px] text-[#ccc] tracking-widest uppercase">
             Free while we launch · No credit card
           </p>
         </div>
@@ -139,12 +151,12 @@ export default function PricingPage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
           </svg>
-          <span className="font-body text-xs tracking-widest uppercase">Back</span>
+          <span className="font-body text-sm tracking-widest uppercase">Back</span>
         </Link>
         <Link href="/" className="font-sans font-700 text-sm tracking-[0.3em] uppercase select-none bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
           LIFECODE
         </Link>
-        <Link href="/login" className="font-body text-[10px] tracking-widest text-[#888] hover:text-[#333] transition-colors uppercase">
+        <Link href="/login" className="font-body text-[13px] tracking-widest text-[#888] hover:text-[#333] transition-colors uppercase">
           Log In
         </Link>
       </nav>
@@ -155,7 +167,7 @@ export default function PricingPage() {
         <div className="text-center mb-16 md:mb-20">
           <div className="pr-head flex items-center justify-center gap-3 mb-6" style={{ opacity: 0 }}>
             <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
-            <span className="font-body text-[9px] tracking-widest3 text-[#aaa] uppercase">Choose Your Protocol</span>
+            <span className="font-body text-[12px] tracking-widest3 text-[#aaa] uppercase">Choose Your Protocol</span>
             <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
           </div>
           <h1
@@ -167,7 +179,7 @@ export default function PricingPage() {
             Clinical dosing. No fillers. No guesswork.
             Pick what fits your commitment.
           </p>
-          <p className="pr-head font-body text-[10px] tracking-widest text-[#ccc] uppercase mt-5" style={{ opacity: 0 }}>
+          <p className="pr-head font-body text-[13px] tracking-widest text-[#ccc] uppercase mt-5" style={{ opacity: 0 }}>
             Free early access — join the waitlist now
           </p>
         </div>
@@ -210,11 +222,11 @@ export default function PricingPage() {
                     style={{ fontSize: 'clamp(2.6rem, 4vw, 4rem)' }}>
                     Essentials
                   </h2>
-                  <p className="font-body text-[11px] tracking-widest uppercase bg-clip-text text-transparent mb-6" style={{ backgroundImage: MG }}>
+                  <p className="font-body text-[13px] tracking-widest uppercase bg-clip-text text-transparent mb-6" style={{ backgroundImage: MG }}>
                     The full system. No commitment.
                   </p>
 
-                  <p className="font-body font-300 text-[#777] text-[14px] md:text-[15px] leading-[1.8] mb-8 max-w-sm">
+                  <p className="font-body font-300 text-[#777] text-[16px] md:text-[17px] leading-[1.8] mb-8 max-w-sm">
                     Two precision formulas for one complete cycle. Clinical-grade dosing, zero fillers.
                     The starting point for athletes who are serious about what they put in their body.
                   </p>
@@ -239,10 +251,10 @@ export default function PricingPage() {
                 <div className="mt-10">
                   <div className="flex items-baseline gap-2 mb-2">
                     <span className="font-sans font-700 text-5xl text-[#ddd] tracking-tight">—</span>
-                    <span className="font-body text-[11px] text-[#ddd] tracking-widest uppercase">Price coming soon</span>
+                    <span className="font-body text-[13px] text-[#ddd] tracking-widest uppercase">Price coming soon</span>
                   </div>
                   <EmailCapture plan="essentials" gradient={MG} btnLabel="Get Essentials" />
-                  <p className="font-body text-[10px] text-[#ccc] tracking-widest uppercase mt-4">
+                  <p className="font-body text-[13px] text-[#ccc] tracking-widest uppercase mt-4">
                     Ships within 48h · 30-day guarantee
                   </p>
                 </div>
@@ -272,18 +284,18 @@ export default function PricingPage() {
                     <span className="font-body text-[8.5px] tracking-widest3 uppercase bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
                       02
                     </span>
-                    <span className="font-body text-[8.5px] tracking-widest text-[#ddd] uppercase">Subscription + App</span>
+                    <span className="font-body text-[13px] tracking-widest text-[#ddd] uppercase">Subscription + App</span>
                   </div>
 
                   <h2 className="font-sans font-700 text-[#111] tracking-tight leading-none mb-2"
                     style={{ fontSize: 'clamp(2.6rem, 4vw, 4rem)' }}>
                     Protocol
                   </h2>
-                  <p className="font-body text-[11px] tracking-widest uppercase bg-clip-text text-transparent mb-6" style={{ backgroundImage: BOX_G }}>
+                  <p className="font-body text-[13px] tracking-widest uppercase bg-clip-text text-transparent mb-6" style={{ backgroundImage: BOX_G }}>
                     Your system. Always on.
                   </p>
 
-                  <p className="font-body font-300 text-[#777] text-[14px] md:text-[15px] leading-[1.8] mb-8 max-w-sm">
+                  <p className="font-body font-300 text-[#777] text-[16px] md:text-[17px] leading-[1.8] mb-8 max-w-sm">
                     Monthly delivery of your formulas plus the full LIFECODE app. A continuously
                     evolving protocol that learns your body, tracks your biology, and optimises
                     you week over week.
@@ -333,10 +345,10 @@ export default function PricingPage() {
                 <div className="mt-10">
                   <div className="flex items-baseline gap-2 mb-2">
                     <span className="font-sans font-700 text-5xl text-[#ddd] tracking-tight">—</span>
-                    <span className="font-body text-[11px] text-[#ddd] tracking-widest uppercase">/ month · Price coming soon</span>
+                    <span className="font-body text-[13px] text-[#ddd] tracking-widest uppercase">/ month · Price coming soon</span>
                   </div>
                   <EmailCapture plan="protocol" gradient={BOX_G} btnLabel="Start Protocol" />
-                  <p className="font-body text-[10px] text-[#ccc] tracking-widest uppercase mt-4">
+                  <p className="font-body text-[13px] text-[#ccc] tracking-widest uppercase mt-4">
                     Free to start · Cancel anytime · No credit card required now
                   </p>
                 </div>
@@ -369,10 +381,10 @@ export default function PricingPage() {
 
         {/* Bottom note */}
         <div className="mt-14 text-center space-y-3">
-          <p className="font-body text-[10px] tracking-widest text-[#ccc] uppercase">
+          <p className="font-body text-[13px] tracking-widest text-[#ccc] uppercase">
             All plans include free shipping · 30-day satisfaction guarantee
           </p>
-          <p className="font-body text-[12px] text-[#bbb]">
+          <p className="font-body text-[15px] text-[#bbb]">
             Questions?{' '}
             <a href="mailto:hello@lifecode.app" className="text-[#888] hover:text-[#444] transition-colors underline underline-offset-2">
               hello@lifecode.app

@@ -2,13 +2,13 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { supabase } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+function getGenAI() { return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!); }
 
 export async function POST(req: NextRequest) {
   try {
     const { name, age, height, weight, sport, result, gender, user_id } = await req.json();
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = getGenAI().getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `You are a world-class sports nutritionist and exercise physiologist with 20 years of experience working with Olympic and professional athletes.
 

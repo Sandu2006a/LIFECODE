@@ -2,7 +2,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { supabase } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+function getGenAI() {
+  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+}
 
 // Robust JSON extractor — handles spaces, newlines, any formatting
 function extractJSONBlock(text: string, marker: string): Record<string, unknown> | null {
@@ -89,7 +91,7 @@ export async function POST(req: NextRequest) {
           `  ${w.event_time} — ${w.workout_type} (${w.duration_min} min)`).join('\n')
       : '  No workouts scheduled today.';
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = getGenAI().getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const microsContext = micros
       ? micros.map((m: { label: string; current: number; target: number; unit: string }) =>

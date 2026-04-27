@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "LIFECODE",
+    "slug": "lifecode",
+    "scheme": "lifecode",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": { "supportsTablet": false, "bundleIdentifier": "com.lifecode.app" },
+    "android": { "package": "com.lifecode.app" },
+    "plugins": ["expo-router", "expo-font"],
+    "experiments": { "typedRoutes": true }
+  }
+}

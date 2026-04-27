@@ -6,19 +6,15 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const MG = 'linear-gradient(135deg, #FFF5DC 0%, #FF8A00 60%, #C62828 100%)';
-const RG = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 45%, #1D4ED8 100%)';
+const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
 
-const M_SPECS = [
-  { label: 'Serving size', value: '7g' },
-  { label: 'Portions',     value: '30' },
-  { label: 'Total weight', value: '210g' },
-  { label: 'Profile',      value: 'Energy & Focus' },
-];
-const R_SPECS = [
-  { label: 'Serving size', value: '40g' },
-  { label: 'Portions',     value: '30' },
-  { label: 'Total weight', value: '1200g' },
-  { label: 'Profile',      value: 'Recovery & Performance' },
+const ROWS = [
+  { label: 'System structure',   lifecode: 'Designed as one protocol', blend: 'Random products', multi: 'Multiple brands' },
+  { label: 'Ingredient dosing',  lifecode: 'Clinical, transparent doses', blend: 'Proprietary blends', multi: 'Often underdosed' },
+  { label: 'Tracking',           lifecode: 'Real-time AI app', blend: 'None', multi: 'Manual / none' },
+  { label: 'Timing guidance',    lifecode: 'AM + PM protocol built-in', blend: 'None', multi: 'User guesses' },
+  { label: 'Convenience',        lifecode: 'Two moments. Done.', blend: 'Varies', multi: '6+ products daily' },
+  { label: 'App integration',    lifecode: 'Full AI nutrition coach', blend: '✗', multi: '✗' },
 ];
 
 export default function ComparisonSection() {
@@ -34,8 +30,8 @@ export default function ComparisonSection() {
       );
       gsap.fromTo('.cs-col',
         { opacity: 0, y: 18 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.1,
-          scrollTrigger: { trigger: '.cs-cols', start: 'top 94%' } }
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.08,
+          scrollTrigger: { trigger: '.cs-table', start: 'top 94%' } }
       );
     }, sectionRef);
     return () => ctx.revert();
@@ -49,10 +45,17 @@ export default function ComparisonSection() {
     >
       <div className="max-w-[1440px] mx-auto">
 
-        <div className="flex items-center gap-3 mb-14">
+        <div className="flex items-center gap-3 mb-6">
           <div className="h-px w-5" style={{ background: MG }} />
-          <span className="font-body text-[9px] tracking-widest3 text-[#999] uppercase">The products</span>
+          <span className="font-body text-[9px] tracking-widest3 text-[#999] uppercase">The comparison</span>
         </div>
+
+        <h2
+          className="font-sans font-700 text-[#111] tracking-tight leading-[0.92] mb-14"
+          style={{ fontSize: 'clamp(2.2rem, 4.5vw, 5rem)' }}
+        >
+          Why a system beats<br />a stack.
+        </h2>
 
         {/* Both products image */}
         <div className="cs-img relative rounded-2xl overflow-hidden aspect-[16/7] mb-16 opacity-0 bg-[#f8f8f8]">
@@ -66,54 +69,69 @@ export default function ComparisonSection() {
           />
         </div>
 
-        {/* Comparison */}
-        <div className="cs-cols grid grid-cols-1 md:grid-cols-2 gap-5">
-
-          <div className="cs-col opacity-0" style={{ padding: '1.5px', borderRadius: '20px', background: MG }}>
-            <div className="bg-white h-full p-8 md:p-10" style={{ borderRadius: '18.5px' }}>
-              <div className="flex items-center gap-3 mb-8">
-                <span
-                  className="font-body text-[8px] tracking-widest3 uppercase px-3 py-1 rounded-full text-white"
-                  style={{ background: MG }}
-                >
-                  AM
-                </span>
-                <span className="font-sans font-700 text-[#222] text-lg tracking-tight">Morning Pack</span>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {M_SPECS.map(s => (
-                  <div key={s.label} className="border border-[#f5f5f5] rounded-xl p-4">
-                    <p className="font-body text-[9px] tracking-widest text-[#bbb] uppercase mb-2">{s.label}</p>
-                    <p className="font-sans font-700 text-[#222] text-xl leading-tight">{s.value}</p>
+        {/* Comparison table */}
+        <div className="cs-table overflow-x-auto">
+          <table className="w-full min-w-[600px] border-collapse">
+            <thead>
+              <tr>
+                <th className="text-left pb-5 pr-4 font-body text-[9px] tracking-widest text-[#ccc] uppercase font-400 w-[28%]"></th>
+                {/* LIFECODE column header */}
+                <th className="pb-5 px-4 w-[24%]">
+                  <div className="cs-col opacity-0" style={{ padding: '1.5px', borderRadius: '12px', background: BOX_G }}>
+                    <div className="bg-white py-3 px-4 rounded-[10.5px] text-center">
+                      <p className="font-sans font-700 text-[#111] text-sm tracking-tight bg-clip-text text-transparent"
+                        style={{ backgroundImage: BOX_G }}>
+                        LIFECODE
+                      </p>
+                      <p className="font-body text-[8px] tracking-widest text-[#ccc] uppercase mt-0.5">System</p>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="cs-col opacity-0" style={{ padding: '1.5px', borderRadius: '20px', background: RG }}>
-            <div className="bg-white h-full p-8 md:p-10" style={{ borderRadius: '18.5px' }}>
-              <div className="flex items-center gap-3 mb-8">
-                <span
-                  className="font-body text-[8px] tracking-widest3 uppercase px-3 py-1 rounded-full text-white"
-                  style={{ background: RG }}
-                >
-                  PM
-                </span>
-                <span className="font-sans font-700 text-[#222] text-lg tracking-tight">Recovery Pack</span>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {R_SPECS.map(s => (
-                  <div key={s.label} className="border border-[#f5f5f5] rounded-xl p-4">
-                    <p className="font-body text-[9px] tracking-widest text-[#bbb] uppercase mb-2">{s.label}</p>
-                    <p className="font-sans font-700 text-[#222] text-xl leading-tight">{s.value}</p>
+                </th>
+                <th className="pb-5 px-4 w-[24%]">
+                  <div className="cs-col opacity-0 border border-[#f0f0f0] rounded-xl py-3 px-4 text-center">
+                    <p className="font-sans font-600 text-[#bbb] text-sm tracking-tight">Typical blend</p>
+                    <p className="font-body text-[8px] tracking-widest text-[#ddd] uppercase mt-0.5">Single product</p>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
+                </th>
+                <th className="pb-5 pl-4 w-[24%]">
+                  <div className="cs-col opacity-0 border border-[#f0f0f0] rounded-xl py-3 px-4 text-center">
+                    <p className="font-sans font-600 text-[#bbb] text-sm tracking-tight">Multiple brands</p>
+                    <p className="font-body text-[8px] tracking-widest text-[#ddd] uppercase mt-0.5">DIY stack</p>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {ROWS.map((row, i) => (
+                <tr
+                  key={row.label}
+                  className="cs-col border-t border-[#f5f5f5]"
+                  style={{ opacity: 0 }}
+                >
+                  <td className="py-5 pr-4">
+                    <p className="font-body text-[10px] tracking-widest text-[#aaa] uppercase">{row.label}</p>
+                  </td>
+                  {/* LIFECODE value */}
+                  <td className="py-5 px-4">
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 mt-[5px] w-1.5 h-1.5 rounded-full" style={{ background: BOX_G }} />
+                      <p className="font-sans font-600 text-[#222] text-[12px] leading-snug">{row.lifecode}</p>
+                    </div>
+                  </td>
+                  {/* Blend value */}
+                  <td className="py-5 px-4">
+                    <p className="font-body text-[12px] text-[#bbb] leading-snug">{row.blend}</p>
+                  </td>
+                  {/* Multi value */}
+                  <td className="py-5 pl-4">
+                    <p className="font-body text-[12px] text-[#bbb] leading-snug">{row.multi}</p>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+
       </div>
     </section>
   );

@@ -32,42 +32,42 @@ export default function HeroSection() {
         <div className="flex flex-col gap-8">
           <div className="hs-tag flex items-center gap-3 opacity-0">
             <div className="w-6 h-[1.5px]" style={{ background: BOX_G }} />
-            <span className="font-body text-[9px] tracking-widest3 text-[#999] uppercase">Performance Nutrition System</span>
+            <span className="font-body text-[12px] tracking-widest3 text-[#999] uppercase">Performance Nutrition System</span>
           </div>
 
           <div>
             <h1 className="hs-h1 font-sans font-700 text-[#111] leading-[0.88] tracking-tight opacity-0"
               style={{ fontSize: 'clamp(3.4rem, 7vw, 7.5rem)' }}>
-              Your
+              Train harder.
             </h1>
             <h1 className="hs-h1 font-sans font-700 leading-[0.88] tracking-tight bg-clip-text text-transparent opacity-0"
               style={{ fontSize: 'clamp(3.4rem, 7vw, 7.5rem)', backgroundImage: BOX_G }}>
-              Protocol.
+              Recover faster.
             </h1>
             <h1 className="hs-h1 font-sans font-700 text-[#111] leading-[0.88] tracking-tight opacity-0"
               style={{ fontSize: 'clamp(3.4rem, 7vw, 7.5rem)' }}>
-              Your Biology.
+              Track everything.
             </h1>
           </div>
 
-          <p className="hs-sub font-body font-300 text-[#888] text-sm md:text-base leading-loose max-w-xs opacity-0">
-            Two precision formulas. Morning and Recovery.
-            Built for athletes who measure results.
+          <p className="hs-sub font-body font-300 text-[#888] text-base md:text-lg leading-loose max-w-xs opacity-0">
+            Two precision formulas. One AI app.
+            A complete system built for athletes who measure results.
           </p>
 
           <div className="hs-btm flex flex-wrap items-center gap-4 opacity-0">
             <Link href="/pricing"
-              className="inline-flex items-center gap-3 px-7 py-3.5 rounded-full text-white font-sans font-600 text-[11px] tracking-widest uppercase group hover:opacity-88 transition-opacity duration-300"
+              className="inline-flex items-center gap-3 px-7 py-3.5 rounded-full text-white font-sans font-600 text-[13px] tracking-widest uppercase group hover:opacity-88 transition-opacity duration-300"
               style={{ background: BOX_G }}>
-              <span>Create Ecosystem</span>
+              <span>Start your protocol</span>
               <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
                 <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
                   <path d="M1.5 4.5h6M4.5 2L7 4.5 4.5 7" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
                 </svg>
               </span>
             </Link>
-            <a href="#morning" className="font-body text-[11px] tracking-widest text-[#999] uppercase hover:text-[#444] transition-colors duration-300">
-              The products ↓
+            <a href="#morning" className="font-body text-[13px] tracking-widest text-[#999] uppercase hover:text-[#444] transition-colors duration-300">
+              See the system ↓
             </a>
           </div>
 
@@ -76,7 +76,7 @@ export default function HeroSection() {
               <div key={l}>
                 <p className="font-sans font-700 text-[2rem] leading-none bg-clip-text text-transparent"
                   style={{ backgroundImage: BOX_G }}>{v}</p>
-                <p className="font-body text-[9px] tracking-widest text-[#ccc] uppercase mt-1">{l}</p>
+                <p className="font-body text-[12px] tracking-widest text-[#ccc] uppercase mt-1">{l}</p>
               </div>
             ))}
           </div>

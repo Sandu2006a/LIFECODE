@@ -6,6 +6,7 @@ import MorningSection    from '@/components/MorningSection';
 import RecoverySection   from '@/components/RecoverySection';
 import AthleteStory      from '@/components/AthleteStory';
 import SystemSection     from '@/components/SystemSection';
+import AppSection        from '@/components/AppSection';
 import ComparisonSection from '@/components/ComparisonSection';
 import EcosystemSection  from '@/components/EcosystemSection';
 import Footer            from '@/components/Footer';
@@ -17,10 +18,11 @@ export default function Home() {
       <main>
         <HeroSection />
         <BrandMessage />
-        <MorningSection />
-        <RecoverySection />
         <AthleteStory />
         <SystemSection />
+        <MorningSection />
+        <RecoverySection />
+        <AppSection />
         <ComparisonSection />
         <EcosystemSection />
       </main>

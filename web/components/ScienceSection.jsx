@@ -65,7 +65,7 @@ export default function ScienceSection() {
 
         <div className="flex items-center gap-3 mb-12">
           <div className="w-6 h-px bg-lc-orange" />
-          <span className="font-body text-[10px] tracking-widest3 text-lc-orange uppercase">The Science</span>
+          <span className="font-body text-[12px] tracking-widest3 text-lc-orange uppercase">The Science</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-end mb-24">
@@ -75,7 +75,7 @@ export default function ScienceSection() {
             <span style={{ color: '#E8631A' }}>precision inputs.</span><br />
             So do we.
           </h2>
-          <p className="sci-head font-body font-300 text-white/50 text-sm md:text-base leading-loose opacity-0 self-end max-w-sm">
+          <p className="sci-head font-body font-300 text-white/50 text-base md:text-lg leading-loose opacity-0 self-end max-w-sm">
             We work at the intersection of clinical nutrition science and elite sports physiology —
             delivering compounds that work, at doses that matter.
           </p>
@@ -88,7 +88,7 @@ export default function ScienceSection() {
               <p className="font-sans font-700 text-white leading-none mb-2" style={{ fontSize: 'clamp(2.8rem,4.5vw,5rem)' }}>
                 {s.value}
               </p>
-              <p className="font-body text-[10px] tracking-widest text-white/40 uppercase">{s.label}</p>
+              <p className="font-body text-[13px] tracking-widest text-white/40 uppercase">{s.label}</p>
             </div>
           ))}
         </div>
@@ -100,10 +100,10 @@ export default function ScienceSection() {
           {PHASES.map(p => (
             <div key={p.n} className="sci-phase opacity-0 px-10 md:px-12 py-16 group hover:bg-white/[0.03] transition-colors duration-500">
               <span className="font-sans font-700 text-lc-orange/40 text-5xl leading-none block mb-8">{p.n}</span>
-              <h3 className="font-sans font-600 text-white text-lg tracking-tight mb-5 group-hover:text-lc-orange transition-colors duration-400">
+              <h3 className="font-sans font-600 text-white text-xl tracking-tight mb-5 group-hover:text-lc-orange transition-colors duration-400">
                 {p.title}
               </h3>
-              <p className="font-body font-300 text-white/45 text-sm leading-loose">{p.body}</p>
+              <p className="font-body font-300 text-white/45 text-base leading-loose">{p.body}</p>
             </div>
           ))}
         </div>

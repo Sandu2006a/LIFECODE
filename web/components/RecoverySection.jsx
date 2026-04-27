@@ -61,11 +61,11 @@ export default function RecoverySection() {
 
             <div className="rs-text opacity-0">
               <p className="font-sans font-600 text-[#222] text-xl md:text-2xl tracking-tight mb-4">
-                Recover. Restore. Reset.
+                Repair starts in the window.
               </p>
               <p className="font-body font-300 text-[#888] text-sm md:text-base leading-loose max-w-md">
-                Built for post-training recovery, hydration and performance rebuilding. 38g of precision
-                compounds targeting glycogen resynthesis, muscle repair and nervous system recovery.
+                10 targeted compounds. EAA, creatine, magnesium, tart cherry. Everything your body needs
+                within the 45-minute post-effort window to rebuild, rehydrate, and be ready for tomorrow.
               </p>
             </div>
 

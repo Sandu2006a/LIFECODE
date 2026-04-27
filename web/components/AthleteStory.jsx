@@ -42,35 +42,32 @@ export default function AthleteStory() {
           <div>
             <div className="as-el flex items-center gap-3 mb-8 opacity-0">
               <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
-              <span className="font-body text-[9px] tracking-widest3 text-[#999] uppercase">The origin</span>
+              <span className="font-body text-[9px] tracking-widest3 text-[#999] uppercase">The story</span>
             </div>
 
             <h2
               className="as-el font-sans font-700 text-[#111] leading-[0.9] tracking-tight mb-8 opacity-0"
               style={{ fontSize: 'clamp(2.2rem, 4.5vw, 4.8rem)' }}
             >
-              Developed by<br />
+              Built by athletes.<br />
               <span className="bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
-                athletes,<br />for athletes.
+                For athletes.
               </span>
             </h2>
 
             <p className="as-el font-body font-300 text-[#777] text-sm md:text-base leading-loose mb-6 opacity-0">
-              We are professional athletes — triathletes, sprinters, climbers. For over a decade,
-              every one of us faced the same problem: the supplement market was built for general health,
-              not for performance.
+              We&apos;ve been competing for over a decade — triathlons, sprints, climbing. Every discipline
+              had the same problem: supplements built for people who don&apos;t really train.
             </p>
 
             <p className="as-el font-body font-300 text-[#777] text-sm md:text-base leading-loose mb-6 opacity-0">
-              We'd walk into a pharmacy and find shelves full of products blended for the average person
-              who walks 20 minutes a day. Nothing designed for someone training twice daily, racing across
-              multiple disciplines, or pushing physical output to its edge.
+              Pharmacy shelves full of products designed for someone who walks 20 minutes on a Tuesday.
+              Nothing for someone training twice daily. Nothing for real output.
             </p>
 
             <p className="as-el font-body font-300 text-[#777] text-sm md:text-base leading-loose opacity-0">
-              So we built it ourselves. LIFECODE is what we wished existed — a precise, convenient,
-              no-compromise system engineered specifically for performance. Two moments. Everything you need.
-              Nothing you don't.
+              So we built it. LIFECODE is the system we needed but couldn&apos;t find. Two formulas.
+              One app. Zero compromise.
             </p>
           </div>
 
@@ -95,9 +92,8 @@ export default function AthleteStory() {
                   </defs>
                 </svg>
                 <p className="font-sans font-600 text-[#222] text-base md:text-lg leading-relaxed tracking-tight mb-6">
-                  "There was no convenient, performance-first supplement system.
-                  Everything we found was generic. We had a problem no product solved.
-                  So LIFECODE became the solution."
+                  &ldquo;Every product we tried was made for general health. We needed performance.
+                  The system didn&apos;t exist, so we built it from scratch.&rdquo;
                 </p>
                 <p className="font-body text-[10px] tracking-widest text-[#bbb] uppercase">
                   — The LIFECODE founders

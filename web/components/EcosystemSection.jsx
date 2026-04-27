@@ -6,10 +6,11 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
-const STEP_GRADIENTS = [
-  'linear-gradient(135deg, #FFD54F, #FF8A00)',
-  'linear-gradient(135deg, #FF8A00, #C62828)',
-  'linear-gradient(135deg, #7C3AED, #1D4ED8)',
+
+const FEATURES = [
+  { title: 'AI tracking',          desc: 'Say what you ate. Get every micro and macro calculated instantly.' },
+  { title: 'Smart reminders',      desc: 'Protocol timing built around your training schedule. Never miss a window.' },
+  { title: 'Personalised advice',  desc: 'Recommendations built on your data — not generic templates.' },
 ];
 
 export default function EcosystemSection() {
@@ -40,60 +41,70 @@ export default function EcosystemSection() {
 
       <div className="relative z-10 max-w-[1440px] mx-auto">
 
+        {/* — App section — */}
         <div className="eco-el flex items-center gap-3 mb-10 opacity-0">
           <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
-          <span className="font-body text-[9px] tracking-widest3 text-[#999] uppercase">Your Ecosystem</span>
+          <span className="font-body text-[12px] tracking-widest3 text-[#999] uppercase">Your AI companion</span>
         </div>
 
         <h2
-          className="eco-el font-sans font-700 leading-[0.9] tracking-tight mb-10 opacity-0 bg-clip-text text-transparent"
-          style={{ fontSize: 'clamp(3rem,8vw,8rem)', backgroundImage: BOX_G }}
+          className="eco-el font-sans font-700 leading-[0.9] tracking-tight mb-8 opacity-0 bg-clip-text text-transparent"
+          style={{ fontSize: 'clamp(3rem, 8vw, 8rem)', backgroundImage: BOX_G }}
         >
-          Build your<br />protocol.
+          Your biology,<br />tracked.
         </h2>
 
-        <p className="eco-el font-body font-300 text-[#888] text-base md:text-lg leading-loose max-w-lg mb-16 opacity-0">
-          Your biology is unique. Every box is calibrated to your body data, goals, and training calendar.
-          No generic stack. No guesswork. Just results.
+        <p className="eco-el font-body font-300 text-[#888] text-base md:text-lg leading-loose max-w-lg mb-12 opacity-0">
+          The app works alongside your protocol. Log meals, track every micronutrient in real time,
+          and get daily advice based on your actual data — not guesswork.
         </p>
 
-        {/* Steps */}
+        {/* Feature bullets */}
         <div className="eco-el grid grid-cols-1 md:grid-cols-3 gap-5 mb-16 opacity-0">
-          {[
-            { n: '01', label: 'Choose your phases',  desc: 'Select the protocols that match your training calendar.' },
-            { n: '02', label: 'Calibrate the dose',  desc: 'Input your body data and goals. We adjust every ratio.' },
-            { n: '03', label: 'Build the box',       desc: 'Custom formulation. Packaged without surplus. Monthly delivery.' },
-          ].map((step, i) => (
-            <div key={step.n} style={{ padding: '1.5px', borderRadius: '16px', background: STEP_GRADIENTS[i] }}>
-              <div className="bg-white h-full p-8 hover:bg-[#fefefe] transition-colors duration-300" style={{ borderRadius: '14.5px' }}>
+          {FEATURES.map((f, i) => (
+            <div key={f.title} style={{ padding: '1.5px', borderRadius: '16px', background: BOX_G }}>
+              <div className="bg-white h-full p-7" style={{ borderRadius: '14.5px' }}>
                 <span
-                  className="font-body text-[8px] tracking-widest3 uppercase block mb-5 bg-clip-text text-transparent"
-                  style={{ backgroundImage: STEP_GRADIENTS[i] }}
+                  className="font-body text-[12px] tracking-widest3 uppercase block mb-4 bg-clip-text text-transparent"
+                  style={{ backgroundImage: BOX_G }}
                 >
-                  {step.n}
+                  0{i + 1}
                 </span>
-                <h3 className="font-sans font-600 text-[#222] text-base tracking-tight mb-3">{step.label}</h3>
-                <p className="font-body font-300 text-[#999] text-sm leading-loose">{step.desc}</p>
+                <h3 className="font-sans font-700 text-[#222] text-base tracking-tight mb-2">{f.title}</h3>
+                <p className="font-body font-300 text-[#999] text-base leading-loose">{f.desc}</p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* CTA */}
+        {/* Divider */}
+        <div className="eco-el w-full h-px mb-16 opacity-0"
+          style={{ background: 'linear-gradient(90deg, transparent, #ede0e0 30%, #ede0e0 70%, transparent)' }} />
+
+        {/* — Final CTA — */}
+        <div className="eco-el opacity-0">
+          <h3
+            className="font-sans font-700 text-[#111] tracking-tight leading-[0.92] mb-8"
+            style={{ fontSize: 'clamp(2rem, 4.5vw, 4.5rem)' }}
+          >
+            Ready to stop guessing?
+          </h3>
+        </div>
+
         <div className="eco-el flex flex-col sm:flex-row items-start sm:items-center gap-6 opacity-0">
           <Link
             href="/pricing"
             className="inline-flex items-center gap-4 px-10 py-4 rounded-full text-white font-sans font-600 text-sm tracking-widest uppercase hover:opacity-88 transition-opacity duration-300 group"
             style={{ background: BOX_G }}
           >
-            <span>Create Your Ecosystem</span>
+            <span>Start your protocol</span>
             <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                 <path d="M2 5h6M5.5 2.5L8 5l-2.5 2.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </span>
           </Link>
-          <span className="font-body text-xs text-[#bbb] tracking-widest">Free to create · No credit card required</span>
+          <span className="font-body text-sm text-[#bbb] tracking-widest">Free to create · Adjust anytime</span>
         </div>
 
       </div>

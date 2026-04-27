@@ -5,10 +5,10 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const CARDS = [
-  { n: '01', title: 'Performance driven',  body: 'Formulas built around measurable athletic output, not general wellness.' },
-  { n: '02', title: 'Daily energy',         body: 'Sustained cellular energy through clinical-grade micronutrient dosing.' },
-  { n: '03', title: 'Faster recovery',      body: 'Post-effort repair at the molecular level — ready for tomorrow.' },
-  { n: '04', title: 'Simple system',        body: 'Two moments. Morning and Recovery. Nothing more, nothing less.' },
+  { n: '01', title: 'Too many products',   body: 'Six bottles. Three brands. No protocol. You\'re guessing every morning.' },
+  { n: '02', title: 'No system',           body: 'Random stacks have no timing, no structure, no synergy. They just exist.' },
+  { n: '03', title: 'Underdosed blends',   body: 'Proprietary blends hide what\'s actually inside. Most doses are too low to work.' },
+  { n: '04', title: 'Zero tracking',       body: 'You take. You hope. You never actually know what\'s working.' },
 ];
 
 const CARD_GRADIENTS = [
@@ -50,22 +50,22 @@ export default function BrandMessage() {
           <div className="bm-head flex items-center gap-3 mb-8 opacity-0">
             <div className="w-5 h-px" style={{ background: 'linear-gradient(90deg, #FF8A00, #C62828)' }} />
             <span className="font-body text-[9px] tracking-widest3 uppercase" style={{ color: '#FF8A00' }}>
-              The philosophy
+              The problem
             </span>
           </div>
           <h2
             className="bm-head font-sans font-700 text-[#111] leading-[0.92] tracking-tight opacity-0"
             style={{ fontSize: 'clamp(2.4rem, 5.5vw, 5.5rem)' }}
           >
-            Built for performance,<br />
+            The supplement industry<br />
             <span className="bg-clip-text text-transparent"
               style={{ backgroundImage: 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)' }}>
-              not average health.
+              wasn&apos;t built for you.
             </span>
           </h2>
           <p className="bm-head font-body font-300 text-[#999] text-sm md:text-base leading-loose max-w-lg mt-8 opacity-0">
-            LIFECODE is designed for people who train, push limits and care about measurable results.
-            Energy, recovery and focus are not optional — they are optimised.
+            It was built for the average person. Not for athletes who train twice daily
+            and demand measurable results.
           </p>
         </div>
 
