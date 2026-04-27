@@ -112,12 +112,7 @@ export default function Header() {
 
             {/* Dropdown */}
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_8px_40px_rgba(0,0,0,0.10)] overflow-hidden">
-                <Link href="/dashboard"
-                  onClick={() => setMenuOpen(false)}
-                  className="block px-5 py-3.5 font-body text-[13px] text-[#333] hover:bg-[#fafafa] transition-colors border-b border-[#f5f5f5]">
-                  Dashboard
-                </Link>
+              <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_8px_40px_rgba(0,0,0,0.10)] overflow-hidden">
                 <button
                   onClick={handleSignOut}
                   className="w-full text-left px-5 py-3.5 font-body text-[13px] text-[#e55] hover:bg-[#fff5f5] transition-colors">

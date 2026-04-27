@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
+import { createSupabaseBrowser } from '@/lib/supabase';
 
 const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
 const MG    = 'linear-gradient(135deg, #FFD54F 0%, #FF8A00 50%, #C62828 100%)';
@@ -38,19 +40,61 @@ function Label({ text }) {
 }
 
 function PlanButton({ plan, gradient, label }) {
+  const router  = useRouter();
+  const [status, setStatus] = useState('idle'); // idle | loading | done | error
+
+  const handleClick = async () => {
+    const supabase = createSupabaseBrowser();
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      router.push(`/login?plan=${plan}`);
+      return;
+    }
+
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: session.user.email,
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.display_name || '',
+          plan,
+        }),
+      });
+      setStatus(res.ok ? 'done' : 'error');
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  if (status === 'done') {
+    return (
+      <div className="mt-6 bg-green-50 border border-green-200 rounded-2xl px-6 py-4">
+        <p className="font-sans font-600 text-[15px] text-green-700">Codul a fost trimis pe email!</p>
+        <p className="font-body text-[13px] text-green-600 mt-1">Verifică inbox-ul — ți-am trimis codul de activare.</p>
+      </div>
+    );
+  }
+
   return (
-    <Link
-      href={`/login?plan=${plan}`}
-      className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-white font-sans font-600 text-[14px] tracking-widest uppercase hover:opacity-88 transition-opacity mt-6"
+    <button
+      onClick={handleClick}
+      disabled={status === 'loading'}
+      className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-white font-sans font-600 text-[14px] tracking-widest uppercase hover:opacity-88 transition-opacity mt-6 disabled:opacity-60"
       style={{ background: gradient }}
     >
-      <span>{label}</span>
-      <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
-        <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-          <path d="M1.5 4h5M4 2L6 4l-2 2" stroke="white" strokeWidth="1.3" strokeLinecap="round"/>
-        </svg>
-      </span>
-    </Link>
+      <span>{status === 'loading' ? 'Se trimite...' : label}</span>
+      {status !== 'loading' && (
+        <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+            <path d="M1.5 4h5M4 2L6 4l-2 2" stroke="white" strokeWidth="1.3" strokeLinecap="round"/>
+          </svg>
+        </span>
+      )}
+      {status === 'error' && <span className="text-red-200 text-[12px]">Eroare — încearcă din nou</span>}
+    </button>
   );
 }
 

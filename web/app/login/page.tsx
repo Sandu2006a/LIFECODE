@@ -51,7 +51,7 @@ function LoginForm() {
     if (mode === 'signin') {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) { setError(error.message); setLoading(false); return; }
-      router.push('/dashboard');
+      router.push('/');
       router.refresh();
       return;
     }
@@ -62,7 +62,7 @@ function LoginForm() {
       password,
       options: {
         data: { full_name: name.trim(), display_name: name.trim() },
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: `${window.location.origin}/`,
       },
     });
 

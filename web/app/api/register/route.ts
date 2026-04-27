@@ -219,7 +219,7 @@ export async function POST(req: NextRequest) {
     const { data: linkData, error: linkErr } = await getAdminSupabase().auth.admin.generateLink({
       type: 'magiclink',
       email: normalEmail,
-      options: { redirectTo: `${siteUrl}/dashboard` },
+      options: { redirectTo: `${siteUrl}/` },
     });
 
     const magicLink = (linkData as any)?.properties?.action_link ?? `${siteUrl}/login`;
