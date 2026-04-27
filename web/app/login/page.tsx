@@ -56,17 +56,18 @@ function LoginForm() {
       return;
     }
 
-    // Sign Up
-    const { data, error: signUpErr } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: {
-        data: { full_name: name.trim(), display_name: name.trim() },
-        emailRedirectTo: `${window.location.origin}/`,
-      },
+    // Sign Up via server API (creates confirmed account, no email verification needed)
+    const signupRes = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim(), password, name: name.trim() }),
     });
+    const signupData = await signupRes.json();
+    if (!signupRes.ok) { setError(signupData.error || 'Could not create account.'); setLoading(false); return; }
 
-    if (signUpErr) { setError(signUpErr.message); setLoading(false); return; }
+    // Log in immediately after signup
+    const { error: loginErr } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    if (loginErr) { setError(loginErr.message); setLoading(false); return; }
 
     // Send activation code email
     try {
@@ -78,7 +79,8 @@ function LoginForm() {
     } catch (_) {}
 
     setLoading(false);
-    setSuccess(`Cont creat! Verifică emailul ${email.trim()} — ți-am trimis codul de activare.`);
+    router.push('/');
+    router.refresh();
   };
 
   return (
