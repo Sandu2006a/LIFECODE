@@ -56,7 +56,7 @@ function LoginForm() {
           setError('');
           switchMode('signup');
           setEmail(email.trim());
-          setError('Nu am găsit acest cont. Completează câmpurile de mai jos pentru a-ți crea un cont nou.');
+          setError('Account not found. Fill in the fields below to create a new account.');
         } else {
           setError(error.message);
         }

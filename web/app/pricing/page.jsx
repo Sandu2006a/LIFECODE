@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
 import { createSupabaseBrowser } from '@/lib/supabase';
 
+const BOX_G_NAV = 'linear-gradient(90deg, #FF8A00, #C62828)';
+
 const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
 const MG    = 'linear-gradient(135deg, #FFD54F 0%, #FF8A00 50%, #C62828 100%)';
 const RG    = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 50%, #1D4ED8 100%)';
@@ -37,6 +39,63 @@ function BulletList({ items, gradient }) {
 
 function Label({ text }) {
   return <p className="font-body text-[12px] tracking-widest2 uppercase text-[#bbb] mb-3 mt-7 first:mt-0">{text}</p>;
+}
+
+function UserNav() {
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowser();
+    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await createSupabaseBrowser().auth.signOut();
+    setMenuOpen(false);
+    router.push('/');
+  };
+
+  if (!user) {
+    return (
+      <Link href="/login" className="font-body text-[13px] tracking-widest text-[#888] hover:text-[#333] transition-colors uppercase">
+        Log In
+      </Link>
+    );
+  }
+
+  const firstName = (user.user_metadata?.display_name || user.user_metadata?.full_name || user.email || '').split(' ')[0];
+  const initial = firstName.charAt(0).toUpperCase();
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setMenuOpen(v => !v)}
+        className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-[#e8e8e8] hover:border-[#ccc] transition-all duration-200 bg-white"
+      >
+        <span className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[12px] font-sans font-700 flex-shrink-0"
+          style={{ background: BOX_G_NAV }}>
+          {initial}
+        </span>
+        <span className="font-sans font-600 text-[13px] text-[#222]">{firstName}</span>
+        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className={`transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`}>
+          <path d="M1 1l4 4 4-4" stroke="#999" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </button>
+      {menuOpen && (
+        <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_8px_40px_rgba(0,0,0,0.10)] overflow-hidden z-50">
+          <button
+            onClick={handleSignOut}
+            className="w-full text-left px-5 py-3.5 font-body text-[13px] text-[#e55] hover:bg-[#fff5f5] transition-colors">
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function PlanButton({ plan, gradient, label }) {
@@ -72,8 +131,8 @@ function PlanButton({ plan, gradient, label }) {
   if (status === 'done') {
     return (
       <div className="mt-6 bg-green-50 border border-green-200 rounded-2xl px-6 py-4">
-        <p className="font-sans font-600 text-[15px] text-green-700">Codul a fost trimis pe email!</p>
-        <p className="font-body text-[13px] text-green-600 mt-1">Verifică inbox-ul — ți-am trimis codul de activare.</p>
+        <p className="font-sans font-600 text-[15px] text-green-700">Activation code sent!</p>
+        <p className="font-body text-[13px] text-green-600 mt-1">Check your inbox — your activation code is on its way.</p>
       </div>
     );
   }
@@ -85,7 +144,7 @@ function PlanButton({ plan, gradient, label }) {
       className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-white font-sans font-600 text-[14px] tracking-widest uppercase hover:opacity-88 transition-opacity mt-6 disabled:opacity-60"
       style={{ background: gradient }}
     >
-      <span>{status === 'loading' ? 'Se trimite...' : label}</span>
+      <span>{status === 'loading' ? 'Sending...' : label}</span>
       {status !== 'loading' && (
         <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
           <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
@@ -93,7 +152,7 @@ function PlanButton({ plan, gradient, label }) {
           </svg>
         </span>
       )}
-      {status === 'error' && <span className="text-red-200 text-[12px]">Eroare — încearcă din nou</span>}
+      {status === 'error' && <span className="text-red-200 text-[12px]">Error — try again</span>}
     </button>
   );
 }
@@ -121,9 +180,7 @@ export default function PricingPage() {
         <Link href="/" className="font-sans font-700 text-sm tracking-[0.3em] uppercase select-none bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
           LIFECODE
         </Link>
-        <Link href="/login" className="font-body text-[13px] tracking-widest text-[#888] hover:text-[#333] transition-colors uppercase">
-          Log In
-        </Link>
+        <UserNav />
       </nav>
 
       <main className="pt-32 pb-28 px-6 md:px-14 max-w-[1300px] mx-auto">
