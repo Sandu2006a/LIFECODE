@@ -102,6 +102,8 @@ function PlanButton({ plan, gradient, label }) {
   const router  = useRouter();
   const [status, setStatus] = useState('idle'); // idle | loading | done | error
 
+  const [errMsg, setErrMsg] = useState('');
+
   const handleClick = async () => {
     const supabase = createSupabaseBrowser();
     const { data: { session } } = await supabase.auth.getSession();
@@ -112,6 +114,7 @@ function PlanButton({ plan, gradient, label }) {
     }
 
     setStatus('loading');
+    setErrMsg('');
     try {
       const res = await fetch('/api/register', {
         method: 'POST',
@@ -122,8 +125,15 @@ function PlanButton({ plan, gradient, label }) {
           plan,
         }),
       });
-      setStatus(res.ok ? 'done' : 'error');
-    } catch {
+      if (res.ok) {
+        setStatus('done');
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setErrMsg(d.error || 'Unknown error');
+        setStatus('error');
+      }
+    } catch (e) {
+      setErrMsg(e.message || 'Network error');
       setStatus('error');
     }
   };
@@ -152,7 +162,7 @@ function PlanButton({ plan, gradient, label }) {
           </svg>
         </span>
       )}
-      {status === 'error' && <span className="text-red-200 text-[12px]">Error — try again</span>}
+      {status === 'error' && <span className="text-red-200 text-[12px]">{errMsg || 'Error — try again'}</span>}
     </button>
   );
 }

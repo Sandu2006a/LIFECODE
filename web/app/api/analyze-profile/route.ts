@@ -92,13 +92,13 @@ Return ONLY this JSON (no text before or after, no markdown):
     targets.fats_target     = Math.round(targets.fats_target);
 
     await supabase.from('profiles').upsert({
-      user_id, name, age, height, weight, sport, result, gender,
+      id:              user_id,
       calories_target: targets.calories_target,
       protein_target:  targets.protein_target,
       carbs_target:    targets.carbs_target,
       fats_target:     targets.fats_target,
       updated_at:      new Date().toISOString(),
-    }, { onConflict: 'user_id' });
+    }, { onConflict: 'id' });
 
     return NextResponse.json({ targets });
   } catch (err) {
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
   const { data } = await supabase
     .from('profiles')
     .select('*')
-    .eq('user_id', user_id)
+    .eq('id', user_id)
     .single();
   return NextResponse.json({ data });
 }
