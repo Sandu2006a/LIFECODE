@@ -14,8 +14,9 @@ import {
 } from '@expo-google-fonts/inter-tight';
 import { View, ActivityIndicator } from 'react-native';
 import { useEffect, useState } from 'react';
-import 'react-native-reanimated';
 import { supabase } from '../src/lib/supabase';
+
+type Status = 'loading' | 'login' | 'activate' | 'onboarding' | 'home';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -28,65 +29,52 @@ export default function RootLayout() {
     'InterTight-Bold': InterTight_700Bold,
   });
 
-  const [authReady, setAuthReady] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [onboardingDone, setOnboardingDone] = useState(false);
+  const [status, setStatus] = useState<Status>('loading');
 
-  const checkOnboarding = async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('onboarding_done')
-      .eq('id', userId)
-      .maybeSingle();
-    return data?.onboarding_done === true;
+  const resolve = async (userId: string | null) => {
+    if (!userId) { setStatus('login'); return; }
+
+    try {
+      const [{ data: codeRow }, { data: profile }] = await Promise.all([
+        supabase.from('activation_codes').select('id').eq('user_id', userId).eq('used', true).maybeSingle(),
+        supabase.from('profiles').select('onboarding_done').eq('id', userId).maybeSingle(),
+      ]);
+
+      if (!codeRow) { setStatus('activate'); return; }
+      if (!profile?.onboarding_done) { setStatus('onboarding'); return; }
+      setStatus('home');
+    } catch {
+      setStatus('activate');
+    }
   };
 
   useEffect(() => {
     if (!fontsLoaded) return;
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session) {
-        setIsLoggedIn(true);
-        const done = await checkOnboarding(session.user.id);
-        setOnboardingDone(done);
-      } else {
-        setIsLoggedIn(false);
-      }
-      setAuthReady(true);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      resolve(session?.user?.id ?? null);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session) {
-        setIsLoggedIn(true);
-        const done = await checkOnboarding(session.user.id);
-        setOnboardingDone(done);
-        setAuthReady(true);
-      } else {
-        setIsLoggedIn(false);
-        setOnboardingDone(false);
-        setAuthReady(true);
-        router.replace('/login');
-      }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      resolve(session?.user?.id ?? null);
     });
 
     return () => subscription.unsubscribe();
   }, [fontsLoaded]);
 
-  if (!fontsLoaded || !authReady) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafaf7' }}>
-        <ActivityIndicator color="#0d0d0f" />
-      </View>
-    );
-  }
+  // Navigate when status changes, but only after stack is mounted
+  useEffect(() => {
+    if (status === 'loading') return;
+    const routes: Record<Exclude<Status, 'loading'>, string> = {
+      login: '/login',
+      activate: '/activate',
+      onboarding: '/onboarding',
+      home: '/(tabs)',
+    };
+    router.replace(routes[status] as any);
+  }, [status]);
 
-  if (!isLoggedIn) {
-    router.replace('/login');
-    return null;
-  }
-
-  if (!onboardingDone) {
-    router.replace('/onboarding');
+  if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafaf7' }}>
         <ActivityIndicator color="#0d0d0f" />
@@ -99,8 +87,10 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="activate" options={{ headerShown: false, animation: 'slide_from_right' }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false, animation: 'slide_from_right' }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
       <StatusBar style="dark" />
     </>
