@@ -1,8 +1,15 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
 function getGenAI() { return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!); }
+function getAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -122,7 +129,7 @@ Now calculate the specific values for the athlete described above and return ONL
 
     const targets: Record<string, number> = JSON.parse(match[0]);
 
-    await supabase.from('profiles').update({
+    await getAdmin().from('profiles').update({
       micro_targets: targets,
       updated_at: new Date().toISOString(),
     }).eq('id', user_id);

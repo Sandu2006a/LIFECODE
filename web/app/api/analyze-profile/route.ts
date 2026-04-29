@@ -1,8 +1,15 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
 function getGenAI() { return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!); }
+function getAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -91,7 +98,7 @@ Return ONLY this JSON (no text before or after, no markdown):
     targets.carbs_target    = Math.round(targets.carbs_target);
     targets.fats_target     = Math.round(targets.fats_target);
 
-    await supabase.from('profiles').upsert({
+    await getAdmin().from('profiles').upsert({
       id:              user_id,
       calories_target: targets.calories_target,
       protein_target:  targets.protein_target,
