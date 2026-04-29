@@ -116,7 +116,7 @@ Return ONLY this JSON (no text before or after, no markdown):
 
 export async function GET(req: NextRequest) {
   const user_id = req.nextUrl.searchParams.get('user_id');
-  const { data } = await supabase
+  const { data } = await getAdmin()
     .from('profiles')
     .select('*')
     .eq('id', user_id)
