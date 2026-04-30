@@ -7,15 +7,34 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Header from '@/components/Header';
 
 const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
+const ORANGE = '#FF8A00';
+const VIOLET = '#7C3AED';
+const NAVY   = '#1D4ED8';
+
+// Dark navy text (replaces bordo)
+const INK    = '#0F0A2A';
+const INK2   = '#4A4570';
+const BORDER = '#E0DCF0';
+const CARD_BG = '#F5F3FF';
 
 function GradientText({ children, className = '' }) {
   return (
-    <span
-      className={`bg-clip-text text-transparent inline-block ${className}`}
-      style={{ backgroundImage: BOX_G }}
-    >
+    <span className={`bg-clip-text text-transparent inline-block ${className}`}
+      style={{ backgroundImage: BOX_G }}>
       {children}
     </span>
+  );
+}
+
+function Eyebrow({ children }) {
+  return (
+    <div className="inline-flex items-center gap-3 mb-6">
+      <span className="h-px w-8 flex-shrink-0" style={{ background: BOX_G }} />
+      <span className="font-body text-[11px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
+        style={{ backgroundImage: BOX_G }}>
+        {children}
+      </span>
+    </div>
   );
 }
 
@@ -28,10 +47,8 @@ const PRINCIPLES = [
 ];
 
 const PHASES = [
-  { name: 'Morning Pak',        status: 'live', desc: 'Sets the day. Clinically dosed vitamins, minerals, and methylated B-complex for performance and immune function.' },
-  { name: 'Anabolic Recovery',  status: 'live', desc: 'Rebuilds it. EAAs, creatine, HMB, tart cherry — everything the body needs post-training.' },
-  { name: 'Pre-Workout',        status: 'soon', desc: 'Coming next. Science-backed focus and power output, without the crash.' },
-  { name: 'Endurance Gel',      status: 'soon', desc: 'Coming next. Sustained energy for long efforts, transparently dosed.' },
+  { name: 'Morning Pak',       desc: 'Sets the day. Clinically dosed vitamins, minerals, and methylated B-complex for performance and immune function.', color: ORANGE },
+  { name: 'Anabolic Recovery', desc: 'Rebuilds it. EAAs, creatine, HMB, tart cherry — everything the body needs post-training.', color: VIOLET },
 ];
 
 const LIES = [
@@ -47,20 +64,6 @@ const WHO = [
   "Won't settle for a green powder with a celebrity on it.",
   'Demands clinical doses. Every time.',
 ];
-
-function Eyebrow({ children }) {
-  return (
-    <div className="inline-flex items-center gap-3 mb-6">
-      <span className="h-px w-8 flex-shrink-0" style={{ background: BOX_G }} />
-      <span
-        className="font-body text-[11px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
-        style={{ backgroundImage: BOX_G }}
-      >
-        {children}
-      </span>
-    </div>
-  );
-}
 
 export default function AboutPage() {
   const heroRef = useRef(null);
@@ -91,24 +94,25 @@ export default function AboutPage() {
     <>
       <Header />
 
-      <main className="bg-lc-white text-lc-maroon overflow-x-hidden">
+      <main className="overflow-x-hidden" style={{ background: '#FAFAFA', color: INK }}>
 
-        {/* ─── HERO ────────────────────────────────────────────── */}
+        {/* ─── HERO ─────────────────────────────────────────────── */}
         <section ref={heroRef} className="pt-44 pb-28 px-8 md:px-16 max-w-[1440px] mx-auto">
-          <div data-h>
-            <Eyebrow>Our Story</Eyebrow>
-          </div>
+          <div data-h><Eyebrow>Our Story</Eyebrow></div>
 
-          <h1 data-h className="font-sans font-700 text-[56px] md:text-[86px] lg:text-[108px] leading-[0.93] tracking-[-0.02em]">
-            <span className="text-lc-maroon">We didn't<br />start a<br /></span>
+          <h1 data-h
+            className="font-sans font-700 text-[56px] md:text-[86px] lg:text-[108px] leading-[0.93] tracking-[-0.02em]"
+            style={{ color: INK }}>
+            We didn't<br />start a<br />
             <GradientText>supplement<br />company.</GradientText>
           </h1>
 
-          <p data-h className="mt-10 font-body text-[22px] md:text-[28px] text-lc-maroon-dim max-w-lg leading-snug">
+          <p data-h className="mt-10 font-body text-[22px] md:text-[28px] max-w-lg leading-snug"
+            style={{ color: INK2 }}>
             We solved our own problem.
           </p>
 
-          <div data-h className="mt-20 flex items-center gap-3 text-lc-maroon-dim/40">
+          <div data-h className="mt-20 flex items-center gap-3" style={{ color: `${INK2}60` }}>
             <span className="font-body text-[11px] tracking-[0.25em] uppercase">Scroll</span>
             <span className="h-px w-16" style={{ background: BOX_G }} />
           </div>
@@ -116,22 +120,21 @@ export default function AboutPage() {
 
         <div className="h-px" style={{ background: BOX_G }} />
 
-        {/* ─── THE PROBLEM ─────────────────────────────────────── */}
+        {/* ─── THE PROBLEM ──────────────────────────────────────── */}
         <section className="py-28 px-8 md:px-16 max-w-[1440px] mx-auto">
           <div className="grid md:grid-cols-2 gap-16 lg:gap-24 items-start">
 
             <div data-s>
               <Eyebrow>The Problem</Eyebrow>
-              <h2 className="font-sans font-700 text-[38px] md:text-[50px] leading-[1.05] text-lc-maroon mb-10">
+              <h2 className="font-sans font-700 text-[38px] md:text-[50px] leading-[1.05] mb-10" style={{ color: INK }}>
                 A kitchen counter<br />that looked like<br />a pharmacy.
               </h2>
-              <div className="rounded-3xl p-8 inline-block border border-lc-line-light"
-                style={{ background: 'linear-gradient(135deg,#FFF3EC 0%,#FFE5D0 100%)' }}>
+              <div className="rounded-3xl p-8 inline-block" style={{ background: CARD_BG, border: `1px solid ${BORDER}` }}>
                 <span className="font-sans font-700 text-[64px] leading-none block bg-clip-text text-transparent"
                   style={{ backgroundImage: BOX_G }}>
                   €300
                 </span>
-                <span className="font-body text-[13px] text-lc-maroon-dim tracking-wide mt-1 block">
+                <span className="font-body text-[13px] tracking-wide mt-1 block" style={{ color: INK2 }}>
                   per month — five, six, sometimes eight products
                 </span>
               </div>
@@ -144,32 +147,31 @@ export default function AboutPage() {
                 "Three hundred euros a month, a kitchen counter that looked like a pharmacy, and the constant suspicion that half of it wasn't doing what the label said.",
                 "So we did what athletes do when something isn't working — we went to the source.",
               ].map((t, i) => (
-                <p key={i} className="font-body text-[17px] text-lc-maroon-dim leading-relaxed">{t}</p>
+                <p key={i} className="font-body text-[17px] leading-relaxed" style={{ color: INK2 }}>{t}</p>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ─── PULLED QUOTE ────────────────────────────────────── */}
-        <section className="py-24 px-8 md:px-16 border-y border-lc-line-light"
-          style={{ background: 'linear-gradient(135deg,#FFF8F5 0%,#F8F5FF 50%,#F5F8FF 100%)' }}>
+        {/* ─── PULLED QUOTE ─────────────────────────────────────── */}
+        <section className="py-24 px-8 md:px-16" style={{ background: CARD_BG, borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}` }}>
           <div className="max-w-[1440px] mx-auto">
-            <p data-s className="font-sans font-700 text-[26px] md:text-[40px] lg:text-[52px] leading-[1.1] text-lc-maroon max-w-5xl">
+            <p data-s className="font-sans font-700 text-[26px] md:text-[40px] lg:text-[52px] leading-[1.1] max-w-5xl" style={{ color: INK }}>
               "We spent years reading peer-reviewed journals, studying EFSA dossiers, learning the difference between{' '}
               <GradientText>zinc bisglycinate and zinc oxide.</GradientText>{' '}
               We talked to formulators. We audited manufacturers."
             </p>
-            <p data-s className="mt-8 font-body text-[15px] text-lc-maroon-dim tracking-wide max-w-xl">
+            <p data-s className="mt-8 font-body text-[15px] tracking-wide max-w-xl" style={{ color: INK2 }}>
               We compared sourcing standards across continents. And what we found changed everything.
             </p>
           </div>
         </section>
 
-        {/* ─── THREE LIES ──────────────────────────────────────── */}
+        {/* ─── THREE LIES ───────────────────────────────────────── */}
         <section className="py-28 px-8 md:px-16 max-w-[1440px] mx-auto">
           <div data-s className="mb-16">
             <Eyebrow>What We Found</Eyebrow>
-            <h2 className="font-sans font-700 text-[36px] md:text-[54px] leading-[1.05] text-lc-maroon">
+            <h2 className="font-sans font-700 text-[36px] md:text-[54px] leading-[1.05]" style={{ color: INK }}>
               The supplement industry<br />is built on{' '}
               <GradientText>three quiet lies.</GradientText>
             </h2>
@@ -178,22 +180,19 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-3 gap-5 mb-14">
             {LIES.map(({ num, title, body }) => (
               <div key={num} data-s
-                className="rounded-3xl border border-lc-line-light p-9 group hover:shadow-lg transition-all duration-300"
-                style={{ '--hover-border': 'transparent' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = 'transparent'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = ''}
-              >
+                className="rounded-3xl p-9 transition-all duration-300 hover:shadow-xl"
+                style={{ background: CARD_BG, border: `1px solid ${BORDER}` }}>
                 <GradientText className="font-sans font-700 text-[11px] tracking-[0.3em] block mb-5">{num}</GradientText>
-                <h3 className="font-sans font-700 text-[26px] text-lc-maroon mb-4 leading-tight bg-clip-text text-transparent"
+                <h3 className="font-sans font-700 text-[26px] mb-4 leading-tight bg-clip-text text-transparent"
                   style={{ backgroundImage: BOX_G }}>
                   {title}
                 </h3>
-                <p className="font-body text-[15px] text-lc-maroon-dim leading-relaxed">{body}</p>
+                <p className="font-body text-[15px] leading-relaxed" style={{ color: INK2 }}>{body}</p>
               </div>
             ))}
           </div>
 
-          <p data-s className="font-body text-[18px] text-lc-maroon-dim max-w-2xl leading-relaxed">
+          <p data-s className="font-body text-[18px] max-w-2xl leading-relaxed" style={{ color: INK2 }}>
             The brands that don't lie cost €60–90 a product — and you still need four of them to run a real protocol.{' '}
             <span className="font-700 bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
               So we stopped looking. We built it ourselves.
@@ -201,8 +200,8 @@ export default function AboutPage() {
           </p>
         </section>
 
-        {/* ─── THE SYSTEM ──────────────────────────────────────── */}
-        <section className="py-28 px-8 md:px-16" style={{ background: '#0D0D0F' }}>
+        {/* ─── THE SYSTEM ───────────────────────────────────────── */}
+        <section className="py-28 px-8 md:px-16" style={{ background: '#0B0A1A' }}>
           <div className="max-w-[1440px] mx-auto">
             <div data-s className="mb-16">
               <div className="inline-flex items-center gap-3 mb-6">
@@ -213,45 +212,41 @@ export default function AboutPage() {
                 </span>
               </div>
               <h2 className="font-sans font-700 text-[36px] md:text-[54px] leading-[1.05] text-white max-w-2xl">
-                A complete daily<br />performance system<br />
-                <GradientText>across four phases.</GradientText>
+                A complete daily<br />performance system.<br />
+                <GradientText>Two phases. Launched.</GradientText>
               </h2>
-              <p className="mt-6 font-body text-[17px] text-white/50 max-w-lg leading-relaxed">
-                Each phase is a single stick. Clinically dosed, naturally sweetened, fully transparent. The work of an eight-product stack — in four sticks.
+              <p className="mt-6 font-body text-[17px] max-w-lg leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                Each phase is a single stick. Clinically dosed, naturally sweetened, fully transparent. The work of an eight-product stack — in two sticks.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {PHASES.map(({ name, status, desc }, i) => (
+            <div className="grid md:grid-cols-2 gap-6 max-w-3xl">
+              {PHASES.map(({ name, desc, color }) => (
                 <div key={name} data-s
-                  className={`rounded-3xl p-8 border transition-all duration-300
-                    ${status === 'live'
-                      ? 'border-white/10 bg-white/[0.06] hover:bg-white/10'
-                      : 'border-white/5 bg-white/[0.02] opacity-40'}`}
-                >
+                  className="rounded-3xl p-9 border transition-all duration-300 hover:scale-[1.02]"
+                  style={{ background: `${color}0D`, borderColor: `${color}30` }}>
                   <span
-                    className="font-body text-[10px] tracking-[0.28em] uppercase px-3 py-1.5 rounded-full inline-block mb-6 bg-clip-text text-transparent"
-                    style={{ backgroundImage: status === 'live' ? BOX_G : 'linear-gradient(90deg,#888,#666)', border: '1px solid rgba(255,255,255,0.1)' }}
-                  >
-                    {status === 'live' ? 'Available Now' : 'Coming Soon'}
+                    className="font-body text-[10px] tracking-[0.28em] uppercase px-3 py-1.5 rounded-full inline-block mb-6 font-700"
+                    style={{ color, background: `${color}20` }}>
+                    Available Now
                   </span>
-                  <h3 className="font-sans font-700 text-[22px] text-white mb-3 leading-tight">{name}</h3>
-                  <p className="font-body text-[14px] text-white/40 leading-relaxed">{desc}</p>
+                  <h3 className="font-sans font-700 text-[24px] text-white mb-3 leading-tight">{name}</h3>
+                  <p className="font-body text-[14px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>{desc}</p>
                 </div>
               ))}
             </div>
 
-            <p data-s className="mt-12 font-body text-[15px] text-white/35 max-w-xl leading-relaxed">
-              We're not launching with a hero product. The body doesn't work in heroes. It works in phases — and we'd rather build the system properly, one phase at a time, than ship a compromised version of the whole thing.
+            <p data-s className="mt-12 font-body text-[15px] max-w-xl leading-relaxed" style={{ color: 'rgba(255,255,255,0.3)' }}>
+              Pre-Workout and Endurance follow. We'd rather build the system properly, one phase at a time, than ship a compromised version of the whole thing.
             </p>
           </div>
         </section>
 
-        {/* ─── MANIFESTO ───────────────────────────────────────── */}
+        {/* ─── MANIFESTO ────────────────────────────────────────── */}
         <section className="py-28 px-8 md:px-16 max-w-[1440px] mx-auto">
           <div data-s className="mb-16">
             <Eyebrow>What We Stand For</Eyebrow>
-            <h2 className="font-sans font-700 text-[36px] md:text-[54px] leading-[1.05] text-lc-maroon">
+            <h2 className="font-sans font-700 text-[36px] md:text-[54px] leading-[1.05]" style={{ color: INK }}>
               Five things<br />
               <GradientText>we never compromise on.</GradientText>
             </h2>
@@ -260,17 +255,15 @@ export default function AboutPage() {
           <div>
             {PRINCIPLES.map(({ num, text }, i) => (
               <div key={num} data-s
-                className={`flex items-start gap-8 md:gap-14 py-8 group cursor-default
-                  ${i < PRINCIPLES.length - 1 ? 'border-b border-lc-line-light' : ''}`}
-              >
-                <GradientText className="font-sans font-700 text-[11px] tracking-[0.28em] mt-2 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+                className="flex items-start gap-8 md:gap-14 py-8 group cursor-default"
+                style={{ borderBottom: i < PRINCIPLES.length - 1 ? `1px solid ${BORDER}` : 'none' }}>
+                <GradientText className="font-sans font-700 text-[11px] tracking-[0.28em] mt-2 flex-shrink-0 opacity-50 group-hover:opacity-100 transition-opacity duration-300">
                   {num}
                 </GradientText>
-                <p className="font-sans font-700 text-[22px] md:text-[30px] text-lc-maroon leading-tight group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300"
-                  style={{ '--g': BOX_G }}
-                  onMouseEnter={e => { e.currentTarget.style.backgroundImage = BOX_G; }}
-                  onMouseLeave={e => { e.currentTarget.style.backgroundImage = ''; e.currentTarget.style.webkitTextFillColor = ''; }}
-                >
+                <p className="font-sans font-700 text-[22px] md:text-[30px] leading-tight transition-all duration-300"
+                  style={{ color: INK }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundImage = BOX_G; e.currentTarget.style.webkitBackgroundClip = 'text'; e.currentTarget.style.webkitTextFillColor = 'transparent'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundImage = ''; e.currentTarget.style.webkitBackgroundClip = ''; e.currentTarget.style.webkitTextFillColor = ''; }}>
                   {text}
                 </p>
               </div>
@@ -278,68 +271,68 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ─── WHO THIS IS FOR ─────────────────────────────────── */}
-        <section className="py-28 px-8 md:px-16 border-y border-lc-line-light"
-          style={{ background: 'linear-gradient(135deg,#FFF8F5 0%,#F5F0FF 100%)' }}>
+        {/* ─── WHO THIS IS FOR ──────────────────────────────────── */}
+        <section className="py-28 px-8 md:px-16" style={{ background: CARD_BG, borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}` }}>
           <div className="max-w-[1440px] mx-auto grid md:grid-cols-2 gap-16 lg:gap-24 items-center">
             <div data-s>
               <Eyebrow>Who This Is Built For</Eyebrow>
-              <h2 className="font-sans font-700 text-[40px] md:text-[56px] leading-[1.0] text-lc-maroon mb-8">
+              <h2 className="font-sans font-700 text-[40px] md:text-[56px] leading-[1.0] mb-8" style={{ color: INK }}>
                 The <GradientText>serious</GradientText><br />amateur.
               </h2>
-              <p className="font-body text-[17px] text-lc-maroon-dim leading-relaxed max-w-md mb-5">
+              <p className="font-body text-[17px] leading-relaxed max-w-md mb-5" style={{ color: INK2 }}>
                 The lifter, the runner, the cyclist, the fighter, the early-morning lap swimmer with a real job and a real family. The high-performer who treats nutrition as part of the work.
               </p>
-              <p className="font-body text-[17px] text-lc-maroon-dim leading-relaxed max-w-md">
+              <p className="font-body text-[17px] leading-relaxed max-w-md" style={{ color: INK2 }}>
                 If you're looking for a green powder with a celebrity on the label, you're in the wrong place.
               </p>
             </div>
 
             <div data-s>
               {WHO.map((line, i) => (
-                <div key={i}
-                  className={`flex items-center gap-5 py-5 ${i < WHO.length - 1 ? 'border-b border-lc-line-light' : ''}`}
-                >
+                <div key={i} className="flex items-center gap-5 py-5"
+                  style={{ borderBottom: i < WHO.length - 1 ? `1px solid ${BORDER}` : 'none' }}>
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: BOX_G }} />
-                  <p className="font-sans font-700 text-[18px] md:text-[20px] text-lc-maroon">{line}</p>
+                  <p className="font-sans font-700 text-[18px] md:text-[20px]" style={{ color: INK }}>{line}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ─── THE LINE WE DREW ────────────────────────────────── */}
+        {/* ─── THE LINE WE DREW ─────────────────────────────────── */}
         <section className="py-28 px-8 md:px-16 max-w-[1440px] mx-auto">
           <div data-s className="max-w-3xl mb-16">
             <Eyebrow>The Line We Drew</Eyebrow>
-            <h2 className="font-sans font-700 text-[32px] md:text-[48px] leading-[1.1] text-lc-maroon mb-8">
+            <h2 className="font-sans font-700 text-[32px] md:text-[48px] leading-[1.1] mb-8" style={{ color: INK }}>
               We exist against underdosing. Against hidden blends.{' '}
               <GradientText>Against sucralose in products that charge premium prices.</GradientText>
             </h2>
-            <p className="font-body text-[17px] text-lc-maroon-dim leading-relaxed">
+            <p className="font-body text-[17px] leading-relaxed" style={{ color: INK2 }}>
               Against the assumption that athletes won't read the label. If you train seriously, you deserve a supplement system that does the same.
             </p>
           </div>
 
           {/* CTA */}
-          <div data-s className="border-t pt-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-10"
-            style={{ borderImage: `${BOX_G} 1` }}>
-            <div>
-              <Eyebrow>Ready to start?</Eyebrow>
-              <h3 className="font-sans font-700 text-[30px] md:text-[38px] text-lc-maroon leading-tight">
-                Build your protocol.
-              </h3>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/pricing"
-                className="inline-flex items-center justify-center px-9 py-4 rounded-full text-white font-body text-[13px] tracking-[0.2em] uppercase transition-all duration-300 hover:opacity-85"
-                style={{ background: BOX_G }}>
-                Get Started
-              </Link>
-              <Link href="/#morning"
-                className="inline-flex items-center justify-center px-9 py-4 rounded-full border border-lc-line-light font-body text-[13px] tracking-[0.2em] text-lc-maroon-dim uppercase hover:border-lc-maroon hover:text-lc-maroon transition-all duration-300">
-                See Products
-              </Link>
+          <div data-s className="pt-16" style={{ borderTop: `1px solid ${BORDER}` }}>
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-10">
+              <div>
+                <Eyebrow>Ready to start?</Eyebrow>
+                <h3 className="font-sans font-700 text-[30px] md:text-[38px] leading-tight" style={{ color: INK }}>
+                  Build your protocol.
+                </h3>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/pricing"
+                  className="inline-flex items-center justify-center px-9 py-4 rounded-full text-white font-body text-[13px] tracking-[0.2em] uppercase transition-all duration-300 hover:opacity-85"
+                  style={{ background: BOX_G }}>
+                  Get Started
+                </Link>
+                <Link href="/#morning"
+                  className="inline-flex items-center justify-center px-9 py-4 rounded-full font-body text-[13px] tracking-[0.2em] uppercase transition-all duration-300 hover:opacity-70"
+                  style={{ border: `1px solid ${BORDER}`, color: INK2 }}>
+                  See Products
+                </Link>
+              </div>
             </div>
           </div>
         </section>
