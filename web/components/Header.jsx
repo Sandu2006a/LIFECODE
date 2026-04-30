@@ -80,11 +80,18 @@ export default function Header() {
 
       {/* Nav */}
       <nav className="hidden md:flex items-center gap-10">
-        {[['Morning', '#morning'], ['Recovery', '#recovery'], ['Ecosystem', '#ecosystem']].map(([label, href]) => (
-          <a key={label} href={href}
-            className="font-body text-[12px] tracking-widest text-[#666] hover:text-[#111] transition-colors duration-300 uppercase">
-            {label}
-          </a>
+        {[['Morning', '#morning'], ['Recovery', '#recovery'], ['Ecosystem', '#ecosystem'], ['About', '/about']].map(([label, href]) => (
+          href.startsWith('/') ? (
+            <Link key={label} href={href}
+              className="font-body text-[12px] tracking-widest text-[#666] hover:text-[#111] transition-colors duration-300 uppercase">
+              {label}
+            </Link>
+          ) : (
+            <a key={label} href={href}
+              className="font-body text-[12px] tracking-widest text-[#666] hover:text-[#111] transition-colors duration-300 uppercase">
+              {label}
+            </a>
+          )
         ))}
       </nav>
 

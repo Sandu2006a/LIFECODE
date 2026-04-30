@@ -33,6 +33,7 @@ export default function Footer() {
               ['Morning', '/products/morning'],
               ['Recovery', '/products/recovery'],
               ['Ingredients', '/#morning'],
+              ['About', '/about'],
               ['Contact', '#'],
             ].map(([label, href]) => (
               <Link
