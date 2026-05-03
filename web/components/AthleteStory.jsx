@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -10,7 +11,6 @@ const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D
 
 const FACTS = [
   { value: '12+', label: 'Years competing', gradient: MG },
-  { value: '4', label: 'Sports disciplines', gradient: 'linear-gradient(135deg, #FF8A00, #7C3AED)' },
   { value: '100%', label: 'Athlete-founded', gradient: RG },
 ];
 
@@ -102,7 +102,7 @@ export default function AthleteStory() {
             </div>
 
             {/* Fact stats */}
-            <div className="as-el grid grid-cols-3 gap-4 opacity-0">
+            <div className="as-el grid grid-cols-2 gap-4 opacity-0">
               {FACTS.map(f => (
                 <div key={f.label} style={{ padding: '1.5px', borderRadius: '14px', background: f.gradient }}>
                   <div className="bg-white text-center py-5 px-3" style={{ borderRadius: '12.5px' }}>
@@ -118,6 +118,22 @@ export default function AthleteStory() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* About button */}
+            <div className="as-el mt-6 opacity-0">
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-3 px-6 py-3 rounded-full font-body text-[12px] tracking-widest uppercase text-white transition-opacity duration-300 hover:opacity-85"
+                style={{ background: BOX_G }}
+              >
+                Our Story
+                <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
+                  <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 5h6M5.5 2.5L8 5l-2.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+              </Link>
             </div>
 
           </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -276,6 +277,22 @@ export default function ComparisonSection() {
               gradientTo="#7C3AED"
             />
           </div>
+        </div>
+
+        {/* Full comparison CTA */}
+        <div className="mt-12 flex justify-center">
+          <Link
+            href="/lifecode-comparison"
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-full font-sans font-700 text-[12px] tracking-widest uppercase text-white transition-opacity duration-300 hover:opacity-85"
+            style={{ background: BOX_G }}
+          >
+            See Full Ingredient Comparison
+            <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M2 5h6M5.5 2.5L8 5l-2.5 2.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+          </Link>
         </div>
 
       </div>
