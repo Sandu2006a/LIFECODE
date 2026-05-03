@@ -7,6 +7,64 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
 const HEAT_G = 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)';
 
+function SuccessCard({ email, already }) {
+  const cardRef = useRef(null);
+  const checkRef = useRef(null);
+
+  useEffect(() => {
+    const tl = gsap.timeline();
+    tl.fromTo(cardRef.current,
+      { scale: 0.9, opacity: 0, y: 10 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.55, ease: 'back.out(1.6)' }
+    );
+    if (checkRef.current) {
+      tl.fromTo(checkRef.current,
+        { scale: 0, rotate: -90 },
+        { scale: 1, rotate: 0, duration: 0.5, ease: 'back.out(2)' },
+        '-=0.25'
+      );
+    }
+  }, []);
+
+  return (
+    <div
+      ref={cardRef}
+      className="relative rounded-2xl p-[1.5px] overflow-hidden"
+      style={{ background: 'linear-gradient(135deg,#10b981,#059669,#047857)' }}
+    >
+      <div className="bg-white rounded-[14.5px] px-6 py-7 md:px-8 md:py-8 text-center relative">
+        <div
+          ref={checkRef}
+          className="mx-auto w-14 h-14 rounded-full flex items-center justify-center mb-4"
+          style={{ background: 'linear-gradient(135deg,#10b981,#059669)' }}
+        >
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+
+        <p className="font-body text-[10px] tracking-[0.32em] uppercase font-700 text-[#059669] mb-2">
+          {already ? 'Already on the list' : "You're in"}
+        </p>
+        <h3 className="font-sans font-700 text-[#0a0a0a] text-2xl md:text-3xl tracking-tight leading-tight">
+          {already ? 'Your spot is safe.' : 'Welcome to the founders list.'}
+        </h3>
+        <p className="font-body font-300 text-[#666] text-[14px] md:text-[15px] leading-relaxed mt-3 max-w-[440px] mx-auto">
+          We just sent a confirmation to <span className="font-700 text-[#0a0a0a]">{email}</span>.
+          Check your inbox — pre-orders open soon and you&apos;ll be first in line.
+        </p>
+
+        <div className="mt-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f1fdf7] border border-[#d1fae5]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse" />
+          <span className="font-body text-[10px] tracking-[0.28em] uppercase text-[#059669] font-700">
+            Coming soon · Founder pricing locked
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function PreOrderSection() {
   const sectionRef = useRef(null);
 
@@ -59,7 +117,6 @@ export default function PreOrderSection() {
     >
       <div className="max-w-[920px] mx-auto text-center">
 
-        {/* Eyebrow */}
         <div className="po-rise inline-flex items-center gap-3 mb-6 opacity-0">
           <div className="w-5 h-px" style={{ background: HEAT_G }} />
           <span className="font-body text-[10px] tracking-[0.32em] uppercase font-600" style={{ color: '#C62828' }}>
@@ -68,7 +125,6 @@ export default function PreOrderSection() {
           <div className="w-5 h-px" style={{ background: HEAT_G }} />
         </div>
 
-        {/* Headline */}
         <h2
           className="po-rise font-sans font-700 text-[#0a0a0a] leading-[0.92] tracking-tight opacity-0 mx-auto"
           style={{ fontSize: 'clamp(2.6rem, 6vw, 5.6rem)' }}
@@ -79,7 +135,6 @@ export default function PreOrderSection() {
           </span>
         </h2>
 
-        {/* Subline */}
         <p className="po-rise font-body font-300 text-[#666] text-base md:text-[17px] leading-relaxed max-w-[620px] mx-auto mt-7 opacity-0">
           Drop your email to join the founders list. You&apos;ll be the
           <span className="font-700 text-[#0a0a0a]"> first to pre-order</span>,
@@ -87,60 +142,64 @@ export default function PreOrderSection() {
           and ship before the public release.
         </p>
 
-        {/* Email form */}
-        <form onSubmit={onSubmit} className="po-rise mt-10 opacity-0 mx-auto w-full max-w-[560px]">
-          <div
-            className="flex flex-col sm:flex-row gap-2 p-[1.5px] rounded-full"
-            style={{
-              background: status === 'success' || status === 'already'
-                ? 'linear-gradient(135deg,#10b981,#059669)'
-                : BOX_G
-            }}
-          >
-            <input
-              type="email"
-              required
-              inputMode="email"
-              autoComplete="email"
-              disabled={status === 'loading' || status === 'success' || status === 'already'}
-              placeholder="your@email.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="flex-1 bg-white rounded-full px-6 py-4 font-body text-[15px] text-[#0a0a0a] placeholder:text-[#bbb] outline-none disabled:opacity-70 text-center sm:text-left"
-            />
-            <button
-              type="submit"
-              disabled={status === 'loading' || status === 'success' || status === 'already'}
-              className="rounded-full px-7 py-4 text-white font-sans font-700 text-[12px] tracking-[0.18em] uppercase hover:opacity-90 transition disabled:opacity-70 whitespace-nowrap"
-              style={{ background: BOX_G }}
-            >
-              {status === 'loading' ? 'Joining…'
-                : status === 'success' ? "You're on the list ✓"
-                : status === 'already' ? 'Already on the list ✓'
-                : 'Notify me first →'}
-            </button>
-          </div>
+        <div className="po-rise mt-10 opacity-0 mx-auto w-full max-w-[560px]">
+          {status === 'success' || status === 'already' ? (
+            <SuccessCard email={email} already={status === 'already'} />
+          ) : (
+            <form onSubmit={onSubmit}>
+              <div
+                className="flex flex-col sm:flex-row gap-2 p-[1.5px] rounded-full"
+                style={{ background: BOX_G }}
+              >
+                <input
+                  type="email"
+                  required
+                  inputMode="email"
+                  autoComplete="email"
+                  disabled={status === 'loading'}
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="flex-1 bg-white rounded-full px-6 py-4 font-body text-[15px] text-[#0a0a0a] placeholder:text-[#bbb] outline-none disabled:opacity-70 text-center sm:text-left"
+                />
+                <button
+                  type="submit"
+                  disabled={status === 'loading'}
+                  className="relative overflow-hidden rounded-full px-7 py-4 text-white font-sans font-700 text-[12px] tracking-[0.18em] uppercase transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_10px_30px_rgba(198,40,40,0.35)] disabled:opacity-80 whitespace-nowrap group"
+                  style={{ background: BOX_G }}
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {status === 'loading' ? (
+                      <>
+                        <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.3"/>
+                          <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+                        </svg>
+                        Joining…
+                      </>
+                    ) : (
+                      <>
+                        Notify me first
+                        <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                      </>
+                    )}
+                  </span>
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"
+                        style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)' }} />
+                </button>
+              </div>
 
-          {status === 'error' && (
-            <p className="mt-3 font-body text-[13px]" style={{ color: '#C62828' }}>{errorMsg}</p>
-          )}
-          {status === 'success' && (
-            <p className="mt-3 font-body text-[13px] text-[#059669] font-600">
-              Confirmed. We&apos;ll email you the moment pre-orders open.
-            </p>
-          )}
-          {status === 'already' && (
-            <p className="mt-3 font-body text-[13px] text-[#059669]">
-              You&apos;re already on the list — your spot is safe.
-            </p>
-          )}
+              {status === 'error' && (
+                <p className="mt-3 font-body text-[13px]" style={{ color: '#C62828' }}>{errorMsg}</p>
+              )}
 
-          <p className="mt-3 font-body text-[11px] text-[#aaa] tracking-wide">
-            No spam. One email when we launch.
-          </p>
-        </form>
+              <p className="mt-3 font-body text-[11px] text-[#aaa] tracking-wide">
+                No spam. One email when we launch.
+              </p>
+            </form>
+          )}
+        </div>
 
-        {/* Marketing perks */}
         <div className="po-rise grid grid-cols-1 sm:grid-cols-3 gap-3 mt-12 opacity-0 max-w-[720px] mx-auto">
           {[
             { tag: '−25%', label: 'Founder pricing',     sub: 'locked in for life' },
@@ -160,7 +219,6 @@ export default function PreOrderSection() {
           ))}
         </div>
 
-        {/* Social proof */}
         <p className="po-rise mt-8 font-body text-[12px] text-[#888] tracking-wide opacity-0">
           <span className="font-700" style={{ color: '#C62828' }}>+1,200</span> athletes already waiting ·
           <span className="font-700 text-[#0a0a0a]"> Limited founders batch</span>
