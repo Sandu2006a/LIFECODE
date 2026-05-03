@@ -102,17 +102,18 @@ export default function EcosystemSection() {
 
           {/* ── Right: app screenshot ── */}
           <div className="eco-el opacity-0 flex justify-center md:justify-end">
-            <div className="relative" style={{ filter: 'drop-shadow(0 32px 64px rgba(124,58,237,0.18))' }}>
+            <div className="relative rounded-3xl overflow-hidden p-6"
+              style={{ background: '#ffffff', boxShadow: '0 24px 80px rgba(124,58,237,0.12), 0 4px 24px rgba(0,0,0,0.06)' }}>
               <Image
                 src="/PhoneApp.png"
                 alt="LIFECODE App"
-                width={320}
-                height={640}
-                className="object-contain"
-                style={{ maxHeight: '580px', width: 'auto' }}
+                width={300}
+                height={600}
+                className="object-contain rounded-2xl"
+                style={{ maxHeight: '560px', width: 'auto', background: '#fff' }}
               />
               {/* Glow under phone */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 h-8 blur-2xl opacity-40 rounded-full"
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-6 blur-2xl opacity-30 rounded-full"
                 style={{ background: BOX_G }} />
             </div>
           </div>

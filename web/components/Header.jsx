@@ -81,8 +81,8 @@ export default function Header() {
       {/* Nav */}
       <nav className="hidden md:flex items-center gap-8">
         {[
-          ['Morning',     '/#morning'],
-          ['Recovery',    '/#recovery'],
+          ['Morning',     '/products/morning'],
+          ['Recovery',    '/products/recovery'],
           ['Ingredients', '/ingredients'],
           ['Ecosystem',   '/#ecosystem'],
           ['About',       '/about'],

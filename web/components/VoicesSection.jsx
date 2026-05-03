@@ -116,21 +116,21 @@ export default function VoicesSection() {
                 style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
 
                 {/* Photo */}
-                <div className="flex-shrink-0 rounded-full p-[2.5px]" style={{ background: BOX_G }}>
-                  <div className="relative w-20 h-20 rounded-full overflow-hidden">
+                <div className="flex-shrink-0 rounded-2xl p-[2.5px]" style={{ background: BOX_G }}>
+                  <div className="relative w-24 h-24 rounded-[14px] overflow-hidden">
                     <Image
                       src={v.photo}
                       alt={v.name}
                       fill
                       className="object-cover object-top"
-                      sizes="80px"
+                      sizes="96px"
                     />
                   </div>
                 </div>
 
                 <div className="min-w-0">
-                  <p className="font-sans font-700 text-[16px] text-white truncate tracking-tight">{v.name}</p>
-                  <p className="font-body text-[13px] truncate mt-1 bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>{v.role}</p>
+                  <p className="font-sans font-700 text-[17px] text-white tracking-tight leading-tight">{v.name}</p>
+                  <p className="font-body text-[13px] mt-1.5 bg-clip-text text-transparent leading-snug" style={{ backgroundImage: BOX_G }}>{v.role}</p>
                 </div>
 
                 {/* Tag pill */}
