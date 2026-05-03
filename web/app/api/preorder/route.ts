@@ -205,10 +205,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Send welcome email — best effort, don't block the request on failure
+    // Send welcome email — capture error details so we can surface them
+    let mailDebug: any = { sent: false };
     try {
       const fromAddress = process.env.RESEND_FROM_EMAIL || 'LIFECODE <onboarding@resend.dev>';
-      await getResend().emails.send({
+      const hasKey = !!process.env.RESEND_API_KEY;
+      mailDebug.from = fromAddress;
+      mailDebug.hasKey = hasKey;
+      const result = await getResend().emails.send({
         from: fromAddress,
         to: normal,
         subject: alreadyOnList
@@ -216,8 +220,12 @@ export async function POST(req: NextRequest) {
           : "You're in. The protocol is coming.",
         html: welcomeEmailHtml(normal),
       });
-    } catch (mailErr) {
+      mailDebug.sent = true;
+      mailDebug.id = (result as any)?.data?.id ?? null;
+      mailDebug.resendError = (result as any)?.error ?? null;
+    } catch (mailErr: any) {
       console.error('preorder email error:', mailErr);
+      mailDebug.exception = mailErr?.message || String(mailErr);
     }
 
     const remaining = Math.max(0, TOTAL_SPOTS - (alreadyOnList ? taken : taken + 1));
@@ -226,6 +234,7 @@ export async function POST(req: NextRequest) {
       alreadyOnList,
       remaining,
       total: TOTAL_SPOTS,
+      mailDebug,
     });
   } catch (err: any) {
     console.error('preorder route error:', err);
