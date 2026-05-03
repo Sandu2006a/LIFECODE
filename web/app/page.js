@@ -9,6 +9,7 @@ import SystemSection     from '@/components/SystemSection';
 import AppSection        from '@/components/AppSection';
 import ComparisonSection from '@/components/ComparisonSection';
 import EcosystemSection  from '@/components/EcosystemSection';
+import VoicesSection     from '@/components/VoicesSection';
 import Footer            from '@/components/Footer';
 
 export default function Home() {
@@ -25,6 +26,7 @@ export default function Home() {
         <AppSection />
         <ComparisonSection />
         <EcosystemSection />
+        <VoicesSection />
       </main>
       <Footer />
     </SmoothScroll>
