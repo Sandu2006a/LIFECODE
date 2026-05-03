@@ -145,7 +145,7 @@ export default function ComparisonPage() {
       <main style={{ background: '#fff', minHeight: '100vh' }}>
 
         {/* Hero */}
-        <section className="pt-44 pb-14 px-6 md:px-16"
+        <section className="pt-48 pb-14 px-6 md:px-16"
           style={{ background: 'linear-gradient(180deg, #F8F5FF 0%, #fff 80%)' }}>
           <div className="max-w-[1200px] mx-auto">
             <div className="flex items-center gap-3 mb-6">

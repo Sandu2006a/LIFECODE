@@ -82,15 +82,16 @@ export default function Header() {
       ref={headerRef}
       className={`
         fixed top-0 left-0 right-0 z-50
-        flex items-center justify-between
-        px-8 md:px-16 py-5
+        flex flex-col
         transition-all duration-500
         ${scrolled
-          ? 'bg-white/95 backdrop-blur-md border-b border-[#eee] shadow-sm'
-          : 'bg-transparent border-b border-transparent'}
+          ? 'bg-white/95 backdrop-blur-md shadow-sm'
+          : 'bg-transparent'}
       `}
       style={{ opacity: 0 }}
     >
+      {/* ── Row 1: Nav ── */}
+      <div className={`flex items-center justify-between px-8 md:px-16 py-3 transition-all duration-500 ${scrolled ? 'border-b border-[#eee]' : 'border-b border-transparent'}`}>
       {/* Wordmark */}
       <Link href="/" className="font-sans font-700 text-sm tracking-[0.3em] text-[#111] uppercase select-none hover:opacity-70 transition-opacity duration-300">
         LIFECODE
@@ -161,53 +162,54 @@ export default function Header() {
           </>
         )}
       </div>
-      {/* ── Countdown banner — below nav, full width ── */}
+      </div>{/* close Row 1 */}
+
+      {/* ── Row 2: Countdown banner ── */}
       <Link
         href={pathname === '/' ? '#preorder' : '/#preorder'}
-        className="absolute left-0 right-0 flex items-center justify-center gap-3 md:gap-6 px-4 py-2 cursor-pointer group"
+        className="w-full flex items-center justify-center flex-wrap gap-3 md:gap-6 px-4 py-3 cursor-pointer group"
         style={{
-          top: '100%',
           background: 'linear-gradient(90deg, #FFF9F5 0%, #FFF5F0 40%, #F8F5FF 100%)',
-          borderTop: '1px solid rgba(255,138,0,0.15)',
-          borderBottom: '1px solid rgba(124,58,237,0.12)',
+          borderTop: '1px solid rgba(255,138,0,0.18)',
+          borderBottom: '1px solid rgba(124,58,237,0.15)',
         }}
       >
-        {/* Pulse dot */}
-        <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#C62828' }} />
-          <span className="font-sans font-700 text-[9px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
+        {/* Pulse + label */}
+        <span className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#C62828' }} />
+          <span className="font-sans font-700 text-[11px] tracking-[0.28em] uppercase bg-clip-text text-transparent"
             style={{ backgroundImage: HEAT_G }}>Coming Soon</span>
         </span>
 
-        <span className="hidden sm:block w-px h-3 bg-[#e8d8f0]" />
+        <span className="hidden sm:block w-px h-4 bg-[#e0d0f0]" />
 
         {/* Offer */}
-        <span className="font-body text-[11px] text-[#555]">
+        <span className="font-body text-[13px] text-[#444]">
           First{' '}
           <strong className="font-800 bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>100</strong>
           {' '}founders get{' '}
-          <strong className="font-800 bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>70% OFF</strong>
+          <strong className="font-800 text-[15px] bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>70% OFF</strong>
           {' '}their first month
         </span>
 
-        <span className="hidden sm:block w-px h-3 bg-[#e8d8f0]" />
+        <span className="hidden sm:block w-px h-4 bg-[#e0d0f0]" />
 
         {/* Timer */}
-        <span className="flex items-center gap-1 font-sans font-700 text-[12px] tabular-nums">
+        <span className="flex items-center gap-1.5 font-sans font-700 text-[13px] tabular-nums">
           {[{v:timer.d,l:'d'},{v:timer.h,l:'h'},{v:timer.m,l:'m'},{v:timer.s,l:'s'}].map(({v,l},i)=>(
             <span key={l} className="flex items-center gap-1">
               <span className="bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>{pad(v)}</span>
-              <span className="text-[9px] text-[#bbb] font-400">{l}</span>
-              {i<3 && <span className="text-[#ddd] mx-0.5">·</span>}
+              <span className="text-[10px] text-[#bbb] font-400">{l}</span>
+              {i<3 && <span className="text-[#ddd] mx-0.5">:</span>}
             </span>
           ))}
         </span>
 
-        <span className="hidden sm:block w-px h-3 bg-[#e8d8f0]" />
+        <span className="hidden sm:block w-px h-4 bg-[#e0d0f0]" />
 
         {/* CTA pill */}
         <span
-          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-white font-sans font-700 text-[9px] tracking-[0.18em] uppercase group-hover:opacity-85 transition-opacity"
+          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white font-sans font-700 text-[11px] tracking-[0.15em] uppercase group-hover:opacity-85 transition-opacity"
           style={{ background: HEAT_G }}
         >
           Pre-order <span className="group-hover:translate-x-0.5 transition-transform duration-200">→</span>
