@@ -84,6 +84,7 @@ export default function Header() {
           ['Morning',     '/products/morning'],
           ['Recovery',    '/products/recovery'],
           ['Ingredients', '/ingredients'],
+          ['Comparison',  '/lifecode-comparison'],
           ['Ecosystem',   '/#ecosystem'],
           ['About',       '/about'],
         ].map(([label, href]) => (

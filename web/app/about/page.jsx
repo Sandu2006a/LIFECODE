@@ -228,7 +228,7 @@ export default function AboutPage() {
                   <span
                     className="font-body text-[10px] tracking-[0.28em] uppercase px-3 py-1.5 rounded-full inline-block mb-6 font-700"
                     style={{ color, background: `${color}20` }}>
-                    Available Now
+                    Coming Soon
                   </span>
                   <h3 className="font-sans font-700 text-[24px] text-white mb-3 leading-tight">{name}</h3>
                   <p className="font-body text-[14px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>{desc}</p>
