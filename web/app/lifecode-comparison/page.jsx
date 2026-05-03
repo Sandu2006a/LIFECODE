@@ -319,6 +319,36 @@ export default function ComparisonPage() {
           </div>
         </section>
 
+        {/* Bottom nav */}
+        <section className="py-10 px-6 md:px-16 border-t border-[#f0eef8]"
+          style={{ background: '#fdfcff' }}>
+          <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+            <Link href="/" className="font-sans font-700 text-base tracking-[0.3em] uppercase bg-clip-text text-transparent"
+              style={{ backgroundImage: BOX_G }}>
+              LIFECODE
+            </Link>
+            <nav className="flex flex-wrap items-center justify-center gap-6">
+              {[
+                ['Morning Pack',      '/products/morning'],
+                ['Recovery Pack',     '/products/recovery'],
+                ['Ingredients',       '/ingredients'],
+                ['Comparisons',       '/lifecode-comparison'],
+                ['Ecosystem',         '/#ecosystem'],
+                ['About',             '/about'],
+                ['Pre-order',         '/#preorder'],
+              ].map(([label, href]) => (
+                <Link key={label} href={href}
+                  className="font-sans font-600 text-[11px] tracking-[0.18em] uppercase text-[#aaa] hover:text-[#111] transition-colors duration-300 relative group">
+                  {label}
+                  <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 group-hover:w-full transition-all duration-300 rounded-full"
+                    style={{ background: BOX_G }} />
+                </Link>
+              ))}
+            </nav>
+            <p className="font-body text-[11px] text-[#ccc] tracking-wide">© 2026 LIFECODE</p>
+          </div>
+        </section>
+
       </main>
     </>
   );

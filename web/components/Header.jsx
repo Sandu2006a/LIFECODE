@@ -30,9 +30,11 @@ export default function Header() {
   const router    = useRouter();
   const pathname  = usePathname();
   const timer     = useBannerTimer();
-  const [scrolled, setScrolled] = useState(false);
-  const [user, setUser]         = useState(null);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled,   setScrolled]   = useState(false);
+  const [navHidden,  setNavHidden]  = useState(false);
+  const [user,       setUser]       = useState(null);
+  const [menuOpen,   setMenuOpen]   = useState(false);
+  const lastY = useRef(0);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -45,7 +47,19 @@ export default function Header() {
       onEnter:     () => setScrolled(true),
       onLeaveBack: () => setScrolled(false),
     });
-    return () => trigger.kill();
+
+    // Hide nav on scroll down, show on scroll up
+    function onScroll() {
+      const y = window.scrollY;
+      if (y > 80) {
+        setNavHidden(y > lastY.current);
+      } else {
+        setNavHidden(false);
+      }
+      lastY.current = y;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => { trigger.kill(); window.removeEventListener('scroll', onScroll); };
   }, []);
 
   useEffect(() => {
@@ -90,8 +104,11 @@ export default function Header() {
       `}
       style={{ opacity: 0 }}
     >
-      {/* ── Row 1: Nav ── */}
-      <div className={`flex items-center justify-between px-8 md:px-16 py-2 transition-all duration-500 ${scrolled ? 'border-b border-[#eee]' : 'border-b border-transparent'}`}>
+      {/* ── Row 1: Nav — hides on scroll down ── */}
+      <div
+        className={`flex items-center justify-between px-8 md:px-16 py-2 transition-all duration-400 overflow-hidden ${scrolled ? 'border-b border-[#eee]' : 'border-b border-transparent'}`}
+        style={{ maxHeight: navHidden ? '0px' : '60px', opacity: navHidden ? 0 : 1, paddingTop: navHidden ? 0 : undefined, paddingBottom: navHidden ? 0 : undefined }}
+      >
 
         {/* Wordmark */}
         <Link href="/"
