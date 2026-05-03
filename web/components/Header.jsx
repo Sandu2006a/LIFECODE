@@ -74,24 +74,23 @@ export default function Header() {
       style={{ opacity: 0 }}
     >
       {/* Wordmark */}
-      <span className="font-sans font-700 text-sm tracking-[0.3em] text-[#111] uppercase select-none">
+      <Link href="/" className="font-sans font-700 text-sm tracking-[0.3em] text-[#111] uppercase select-none hover:opacity-70 transition-opacity duration-300">
         LIFECODE
-      </span>
+      </Link>
 
       {/* Nav */}
-      <nav className="hidden md:flex items-center gap-10">
-        {[['Morning', '#morning'], ['Recovery', '#recovery'], ['Ecosystem', '#ecosystem'], ['About', '/about']].map(([label, href]) => (
-          href.startsWith('/') ? (
-            <Link key={label} href={href}
-              className="font-body text-[12px] tracking-widest text-[#666] hover:text-[#111] transition-colors duration-300 uppercase">
-              {label}
-            </Link>
-          ) : (
-            <a key={label} href={href}
-              className="font-body text-[12px] tracking-widest text-[#666] hover:text-[#111] transition-colors duration-300 uppercase">
-              {label}
-            </a>
-          )
+      <nav className="hidden md:flex items-center gap-8">
+        {[
+          ['Morning',     '/#morning'],
+          ['Recovery',    '/#recovery'],
+          ['Ingredients', '/ingredients'],
+          ['Ecosystem',   '/#ecosystem'],
+          ['About',       '/about'],
+        ].map(([label, href]) => (
+          <Link key={label} href={href}
+            className="font-body text-[12px] tracking-widest text-[#666] hover:text-[#111] transition-colors duration-300 uppercase">
+            {label}
+          </Link>
         ))}
       </nav>
 

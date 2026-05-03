@@ -30,11 +30,11 @@ export default function Footer() {
 
           <nav className="flex flex-wrap gap-x-10 gap-y-4">
             {[
-              ['Morning', '/products/morning'],
-              ['Recovery', '/products/recovery'],
-              ['Ingredients', '/#morning'],
-              ['About', '/about'],
-              ['Contact', '#'],
+              ['Morning',     '/#morning'],
+              ['Recovery',    '/#recovery'],
+              ['Ingredients', '/ingredients'],
+              ['About',       '/about'],
+              ['Contact',     '#'],
             ].map(([label, href]) => (
               <Link
                 key={label}

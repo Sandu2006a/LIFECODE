@@ -97,11 +97,11 @@ export default function AboutPage() {
       <main className="overflow-x-hidden" style={{ background: '#FAFAFA', color: INK }}>
 
         {/* ─── HERO ─────────────────────────────────────────────── */}
-        <section ref={heroRef} className="pt-44 pb-28 px-8 md:px-16 max-w-[1440px] mx-auto">
+        <section ref={heroRef} className="pt-36 pb-16 px-8 md:px-16 max-w-[1200px] mx-auto">
           <div data-h><Eyebrow>Our Story</Eyebrow></div>
 
           <h1 data-h
-            className="font-sans font-700 text-[56px] md:text-[86px] lg:text-[108px] leading-[0.93] tracking-[-0.02em]"
+            className="font-sans font-700 text-[56px] md:text-[72px] lg:text-[86px] leading-[0.93] tracking-[-0.02em]"
             style={{ color: INK }}>
             We didn't<br />start a<br />
             <GradientText>supplement<br />company.</GradientText>
@@ -121,8 +121,8 @@ export default function AboutPage() {
         <div className="h-px" style={{ background: BOX_G }} />
 
         {/* ─── THE PROBLEM ──────────────────────────────────────── */}
-        <section className="py-28 px-8 md:px-16 max-w-[1440px] mx-auto">
-          <div className="grid md:grid-cols-2 gap-16 lg:gap-24 items-start">
+        <section className="py-16 px-8 md:px-16 max-w-[1200px] mx-auto">
+          <div className="grid md:grid-cols-2 gap-10 lg:gap-16 items-start">
 
             <div data-s>
               <Eyebrow>The Problem</Eyebrow>
@@ -154,8 +154,8 @@ export default function AboutPage() {
         </section>
 
         {/* ─── PULLED QUOTE ─────────────────────────────────────── */}
-        <section className="py-24 px-8 md:px-16" style={{ background: CARD_BG, borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}` }}>
-          <div className="max-w-[1440px] mx-auto">
+        <section className="py-14 px-8 md:px-16" style={{ background: CARD_BG, borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}` }}>
+          <div className="max-w-[1200px] mx-auto">
             <p data-s className="font-sans font-700 text-[26px] md:text-[40px] lg:text-[52px] leading-[1.1] max-w-5xl" style={{ color: INK }}>
               "We spent years reading peer-reviewed journals, studying EFSA dossiers, learning the difference between{' '}
               <GradientText>zinc bisglycinate and zinc oxide.</GradientText>{' '}
@@ -168,8 +168,8 @@ export default function AboutPage() {
         </section>
 
         {/* ─── THREE LIES ───────────────────────────────────────── */}
-        <section className="py-28 px-8 md:px-16 max-w-[1440px] mx-auto">
-          <div data-s className="mb-16">
+        <section className="py-16 px-8 md:px-16 max-w-[1200px] mx-auto">
+          <div data-s className="mb-10">
             <Eyebrow>What We Found</Eyebrow>
             <h2 className="font-sans font-700 text-[36px] md:text-[54px] leading-[1.05]" style={{ color: INK }}>
               The supplement industry<br />is built on{' '}
@@ -201,9 +201,9 @@ export default function AboutPage() {
         </section>
 
         {/* ─── THE SYSTEM ───────────────────────────────────────── */}
-        <section className="py-28 px-8 md:px-16" style={{ background: '#0B0A1A' }}>
-          <div className="max-w-[1440px] mx-auto">
-            <div data-s className="mb-16">
+        <section className="py-16 px-8 md:px-16" style={{ background: '#0B0A1A' }}>
+          <div className="max-w-[1200px] mx-auto">
+            <div data-s className="mb-10">
               <div className="inline-flex items-center gap-3 mb-6">
                 <span className="h-px w-8" style={{ background: BOX_G }} />
                 <span className="font-body text-[11px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
@@ -243,8 +243,8 @@ export default function AboutPage() {
         </section>
 
         {/* ─── MANIFESTO ────────────────────────────────────────── */}
-        <section className="py-28 px-8 md:px-16 max-w-[1440px] mx-auto">
-          <div data-s className="mb-16">
+        <section className="py-16 px-8 md:px-16 max-w-[1200px] mx-auto">
+          <div data-s className="mb-10">
             <Eyebrow>What We Stand For</Eyebrow>
             <h2 className="font-sans font-700 text-[36px] md:text-[54px] leading-[1.05]" style={{ color: INK }}>
               Five things<br />
@@ -272,8 +272,8 @@ export default function AboutPage() {
         </section>
 
         {/* ─── WHO THIS IS FOR ──────────────────────────────────── */}
-        <section className="py-28 px-8 md:px-16" style={{ background: CARD_BG, borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}` }}>
-          <div className="max-w-[1440px] mx-auto grid md:grid-cols-2 gap-16 lg:gap-24 items-center">
+        <section className="py-16 px-8 md:px-16" style={{ background: CARD_BG, borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}` }}>
+          <div className="max-w-[1200px] mx-auto grid md:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div data-s>
               <Eyebrow>Who This Is Built For</Eyebrow>
               <h2 className="font-sans font-700 text-[40px] md:text-[56px] leading-[1.0] mb-8" style={{ color: INK }}>
@@ -300,8 +300,8 @@ export default function AboutPage() {
         </section>
 
         {/* ─── THE LINE WE DREW ─────────────────────────────────── */}
-        <section className="py-28 px-8 md:px-16 max-w-[1440px] mx-auto">
-          <div data-s className="max-w-3xl mb-16">
+        <section className="py-16 px-8 md:px-16 max-w-[1200px] mx-auto">
+          <div data-s className="max-w-3xl mb-10">
             <Eyebrow>The Line We Drew</Eyebrow>
             <h2 className="font-sans font-700 text-[32px] md:text-[48px] leading-[1.1] mb-8" style={{ color: INK }}>
               We exist against underdosing. Against hidden blends.{' '}
