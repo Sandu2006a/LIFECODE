@@ -2,16 +2,34 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { createSupabaseBrowser } from '@/lib/supabase';
 
-const BOX_G = 'linear-gradient(90deg, #FF8A00, #C62828)';
+const LAUNCH = new Date('2026-08-03T00:00:00Z');
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function useBannerTimer() {
+  const [t, setT] = useState({ d: 92, h: 0, m: 0, s: 0 });
+  useEffect(() => {
+    const tick = () => {
+      const diff = Math.max(0, LAUNCH.getTime() - Date.now());
+      setT({ d: Math.floor(diff/86400000), h: Math.floor(diff/3600000)%24, m: Math.floor(diff/60000)%60, s: Math.floor(diff/1000)%60 });
+    };
+    tick(); const id = setInterval(tick, 1000); return () => clearInterval(id);
+  }, []);
+  return t;
+}
+
+const BOX_G  = 'linear-gradient(90deg, #FF8A00, #C62828)';
+const HEAT_G = 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)';
 
 export default function Header() {
   const headerRef = useRef(null);
   const router    = useRouter();
+  const pathname  = usePathname();
+  const timer     = useBannerTimer();
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser]         = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -143,6 +161,58 @@ export default function Header() {
           </>
         )}
       </div>
+      {/* ── Countdown banner — below nav, full width ── */}
+      <Link
+        href={pathname === '/' ? '#preorder' : '/#preorder'}
+        className="absolute left-0 right-0 flex items-center justify-center gap-3 md:gap-6 px-4 py-2 cursor-pointer group"
+        style={{
+          top: '100%',
+          background: 'linear-gradient(90deg, #FFF9F5 0%, #FFF5F0 40%, #F8F5FF 100%)',
+          borderTop: '1px solid rgba(255,138,0,0.15)',
+          borderBottom: '1px solid rgba(124,58,237,0.12)',
+        }}
+      >
+        {/* Pulse dot */}
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#C62828' }} />
+          <span className="font-sans font-700 text-[9px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
+            style={{ backgroundImage: HEAT_G }}>Coming Soon</span>
+        </span>
+
+        <span className="hidden sm:block w-px h-3 bg-[#e8d8f0]" />
+
+        {/* Offer */}
+        <span className="font-body text-[11px] text-[#555]">
+          First{' '}
+          <strong className="font-800 bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>100</strong>
+          {' '}founders get{' '}
+          <strong className="font-800 bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>70% OFF</strong>
+          {' '}their first month
+        </span>
+
+        <span className="hidden sm:block w-px h-3 bg-[#e8d8f0]" />
+
+        {/* Timer */}
+        <span className="flex items-center gap-1 font-sans font-700 text-[12px] tabular-nums">
+          {[{v:timer.d,l:'d'},{v:timer.h,l:'h'},{v:timer.m,l:'m'},{v:timer.s,l:'s'}].map(({v,l},i)=>(
+            <span key={l} className="flex items-center gap-1">
+              <span className="bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>{pad(v)}</span>
+              <span className="text-[9px] text-[#bbb] font-400">{l}</span>
+              {i<3 && <span className="text-[#ddd] mx-0.5">·</span>}
+            </span>
+          ))}
+        </span>
+
+        <span className="hidden sm:block w-px h-3 bg-[#e8d8f0]" />
+
+        {/* CTA pill */}
+        <span
+          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-white font-sans font-700 text-[9px] tracking-[0.18em] uppercase group-hover:opacity-85 transition-opacity"
+          style={{ background: HEAT_G }}
+        >
+          Pre-order <span className="group-hover:translate-x-0.5 transition-transform duration-200">→</span>
+        </span>
+      </Link>
     </header>
   );
 }

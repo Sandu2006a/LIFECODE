@@ -97,7 +97,7 @@ export default function AboutPage() {
       <main className="overflow-x-hidden" style={{ background: '#FAFAFA', color: INK }}>
 
         {/* ─── HERO ─────────────────────────────────────────────── */}
-        <section ref={heroRef} className="pt-36 pb-16 px-8 md:px-16 max-w-[1200px] mx-auto">
+        <section ref={heroRef} className="pt-44 pb-16 px-8 md:px-16 max-w-[1200px] mx-auto">
           <div data-h><Eyebrow>Our Story</Eyebrow></div>
 
           <h1 data-h

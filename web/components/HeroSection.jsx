@@ -18,7 +18,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-[88vh] bg-white flex items-center overflow-hidden px-6 md:px-16 pt-20 pb-10">
+    <section className="relative min-h-[88vh] bg-white flex items-center overflow-hidden px-6 md:px-16 pt-28 pb-10">
 
       {/* Background glows — left side only */}
       <div className="pointer-events-none absolute top-[10%] left-[-8%] w-[40vw] h-[60vh] opacity-[0.07]"
