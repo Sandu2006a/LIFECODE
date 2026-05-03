@@ -1,7 +1,7 @@
 import SmoothScroll      from '@/components/SmoothScroll';
 import Header            from '@/components/Header';
 import HeroSection       from '@/components/HeroSection';
-import BrandMessage      from '@/components/BrandMessage';
+import PreOrderSection   from '@/components/PreOrderSection';
 import MorningSection    from '@/components/MorningSection';
 import RecoverySection   from '@/components/RecoverySection';
 import AthleteStory      from '@/components/AthleteStory';
@@ -17,7 +17,7 @@ export default function Home() {
       <Header />
       <main>
         <HeroSection />
-        <BrandMessage />
+        <PreOrderSection />
         <AthleteStory />
         <SystemSection />
         <MorningSection />

@@ -32,11 +32,11 @@ export default function AthleteStory() {
   return (
     <section
       ref={sectionRef}
-      className="py-28 md:py-40 px-6 md:px-16 overflow-hidden"
+      className="py-16 md:py-24 px-6 md:px-16 overflow-hidden"
       style={{ background: 'linear-gradient(160deg, #F8F5FF 0%, #ffffff 50%, #FFF9F5 100%)' }}
     >
       <div className="max-w-[1440px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-start">
 
           {/* Left — Story */}
           <div>

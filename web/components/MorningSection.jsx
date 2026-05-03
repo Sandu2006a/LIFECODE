@@ -31,9 +31,9 @@ export default function MorningSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="morning" className="bg-white py-24 md:py-36 px-6 md:px-16 overflow-hidden">
+    <section ref={sectionRef} id="morning" className="bg-white py-14 md:py-20 px-6 md:px-16 overflow-hidden">
       <div className="max-w-[1440px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 md:gap-20 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-14 items-center">
 
           {/* Image with full gradient border */}
           <div className="ms-img opacity-0">

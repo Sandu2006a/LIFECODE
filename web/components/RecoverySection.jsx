@@ -34,11 +34,11 @@ export default function RecoverySection() {
     <section
       ref={sectionRef}
       id="recovery"
-      className="py-24 md:py-36 px-6 md:px-16 overflow-hidden"
+      className="py-14 md:py-20 px-6 md:px-16 overflow-hidden"
       style={{ background: 'linear-gradient(180deg, #FAFAFE 0%, #F8F5FF 100%)' }}
     >
       <div className="max-w-[1440px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 md:gap-20 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-14 items-center">
 
           {/* Text — left */}
           <div className="flex flex-col gap-7 order-2 lg:order-1">

@@ -7,13 +7,13 @@ export default function Footer() {
 
   return (
     <footer
-      className="px-8 md:px-16 pt-16 pb-10"
+      className="px-8 md:px-16 pt-10 pb-8"
       style={{ background: 'linear-gradient(180deg, #F8F5FF 0%, #FFF5F0 100%)' }}
     >
       <div className="max-w-[1440px] mx-auto">
 
         {/* Top border */}
-        <div className="h-[1.5px] w-full mb-12 rounded-full" style={{ background: BOX_G }} />
+        <div className="h-[1.5px] w-full mb-8 rounded-full" style={{ background: BOX_G }} />
 
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-10 pb-10 border-b border-[#e8e0ff]">
           <div>

@@ -32,7 +32,7 @@ export default function EcosystemSection() {
     <section
       ref={sectionRef}
       id="ecosystem"
-      className="relative overflow-hidden py-32 md:py-44 px-6 md:px-16"
+      className="relative overflow-hidden py-16 md:py-24 px-6 md:px-16"
       style={{ background: 'linear-gradient(160deg, #FFF9F5 0%, #ffffff 45%, #F8F5FF 100%)' }}
     >
       {/* Decorative glow */}
@@ -42,7 +42,7 @@ export default function EcosystemSection() {
       <div className="relative z-10 max-w-[1440px] mx-auto">
 
         {/* — App section — */}
-        <div className="eco-el flex items-center gap-3 mb-10 opacity-0">
+        <div className="eco-el flex items-center gap-3 mb-6 opacity-0">
           <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
           <span className="font-body text-[14px] tracking-widest3 text-[#999] uppercase">Your AI companion</span>
         </div>
@@ -54,13 +54,13 @@ export default function EcosystemSection() {
           Your biology,<br />tracked.
         </h2>
 
-        <p className="eco-el font-body font-300 text-[#888] text-base md:text-lg leading-loose max-w-lg mb-12 opacity-0">
+        <p className="eco-el font-body font-300 text-[#888] text-base md:text-lg leading-loose max-w-lg mb-8 opacity-0">
           The app works alongside your protocol. Log meals, track every micronutrient in real time,
           and get daily advice based on your actual data — not guesswork.
         </p>
 
         {/* Feature bullets */}
-        <div className="eco-el grid grid-cols-1 md:grid-cols-3 gap-5 mb-16 opacity-0">
+        <div className="eco-el grid grid-cols-1 md:grid-cols-3 gap-5 mb-10 opacity-0">
           {FEATURES.map((f, i) => (
             <div key={f.title} style={{ padding: '1.5px', borderRadius: '16px', background: BOX_G }}>
               <div className="bg-white h-full p-7" style={{ borderRadius: '14.5px' }}>
@@ -78,7 +78,7 @@ export default function EcosystemSection() {
         </div>
 
         {/* Divider */}
-        <div className="eco-el w-full h-px mb-16 opacity-0"
+        <div className="eco-el w-full h-px mb-10 opacity-0"
           style={{ background: 'linear-gradient(90deg, transparent, #ede0e0 30%, #ede0e0 70%, transparent)' }} />
 
         {/* — Final CTA — */}

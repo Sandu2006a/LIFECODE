@@ -51,10 +51,10 @@ export default function SystemSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="bg-white py-24 md:py-36 px-6 md:px-16 overflow-hidden">
+    <section ref={sectionRef} className="bg-white py-14 md:py-20 px-6 md:px-16 overflow-hidden">
       <div className="max-w-[1440px] mx-auto">
 
-        <div className="text-center mb-14">
+        <div className="text-center mb-10">
           <div className="ss-text flex items-center justify-center gap-3 mb-6 opacity-0">
             <div className="h-px w-5" style={{ background: MG }} />
             <span className="font-body text-[9px] tracking-widest3 text-[#999] uppercase">The solution</span>
@@ -72,7 +72,7 @@ export default function SystemSection() {
         </div>
 
         {/* 3 blocks */}
-        <div className="ss-text grid grid-cols-1 md:grid-cols-3 gap-5 mb-14 opacity-0">
+        <div className="ss-text grid grid-cols-1 md:grid-cols-3 gap-5 mb-10 opacity-0">
           {BLOCKS.map((b) => (
             <div key={b.tag} style={{ padding: '1.5px', borderRadius: '18px', background: b.gradient }}>
               <div className="bg-white h-full p-7 flex flex-col gap-4" style={{ borderRadius: '16.5px' }}>

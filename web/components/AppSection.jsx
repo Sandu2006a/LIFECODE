@@ -65,7 +65,7 @@ export default function AppSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden py-28 md:py-44 px-6 md:px-16"
+      className="relative overflow-hidden py-16 md:py-24 px-6 md:px-16"
       style={{ background: 'linear-gradient(160deg, #F8F5FF 0%, #ffffff 40%, #FFF9F5 100%)' }}
     >
       {/* Background glow */}
@@ -75,7 +75,7 @@ export default function AppSection() {
       <div className="relative z-10 max-w-[1440px] mx-auto">
 
         {/* — Header — */}
-        <div className="mb-20 md:mb-28 max-w-3xl">
+        <div className="mb-12 md:mb-16 max-w-3xl">
           <div className="app-head flex items-center gap-3 mb-8 opacity-0">
             <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
             <span className="font-body text-[14px] tracking-widest3 text-[#aaa] uppercase">Your AI Performance Coach</span>

@@ -40,7 +40,7 @@ export default function ComparisonSection() {
   return (
     <section
       ref={sectionRef}
-      className="py-24 md:py-36 px-6 md:px-16 overflow-hidden"
+      className="py-14 md:py-20 px-6 md:px-16 overflow-hidden"
       style={{ background: 'linear-gradient(180deg, #F8F5FF 0%, #FFF9F5 100%)' }}
     >
       <div className="max-w-[1440px] mx-auto">
@@ -51,14 +51,14 @@ export default function ComparisonSection() {
         </div>
 
         <h2
-          className="font-sans font-700 text-[#111] tracking-tight leading-[0.92] mb-14"
+          className="font-sans font-700 text-[#111] tracking-tight leading-[0.92] mb-10"
           style={{ fontSize: 'clamp(2.2rem, 4.5vw, 5rem)' }}
         >
           Why a system beats<br />a stack.
         </h2>
 
         {/* Both products image */}
-        <div className="cs-img relative rounded-2xl overflow-hidden aspect-[16/7] mb-16 opacity-0 bg-[#f8f8f8]">
+        <div className="cs-img relative rounded-2xl overflow-hidden aspect-[16/7] mb-10 opacity-0 bg-[#f8f8f8]">
           <Image
             src="/Cutii.png"
             alt="LIFECODE Products"
