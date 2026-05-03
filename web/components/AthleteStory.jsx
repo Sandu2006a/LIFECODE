@@ -5,14 +5,8 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const MG = 'linear-gradient(135deg, #FF8A00, #C62828)';
-const RG = 'linear-gradient(135deg, #7C3AED, #1D4ED8)';
+const MG    = 'linear-gradient(135deg, #FF8A00, #C62828)';
 const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
-
-const FACTS = [
-  { value: '12+', label: 'Years competing', gradient: MG },
-  { value: '100%', label: 'Athlete-founded', gradient: RG },
-];
 
 export default function AthleteStory() {
   const sectionRef = useRef(null);
@@ -65,10 +59,23 @@ export default function AthleteStory() {
               Nothing for someone training twice daily. Nothing for real output.
             </p>
 
-            <p className="as-el font-body font-300 text-[#777] text-sm md:text-base leading-loose opacity-0">
+            <p className="as-el font-body font-300 text-[#777] text-sm md:text-base leading-loose mb-8 opacity-0">
               So we built it. LIFECODE is the system we needed but couldn&apos;t find. Two formulas.
               One app. Zero compromise.
             </p>
+
+            <Link
+              href="/about"
+              className="as-el opacity-0 inline-flex items-center gap-3 px-7 py-3.5 rounded-full text-white font-sans font-600 text-[11px] tracking-widest uppercase hover:opacity-88 transition-all duration-300 hover:scale-[1.02] group"
+              style={{ background: BOX_G }}
+            >
+              <span>Meet the team</span>
+              <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M2 5h6M5.5 2.5L8 5l-2.5 2.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
+            </Link>
           </div>
 
           {/* Right — Quote + Facts */}
@@ -101,39 +108,20 @@ export default function AthleteStory() {
               </div>
             </div>
 
-            {/* Fact stats */}
-            <div className="as-el grid grid-cols-2 gap-4 opacity-0">
-              {FACTS.map(f => (
-                <div key={f.label} style={{ padding: '1.5px', borderRadius: '14px', background: f.gradient }}>
-                  <div className="bg-white text-center py-5 px-3" style={{ borderRadius: '12.5px' }}>
-                    <p
-                      className="font-sans font-700 text-xl md:text-2xl leading-none mb-1 bg-clip-text text-transparent"
-                      style={{ backgroundImage: f.gradient }}
-                    >
-                      {f.value}
-                    </p>
-                    <p className="font-body text-[9px] tracking-widest text-[#bbb] uppercase leading-tight">
-                      {f.label}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* About button */}
-            <div className="as-el mt-6 opacity-0">
-              <Link
-                href="/about"
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-full font-body text-[12px] tracking-widest uppercase text-white transition-opacity duration-300 hover:opacity-85"
-                style={{ background: BOX_G }}
-              >
-                Our Story
-                <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
-                  <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
-                    <path d="M2 5h6M5.5 2.5L8 5l-2.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </span>
-              </Link>
+            {/* 12+ years stat */}
+            <div className="as-el opacity-0 flex items-center gap-5">
+              <div className="flex-shrink-0">
+                <p className="font-sans font-800 leading-none bg-clip-text text-transparent"
+                  style={{ fontSize: 'clamp(3rem, 6vw, 5rem)', backgroundImage: MG }}>
+                  12+
+                </p>
+              </div>
+              <div>
+                <p className="font-sans font-700 text-[#111] text-lg tracking-tight leading-snug">Years of competing</p>
+                <p className="font-body font-300 text-[#999] text-sm leading-relaxed mt-1">
+                  Triathlons, sprints, climbing — every discipline shaped what went into the formula.
+                </p>
+              </div>
             </div>
 
           </div>
