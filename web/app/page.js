@@ -19,6 +19,7 @@ export default function Home() {
       <main>
         <HeroSection />
         <PreOrderSection />
+        <VoicesSection />
         <AthleteStory />
         <SystemSection />
         <MorningSection />
@@ -26,7 +27,6 @@ export default function Home() {
         <AppSection />
         <ComparisonSection />
         <EcosystemSection />
-        <VoicesSection />
       </main>
       <Footer />
     </SmoothScroll>

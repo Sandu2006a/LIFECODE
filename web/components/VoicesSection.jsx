@@ -20,7 +20,7 @@ const VOICES = [
     role:  'Head Coach, PSV Swimming Pro Team',
     photo: '/MAtei.jpeg',
     tag:   'Pro Team Head Coach',
-    quote: 'AG1 is for someone who wants to feel less tired at a desk. It has nothing to do with what a PSV swimmer needs at 6am before a double session. Lifecode gives my athletes a protocol that matches their physiology — and an app that handles compliance automatically. I stop chasing reminders. They stop guessing. We both focus on what matters.',
+    quote: 'General health blends are for someone who wants to feel less tired at a desk. They have nothing to do with what a PSV swimmer needs at 6am before a double session. Lifecode gives my athletes a protocol that matches their physiology — and an app that handles compliance automatically. I stop chasing reminders. They stop guessing. We both focus on what matters.',
   },
   {
     name:  'Dimitrii Nicolaev',
@@ -115,16 +115,17 @@ export default function VoicesSection() {
               <div className="flex items-center gap-4 pt-4"
                 style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
 
-                {/* Photo — small circle, object-cover hides quality issues */}
-                <div className="relative flex-shrink-0 w-11 h-11 rounded-full overflow-hidden"
-                  style={{ border: '1.5px solid rgba(255,255,255,0.12)' }}>
-                  <Image
-                    src={v.photo}
-                    alt={v.name}
-                    fill
-                    className="object-cover object-top"
-                    sizes="44px"
-                  />
+                {/* Photo */}
+                <div className="flex-shrink-0 rounded-full p-[2px]" style={{ background: BOX_G }}>
+                  <div className="relative w-16 h-16 rounded-full overflow-hidden">
+                    <Image
+                      src={v.photo}
+                      alt={v.name}
+                      fill
+                      className="object-cover object-top"
+                      sizes="64px"
+                    />
+                  </div>
                 </div>
 
                 <div className="min-w-0">
