@@ -91,77 +91,78 @@ export default function Header() {
       style={{ opacity: 0 }}
     >
       {/* ── Row 1: Nav ── */}
-      <div className={`flex items-center justify-between px-8 md:px-16 py-3 transition-all duration-500 ${scrolled ? 'border-b border-[#eee]' : 'border-b border-transparent'}`}>
-      {/* Wordmark */}
-      <Link href="/" className="font-sans font-700 text-sm tracking-[0.3em] text-[#111] uppercase select-none hover:opacity-70 transition-opacity duration-300">
-        LIFECODE
-      </Link>
+      <div className={`flex items-center justify-between px-8 md:px-16 py-2 transition-all duration-500 ${scrolled ? 'border-b border-[#eee]' : 'border-b border-transparent'}`}>
 
-      {/* Nav */}
-      <nav className="hidden md:flex items-center gap-8">
-        {[
-          ['Morning',     '/products/morning'],
-          ['Recovery',    '/products/recovery'],
-          ['Ingredients', '/ingredients'],
-          ['Comparison',  '/lifecode-comparison'],
-          ['Ecosystem',   '/#ecosystem'],
-          ['About',       '/about'],
-        ].map(([label, href]) => (
-          <Link key={label} href={href}
-            className="font-body text-[12px] tracking-widest text-[#666] hover:text-[#111] transition-colors duration-300 uppercase">
-            {label}
-          </Link>
-        ))}
-      </nav>
+        {/* Wordmark */}
+        <Link href="/"
+          className="font-sans font-700 tracking-[0.32em] uppercase select-none transition-opacity duration-300 hover:opacity-80 bg-clip-text text-transparent"
+          style={{ fontSize: '1.05rem', backgroundImage: BOX_G }}>
+          LIFECODE
+        </Link>
 
-      {/* Right */}
-      <div className="hidden md:flex items-center gap-3">
-        {user ? (
-          /* ── Logged in: avatar + name + dropdown ── */
-          <div className="relative">
-            <button
-              onClick={() => setMenuOpen(v => !v)}
-              className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-[#e8e8e8] hover:border-[#ccc] transition-all duration-200 bg-white"
-            >
-              {/* Avatar circle */}
-              <span
-                className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[12px] font-sans font-700 flex-shrink-0"
-                style={{ background: BOX_G }}
-              >
-                {initial}
-              </span>
-              <span className="font-sans font-600 text-[13px] text-[#222]">{firstName}</span>
-              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className={`transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`}>
-                <path d="M1 1l4 4 4-4" stroke="#999" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </button>
+        {/* Nav links */}
+        <nav className="hidden md:flex items-center gap-6">
+          {[
+            ['Morning',     '/products/morning'],
+            ['Recovery',    '/products/recovery'],
+            ['Ingredients', '/ingredients'],
+            ['Comparisons', '/lifecode-comparison'],
+            ['Ecosystem',   '/#ecosystem'],
+            ['About',       '/about'],
+          ].map(([label, href]) => {
+            const isActive = pathname === href;
+            return (
+              <Link key={label} href={href}
+                className="relative font-sans font-600 text-[11px] tracking-[0.18em] uppercase transition-all duration-300 group"
+                style={{ color: isActive ? 'transparent' : '#444',
+                  backgroundImage: isActive ? BOX_G : undefined,
+                  WebkitBackgroundClip: isActive ? 'text' : undefined,
+                  backgroundClip: isActive ? 'text' : undefined,
+                }}>
+                {label}
+                <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 group-hover:w-full transition-all duration-300 rounded-full"
+                  style={{ background: BOX_G }} />
+              </Link>
+            );
+          })}
+        </nav>
 
-            {/* Dropdown */}
-            {menuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_8px_40px_rgba(0,0,0,0.10)] overflow-hidden">
-                <button
-                  onClick={handleSignOut}
-                  className="w-full text-left px-5 py-3.5 font-body text-[13px] text-[#e55] hover:bg-[#fff5f5] transition-colors">
-                  Sign out
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          /* ── Not logged in: Log In + Get Started ── */
-          <>
-            <Link href="/login"
-              className="inline-flex items-center px-5 py-2.5 rounded-full border border-[#e0e0e0] font-body text-[13px] tracking-widest text-[#444] uppercase hover:border-[#bbb] hover:text-[#111] transition-all duration-300">
-              Log In
-            </Link>
-            <Link href="/pricing"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white font-body text-[13px] tracking-widest uppercase transition-all duration-300 hover:opacity-85"
-              style={{ background: BOX_G }}>
-              Get Started
-            </Link>
-          </>
-        )}
-      </div>
+        {/* Right — buttons */}
+        <div className="hidden md:flex items-center gap-2.5">
+          {user ? (
+            <div className="relative">
+              <button onClick={() => setMenuOpen(v => !v)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#e8e8e8] hover:border-[#ccc] transition-all duration-200 bg-white">
+                <span className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-sans font-700 flex-shrink-0"
+                  style={{ background: BOX_G }}>{initial}</span>
+                <span className="font-sans font-600 text-[12px] text-[#222]">{firstName}</span>
+                <svg width="9" height="5" viewBox="0 0 10 6" fill="none" className={`transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`}>
+                  <path d="M1 1l4 4 4-4" stroke="#999" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-36 bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_8px_40px_rgba(0,0,0,0.10)] overflow-hidden">
+                  <button onClick={handleSignOut}
+                    className="w-full text-left px-4 py-3 font-body text-[13px] text-[#e55] hover:bg-[#fff5f5] transition-colors">
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link href="/login"
+                className="inline-flex items-center px-4 py-2 rounded-full border border-[#e0e0e0] font-body text-[12px] tracking-widest text-[#444] uppercase hover:border-[#bbb] hover:text-[#111] transition-all duration-300">
+                Log In
+              </Link>
+              <Link href="/pricing"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-white font-body text-[12px] tracking-widest uppercase transition-all duration-300 hover:opacity-85"
+                style={{ background: BOX_G }}>
+                Get Started
+              </Link>
+            </>
+          )}
+        </div>
       </div>{/* close Row 1 */}
 
       {/* ── Row 2: Countdown banner ── */}
