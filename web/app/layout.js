@@ -1,5 +1,6 @@
 import { Space_Grotesk, DM_Sans } from 'next/font/google';
 import './globals.css';
+import CountdownBanner from '@/components/CountdownBanner';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -30,6 +31,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${dmSans.variable}`}>
       <body className="bg-lc-white text-lc-maroon font-body antialiased">
+        <CountdownBanner />
         {children}
       </body>
     </html>

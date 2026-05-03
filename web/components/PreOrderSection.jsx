@@ -8,7 +8,7 @@ const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1
 const HEAT_G = 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)';
 const PROMO  = 'LC70X';
 const LAUNCH = new Date('2026-08-03T00:00:00');
-const SPOTS  = 57;
+const SPOTS  = 100;
 const TOTAL  = 100;
 
 function useCountdown(target) {

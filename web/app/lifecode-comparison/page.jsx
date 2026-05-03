@@ -47,36 +47,88 @@ const RECOVERY_ROWS = [
   { feature: 'Artificial additives',        what: null,                                          lc: 'None',                                          c2: 'Common',                              c3: 'Common',                          c4: 'Common',                               adv: 'Zero artificial sweeteners, colours, or fillers. If you\'re taking this every day, what\'s in it matters.' },
 ];
 
+// Highlights numbers, %, ✓/✗, and ALL-CAPS words in gradient
+function AdvCell({ text }) {
+  if (!text) return <span className="text-[#ddd]">—</span>;
+  const parts = text.split(/(\d+[\d.,–]*\s*(?:mg|g|µg|IU|%|:\d+|\/\d+)?|✓|✗)/g);
+  return (
+    <p className="font-body text-[13px] leading-relaxed text-[#555]">
+      {parts.map((p, i) => {
+        const isNum = /\d/.test(p) || p === '✓' || p === '✗';
+        const isCheck = p === '✓';
+        const isCross = p === '✗';
+        if (isCheck) return <span key={i} className="font-800 text-[#10b981]">{p}</span>;
+        if (isCross) return <span key={i} className="font-800 text-[#C62828]">{p}</span>;
+        if (isNum) return (
+          <strong key={i} className="font-800 bg-clip-text text-transparent"
+            style={{ backgroundImage: BOX_G }}>{p}</strong>
+        );
+        return <span key={i}>{p}</span>;
+      })}
+    </p>
+  );
+}
+
+function LcCell({ text }) {
+  const parts = text.split(/(\d+[\d.,–]*\s*(?:mg|g|µg|IU|%|:\d+|\/\d+)?|✓)/g);
+  return (
+    <div className="flex items-start gap-2">
+      <div className="flex-shrink-0 mt-[6px] w-1.5 h-1.5 rounded-full flex-none" style={{ background: BOX_G }} />
+      <p className="font-sans font-700 text-[13px] leading-snug text-[#111]">
+        {parts.map((p, i) => {
+          const isNum = /\d/.test(p) || p === '✓';
+          return isNum
+            ? <strong key={i} className="font-800 bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>{p}</strong>
+            : <span key={i}>{p}</span>;
+        })}
+      </p>
+    </div>
+  );
+}
+
+function AdvTagCell({ text }) {
+  if (!text) return <span className="text-[#ddd] text-[12px]">—</span>;
+  // highlight quoted stats and bold claims
+  const parts = text.split(/(\d+[\d.,––]*\s*(?:mg|g|%|min|hr|×|x)?|up to \d+%?|\d+:\d+)/gi);
+  return (
+    <p className="font-body text-[12px] leading-relaxed text-[#444]">
+      {parts.map((p, i) =>
+        /\d/.test(p) ? (
+          <strong key={i} className="font-800 text-[15px] bg-clip-text text-transparent"
+            style={{ backgroundImage: BOX_G }}>{p}</strong>
+        ) : <span key={i}>{p}</span>
+      )}
+    </p>
+  );
+}
+
 function CompTable({ rows, numCompetitors }) {
   const compKeys = ['c2', 'c3', 'c4'].slice(0, numCompetitors);
   return (
     <tbody>
-      {rows.map((row) => (
-        <tr key={row.feature} className="border-t border-[#f2f2f2]">
+      {rows.map((row, idx) => (
+        <tr key={row.feature}
+          className="border-t border-[#f0f0f0]"
+          style={{ background: idx % 2 === 0 ? '#ffffff' : '#fdfcff' }}>
           <td className="py-4 pr-4 align-top">
-            <p className="font-sans font-600 text-[#333] text-sm leading-snug">{row.feature}</p>
-            {row.what && <p className="font-body text-[11px] text-[#bbb] mt-0.5 leading-snug">{row.what}</p>}
+            <p className="font-sans font-700 text-[13px] text-[#111] leading-snug">{row.feature}</p>
+            {row.what && <p className="font-body text-[11px] text-[#bbb] mt-0.5 leading-snug italic">{row.what}</p>}
           </td>
+          {/* LIFECODE column */}
           <td className="py-4 px-3 align-top"
-            style={{ background: 'rgba(124,58,237,0.04)', borderLeft: '2px solid rgba(255,138,0,0.2)', borderRight: '2px solid rgba(124,58,237,0.2)' }}>
-            <div className="flex items-start gap-2">
-              <div className="flex-shrink-0 mt-[5px] w-1.5 h-1.5 rounded-full" style={{ background: BOX_G }} />
-              <p className="font-sans font-600 text-[#222] text-sm leading-snug">{row.lc}</p>
-            </div>
+            style={{ background: 'linear-gradient(180deg,rgba(255,138,0,0.06),rgba(124,58,237,0.06))', borderLeft: '2.5px solid rgba(255,138,0,0.4)', borderRight: '2.5px solid rgba(124,58,237,0.3)' }}>
+            <LcCell text={row.lc} />
           </td>
+          {/* Competitor columns */}
           {compKeys.map((k) => (
-            <td key={k} className="py-4 px-3 align-top border-l border-[#f5f5f5]">
-              <p className="font-body text-[13px] text-[#aaa] leading-snug">{row[k]}</p>
+            <td key={k} className="py-4 px-3 align-top border-l border-[#f0f0f0]">
+              <AdvCell text={row[k]} />
             </td>
           ))}
-          {/* The LIFECODE Advantage column */}
+          {/* LIFECODE Advantage */}
           <td className="py-4 pl-4 align-top border-l-2"
-            style={{ borderLeftColor: 'rgba(198,40,40,0.15)', background: 'linear-gradient(90deg, rgba(255,138,0,0.03), rgba(124,58,237,0.03))' }}>
-            {row.adv ? (
-              <p className="font-body text-[12px] text-[#555] leading-relaxed italic">{row.adv}</p>
-            ) : (
-              <p className="font-body text-[12px] text-[#ccc]">—</p>
-            )}
+            style={{ borderLeftColor: 'rgba(198,40,40,0.2)', background: 'linear-gradient(90deg,rgba(255,138,0,0.04),rgba(124,58,237,0.04))' }}>
+            <AdvTagCell text={row.adv} />
           </td>
         </tr>
       ))}
