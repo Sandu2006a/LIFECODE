@@ -20,57 +20,87 @@ const ROWS = [
 ];
 
 const MORNING_ADVANTAGE = [
-  { ingredient: 'B-Complex',           advantage: 'Methylated forms only. Works for everyone, including those with MTHFR variants that block standard B vitamins.' },
-  { ingredient: 'Vitamin D3',          advantage: 'Full 1000 IU of D3 — the form your body actually uses. Most products use D2, which is 3× less effective.' },
-  { ingredient: 'Vitamin K2 (MK-7)',   advantage: 'Paired with D3 to direct calcium into bones, not arteries. Competitors rarely include this — we consider it non-negotiable.' },
-  { ingredient: 'Vitamin C',           advantage: 'Calcium Ascorbate — buffered, stomach-friendly, fully absorbed. Not the cheap acidic form.' },
-  { ingredient: 'Magnesium',           advantage: 'Citrate form absorbs 4× better than Oxide. 350 mg covers your full daily need — not a token dose.' },
-  { ingredient: 'Zinc',                advantage: 'Bisglycinate form — 43% better absorption, no interference with other minerals.' },
-  { ingredient: 'Iodine + Selenium',   advantage: 'Both at full NRV. The thyroid needs both together — one without the other doesn\'t work properly.' },
-  { ingredient: 'Adaptogens (Rhodiola)',advantage: '150 mg standardised to 3% Rosavins — the clinical concentration. Unstandardised extracts are just filler.' },
-  { ingredient: 'L-Theanine',          advantage: '100 mg paired with 200 mg caffeine — the exact ratio studied for calm, sustained focus without anxiety.' },
-  { ingredient: 'Natural Caffeine',    advantage: 'From Guarana — slower release, longer effect, no hard crash. Not synthetic anhydrous caffeine.' },
-  { ingredient: 'Taurine',             advantage: '500 mg for cellular hydration and oxidative protection. Missing from every competing morning formula.' },
-  { ingredient: 'Electrolytes (Na+K)', advantage: '400 mg — a real functional dose. Trace amounts found elsewhere don\'t move any measurable marker.' },
-  { ingredient: 'Sweetener System',    advantage: 'Reb-M + Thaumatin — the cleanest stevia fraction, no bitterness, no artificial sweeteners.' },
+  { ingredient: 'B-Complex',            advantage: ['Methylated forms only. Works for everyone, including those with ', 'MTHFR variants', ' that block standard B vitamins.'] },
+  { ingredient: 'Vitamin D3',           advantage: ['Full ', '1000 IU of D3', ' — the form your body actually uses. Most products use D2, which is ', '3x less effective', '.'] },
+  { ingredient: 'Vitamin K2 (MK-7)',    advantage: ['Paired with D3 to direct calcium into ', 'bones, not arteries', '. Competitors rarely include this — we consider it non-negotiable.'] },
+  { ingredient: 'Vitamin C',            advantage: ['Calcium Ascorbate — ', 'buffered, stomach-friendly, fully absorbed', '. Not the cheap acidic form.'] },
+  { ingredient: 'Magnesium',            advantage: ['Citrate form absorbs ', '4x better than Oxide', '. 350mg covers your full daily need — not a token dose.'] },
+  { ingredient: 'Zinc',                 advantage: ['Bisglycinate form — ', '43% better absorption', ', no interference with other minerals.'] },
+  { ingredient: 'Iodine + Selenium',    advantage: ['Both at full NRV. The thyroid needs ', 'both together', ' — one without the other doesn\'t work properly.'] },
+  { ingredient: 'Adaptogens',           advantage: ['150mg Rhodiola standardised to ', '3% Rosavins', ' — the clinical concentration. Unstandardised extracts are just filler.'] },
+  { ingredient: 'L-Theanine',           advantage: ['100mg paired with ', '200mg caffeine', ' — the exact ratio studied for calm, sustained focus without anxiety.'] },
+  { ingredient: 'Natural Caffeine',     advantage: ['From Guarana — ', 'slower release, longer effect, no hard crash', '. Not synthetic anhydrous caffeine.'] },
+  { ingredient: 'Taurine',              advantage: ['500mg for cellular hydration and oxidative protection. ', 'Missing from every competing morning formula', '.'] },
+  { ingredient: 'Electrolytes',         advantage: ['400mg — ', 'a real functional dose', '. Trace amounts found elsewhere don\'t move any measurable marker.'] },
+  { ingredient: 'Sweetener System',     advantage: ['Reb-M + Thaumatin — ', 'the cleanest stevia fraction', ', no bitterness, no artificial sweeteners.'] },
 ];
 
 const RECOVERY_ADVANTAGE = [
-  { ingredient: 'Protein Source',      advantage: 'Free-form EAAs absorb in 15–30 min. Whey takes 60–90 min and misses the recovery window. Dairy-free. Complete.' },
-  { ingredient: 'Carbohydrate',        advantage: 'Low DE Maltodextrin — controlled glycemic response, not a blood sugar spike. Right amount, right form.' },
-  { ingredient: 'Carb:Protein Ratio',  advantage: '3:1 — the research-backed ratio for glycogen replenishment and cortisol reduction. Whey products get this backwards.' },
-  { ingredient: 'Creatine Monohydrate',advantage: '5 g — the only dose with real evidence behind it. Sub-doses in competitors produce no ergogenic effect.' },
-  { ingredient: 'HMB (Calcium HMB)',   advantage: '1.5 g clinical dose — blocks muscle breakdown. Expensive to include, which is why almost no one does.' },
-  { ingredient: 'L-Glutamine',         advantage: '3 g to support gut integrity post-training. Intense exercise increases intestinal permeability — this addresses it directly.' },
-  { ingredient: 'BCAAs',               advantage: 'Full EAA spectrum — BCAAs alone can\'t build complete muscle protein. Full spectrum produces measurably better results.' },
-  { ingredient: 'Tart Cherry Extract', advantage: '500 mg — clinically shown to reduce DOMS by up to 24% and accelerate strength recovery.' },
-  { ingredient: 'Magnesium',           advantage: 'Bisglycinate — absorbed via amino acid transporters. Significantly more effective post-workout than Oxide or Sulfate.' },
-  { ingredient: 'L-Theanine',          advantage: '100 mg to shift your nervous system from sympathetic to recovery mode. No other recovery product includes this.' },
-  { ingredient: 'Electrolytes',        advantage: 'Pink Himalayan Salt — sodium + 80+ trace minerals. Not refined sodium.' },
-  { ingredient: 'AstraGin®',           advantage: '50 mg patented extract that increases amino acid absorption by up to 67%. Makes everything else in the formula more effective.' },
-  { ingredient: 'Sweetener System',    advantage: 'Reb-M + Thaumatin — natural only. Sucralose and acesulfame-K (used by competitors) have been linked to gut microbiome disruption.' },
+  { ingredient: 'Protein Source',       advantage: ['Free-form EAAs absorb in ', '15–30 min', '. Whey takes 60–90 min and misses the recovery window. Dairy-free. Complete.'] },
+  { ingredient: 'Carbohydrate',         advantage: ['Low DE Maltodextrin — ', 'controlled glycemic response', ', not a blood sugar spike. Right amount, right form.'] },
+  { ingredient: 'Carb:Protein Ratio',   advantage: ['3:1', ' — the research-backed ratio for glycogen replenishment and cortisol reduction. Whey products get this backwards.'] },
+  { ingredient: 'Creatine',             advantage: ['5g Monohydrate — ', 'the only dose with real evidence', ' behind it. Sub-doses in competitors produce no ergogenic effect.'] },
+  { ingredient: 'HMB',                  advantage: ['1.5g clinical dose — ', 'blocks muscle breakdown', '. Expensive to include, which is why almost no one does.'] },
+  { ingredient: 'L-Glutamine',          advantage: ['3g to support ', 'gut integrity post-training', '. Intense exercise increases intestinal permeability — this addresses it directly.'] },
+  { ingredient: 'BCAAs',                advantage: ['Full EAA spectrum — BCAAs alone can\'t build complete muscle protein. ', 'Full spectrum produces measurably better results', '.'] },
+  { ingredient: 'Tart Cherry',          advantage: ['500mg — clinically shown to reduce DOMS by ', 'up to 24%', ' and accelerate strength recovery.'] },
+  { ingredient: 'Magnesium',            advantage: ['Bisglycinate — absorbed via amino acid transporters. ', 'Significantly more effective post-workout', ' than Oxide or Sulfate.'] },
+  { ingredient: 'L-Theanine',           advantage: ['100mg to shift your nervous system from ', 'sympathetic to recovery mode', '. No other recovery product includes this.'] },
+  { ingredient: 'Electrolytes',         advantage: ['Pink Himalayan Salt — sodium + ', '80+ trace minerals', '. Not refined sodium.'] },
+  { ingredient: 'AstraGin®',            advantage: ['50mg patented extract that increases amino acid absorption by ', 'up to 67%', '. Makes everything else in the formula more effective.'] },
+  { ingredient: 'Sweetener System',     advantage: ['Reb-M + Thaumatin — natural only. ', 'Sucralose and acesulfame-K', ' (used by competitors) have been linked to gut microbiome disruption.'] },
 ];
 
-function AdvantageTable({ items, sectionClass }) {
+function AdvText({ parts }) {
   return (
-    <div className="divide-y divide-[#f0eef8]">
-      {items.map((row, i) => (
-        <div key={i} className={`${sectionClass} flex flex-col sm:flex-row gap-2 sm:gap-6 py-4 opacity-0`}>
-          <div className="sm:w-[220px] flex-shrink-0 flex items-start gap-2 pt-0.5">
-            <div className="flex-shrink-0 mt-[7px] w-1.5 h-1.5 rounded-full" style={{ background: HEAT_G }} />
-            <p
-              className="font-sans font-700 text-[13px] tracking-tight bg-clip-text text-transparent leading-snug"
-              style={{ backgroundImage: HEAT_G }}
-            >
-              {row.ingredient}
-            </p>
-          </div>
-          <p className="font-body font-300 text-[#555] text-[14px] leading-relaxed flex-1">
-            {row.advantage}
-          </p>
-        </div>
-      ))}
-    </div>
+    <p className="font-body font-300 text-[#555] text-[13px] leading-relaxed">
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <strong key={i} className="font-700 bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>
+            {part}
+          </strong>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </p>
+  );
+}
+
+function AdvantageTable({ items, sectionClass, gradientFrom, gradientTo }) {
+  const grad = `linear-gradient(135deg, ${gradientFrom}, ${gradientTo})`;
+  return (
+    <table className="w-full border-collapse">
+      <thead>
+        <tr style={{ background: 'linear-gradient(180deg,#fafafa,#f5f3ff)' }}>
+          <th className="text-left px-4 py-3 font-body text-[9px] tracking-[0.28em] uppercase font-700 w-[28%] border-b border-[#f0eef8]"
+            style={{ color: gradientFrom }}>
+            Ingredient
+          </th>
+          <th className="text-left px-4 py-3 font-body text-[9px] tracking-[0.28em] uppercase font-700 border-b border-[#f0eef8] bg-clip-text text-transparent"
+            style={{ backgroundImage: grad }}>
+            The LIFECODE Advantage
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((row, i) => (
+          <tr key={i} className={`${sectionClass} border-t border-[#f0eef8] opacity-0 ${i % 2 === 0 ? 'bg-white' : 'bg-[#fdfcff]'}`}>
+            <td className="px-4 py-3.5 align-top w-[28%]">
+              <div className="flex items-center gap-2">
+                <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: grad }} />
+                <span className="font-sans font-700 text-[13px] tracking-tight text-[#0a0a0a]">
+                  {row.ingredient}
+                </span>
+              </div>
+            </td>
+            <td className="px-4 py-3.5 align-top">
+              <AdvText parts={Array.isArray(row.advantage) ? row.advantage : [row.advantage]} />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 
@@ -125,7 +155,7 @@ function AdvantageBlock({ title, items, sectionClass, gradientFrom, gradientTo }
         <div ref={bodyRef} style={{ height: 0, overflow: 'hidden', opacity: 0 }}>
           <div className="px-6 md:px-8 pb-6">
             <div className="h-px w-full mb-2" style={{ background: `linear-gradient(90deg, ${gradientFrom}33, ${gradientTo}33)` }} />
-            <AdvantageTable items={items} sectionClass={sectionClass} />
+            <AdvantageTable items={items} sectionClass={sectionClass} gradientFrom={gradientFrom} gradientTo={gradientTo} />
           </div>
         </div>
       </div>
@@ -276,6 +306,7 @@ export default function ComparisonSection() {
               gradientFrom="#C62828"
               gradientTo="#7C3AED"
             />
+
           </div>
         </div>
 
