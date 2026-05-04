@@ -18,8 +18,8 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-10 pb-10 border-b border-[#e8e0ff]">
           <div>
             <span
-              className="font-sans font-700 text-2xl tracking-[0.3em] uppercase select-none block mb-3 bg-clip-text text-transparent"
-              style={{ backgroundImage: BOX_G }}
+              className="font-sans font-700 text-2xl tracking-[0.3em] uppercase select-none block mb-3"
+              style={{ color: '#6D28D9' }}
             >
               LIFECODE
             </span>

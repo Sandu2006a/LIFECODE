@@ -86,7 +86,7 @@ export default function AppSection() {
             style={{ fontSize: 'clamp(2.8rem, 6vw, 7rem)' }}
           >
             The app that helps<br />
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
+            <span style={{ color: '#6D28D9' }}>
               you become superhuman.
             </span>
           </h2>
@@ -110,8 +110,8 @@ export default function AppSection() {
               >
                 <div className="bg-white h-full p-7 flex flex-col gap-4" style={{ borderRadius: '16.5px' }}>
                   <span
-                    className="font-body text-[14px] tracking-widest3 uppercase bg-clip-text text-transparent"
-                    style={{ backgroundImage: f.gradient }}
+                    className="font-body text-[14px] tracking-widest3 uppercase"
+                    style={{ color: '#6D28D9' }}
                   >
                     {f.tag}
                   </span>
@@ -156,8 +156,8 @@ export default function AppSection() {
               >
                 <div className="bg-white h-full p-7 flex flex-col gap-4" style={{ borderRadius: '16.5px' }}>
                   <span
-                    className="font-body text-[14px] tracking-widest3 uppercase bg-clip-text text-transparent"
-                    style={{ backgroundImage: f.gradient }}
+                    className="font-body text-[14px] tracking-widest3 uppercase"
+                    style={{ color: '#6D28D9' }}
                   >
                     {f.tag}
                   </span>

@@ -52,8 +52,8 @@ export default function RecoverySection() {
                 </span>
               </div>
               <h2
-                className="font-sans font-700 leading-[0.88] tracking-tight bg-clip-text text-transparent"
-                style={{ fontSize: 'clamp(3rem, 6vw, 6.5rem)', backgroundImage: RG }}
+                className="font-sans font-700 leading-[0.88] tracking-tight"
+                style={{ fontSize: 'clamp(3rem, 6vw, 6.5rem)', color: '#6D28D9' }}
               >
                 Recovery<br />Pack
               </h2>

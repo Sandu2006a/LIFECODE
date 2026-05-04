@@ -19,8 +19,8 @@ const CARD_BG = '#F5F3FF';
 
 function GradientText({ children, className = '' }) {
   return (
-    <span className={`bg-clip-text text-transparent inline-block ${className}`}
-      style={{ backgroundImage: BOX_G }}>
+    <span className={`inline-block ${className}`}
+      style={{ color: '#6D28D9' }}>
       {children}
     </span>
   );
@@ -30,8 +30,8 @@ function Eyebrow({ children }) {
   return (
     <div className="inline-flex items-center gap-3 mb-6">
       <span className="h-px w-8 flex-shrink-0" style={{ background: BOX_G }} />
-      <span className="font-body text-[11px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
-        style={{ backgroundImage: BOX_G }}>
+      <span className="font-body text-[11px] tracking-[0.32em] uppercase"
+        style={{ color: '#6D28D9' }}>
         {children}
       </span>
     </div>
@@ -130,8 +130,8 @@ export default function AboutPage() {
                 A kitchen counter<br />that looked like<br />a pharmacy.
               </h2>
               <div className="rounded-3xl p-8 inline-block" style={{ background: CARD_BG, border: `1px solid ${BORDER}` }}>
-                <span className="font-sans font-700 text-[64px] leading-none block bg-clip-text text-transparent"
-                  style={{ backgroundImage: BOX_G }}>
+                <span className="font-sans font-700 text-[64px] leading-none block"
+                  style={{ color: '#6D28D9' }}>
                   €300
                 </span>
                 <span className="font-body text-[13px] tracking-wide mt-1 block" style={{ color: INK2 }}>
@@ -183,8 +183,8 @@ export default function AboutPage() {
                 className="rounded-3xl p-9 transition-all duration-300 hover:shadow-xl"
                 style={{ background: CARD_BG, border: `1px solid ${BORDER}` }}>
                 <GradientText className="font-sans font-700 text-[11px] tracking-[0.3em] block mb-5">{num}</GradientText>
-                <h3 className="font-sans font-700 text-[26px] mb-4 leading-tight bg-clip-text text-transparent"
-                  style={{ backgroundImage: BOX_G }}>
+                <h3 className="font-sans font-700 text-[26px] mb-4 leading-tight"
+                  style={{ color: '#6D28D9' }}>
                   {title}
                 </h3>
                 <p className="font-body text-[15px] leading-relaxed" style={{ color: INK2 }}>{body}</p>
@@ -194,7 +194,7 @@ export default function AboutPage() {
 
           <p data-s className="font-body text-[18px] max-w-2xl leading-relaxed" style={{ color: INK2 }}>
             The brands that don't lie cost €60–90 a product — and you still need four of them to run a real protocol.{' '}
-            <span className="font-700 bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
+            <span className="font-700" style={{ color: '#6D28D9' }}>
               So we stopped looking. We built it ourselves.
             </span>
           </p>
@@ -206,8 +206,8 @@ export default function AboutPage() {
             <div data-s className="mb-10">
               <div className="inline-flex items-center gap-3 mb-6">
                 <span className="h-px w-8" style={{ background: BOX_G }} />
-                <span className="font-body text-[11px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
-                  style={{ backgroundImage: BOX_G }}>
+                <span className="font-body text-[11px] tracking-[0.32em] uppercase"
+                  style={{ color: '#6D28D9' }}>
                   Where We Start
                 </span>
               </div>

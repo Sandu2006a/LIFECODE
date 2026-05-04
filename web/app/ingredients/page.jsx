@@ -204,8 +204,8 @@ function IngredientCard({ item, i }) {
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
           style={{ background: CARD, border: `1px solid ${BORDER}` }}>
           <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: BOX_G }} />
-          <span className="font-sans font-700 text-[12px] tracking-wide bg-clip-text text-transparent"
-            style={{ backgroundImage: BOX_G }}>
+          <span className="font-sans font-700 text-[12px] tracking-wide"
+            style={{ color: '#6D28D9' }}>
             {item.dose} per serving
           </span>
         </div>
@@ -241,14 +241,14 @@ export default function IngredientsPage() {
         <section ref={heroRef} className="pt-40 pb-16 px-8 md:px-16 max-w-[1200px] mx-auto">
           <div data-h className="inline-flex items-center gap-3 mb-5">
             <span className="h-px w-8" style={{ background: BOX_G }} />
-            <span className="font-body text-[11px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
-              style={{ backgroundImage: BOX_G }}>
+            <span className="font-body text-[11px] tracking-[0.32em] uppercase"
+              style={{ color: '#6D28D9' }}>
               Full Transparency
             </span>
           </div>
           <h1 data-h className="font-sans font-700 text-[44px] md:text-[68px] leading-[0.95] tracking-tight mb-5" style={{ color: INK }}>
             Every ingredient.<br />
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
+            <span style={{ color: '#6D28D9' }}>
               Every dose. Every reason.
             </span>
           </h1>
@@ -323,8 +323,8 @@ export default function IngredientsPage() {
         <section className="px-8 md:px-16 pb-24" style={{ borderTop: `1px solid ${BORDER}` }}>
           <div className="max-w-[1200px] mx-auto pt-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div>
-              <p className="font-body text-[11px] tracking-[0.32em] uppercase bg-clip-text text-transparent mb-2"
-                style={{ backgroundImage: BOX_G }}>
+              <p className="font-body text-[11px] tracking-[0.32em] uppercase mb-2"
+                style={{ color: '#6D28D9' }}>
                 Ready to start?
               </p>
               <h3 className="font-sans font-700 text-[28px] md:text-[34px]" style={{ color: INK }}>

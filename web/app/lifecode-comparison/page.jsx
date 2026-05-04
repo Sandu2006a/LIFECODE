@@ -150,15 +150,15 @@ export default function ComparisonPage() {
           <div className="max-w-[1200px] mx-auto">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
-              <span className="font-body text-[11px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
-                style={{ backgroundImage: BOX_G }}>
+              <span className="font-body text-[11px] tracking-[0.32em] uppercase"
+                style={{ color: '#6D28D9' }}>
                 The Full Comparison
               </span>
             </div>
             <h1 className="font-sans font-700 text-[#111] leading-[0.92] tracking-tight mb-6"
               style={{ fontSize: 'clamp(2.8rem, 7vw, 6rem)' }}>
               LIFECODE<br />
-              <span className="bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
+              <span style={{ color: '#6D28D9' }}>
                 Comparison
               </span>
             </h1>
@@ -214,7 +214,7 @@ export default function ComparisonPage() {
                         <th className="pb-5 px-3">
                           <div style={{ padding: '1.5px', borderRadius: '12px', background: BOX_G }}>
                             <div className="bg-white py-3 px-3 text-center" style={{ borderRadius: '10.5px' }}>
-                              <p className="font-sans font-700 text-sm bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>Life Code</p>
+                              <p className="font-sans font-700 text-sm" style={{ color: '#6D28D9' }}>Life Code</p>
                               <p className="font-body text-[11px] text-[#999] tracking-wide uppercase mt-0.5">Morning Pack</p>
                             </div>
                           </div>
@@ -265,7 +265,7 @@ export default function ComparisonPage() {
                         <th className="pb-5 px-3">
                           <div style={{ padding: '1.5px', borderRadius: '12px', background: BOX_G }}>
                             <div className="bg-white py-3 px-3 text-center" style={{ borderRadius: '10.5px' }}>
-                              <p className="font-sans font-700 text-sm bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>Life Code</p>
+                              <p className="font-sans font-700 text-sm" style={{ color: '#6D28D9' }}>Life Code</p>
                               <p className="font-body text-[11px] text-[#999] tracking-wide uppercase mt-0.5">Anabolic Recovery</p>
                             </div>
                           </div>
@@ -301,7 +301,7 @@ export default function ComparisonPage() {
             <h2 className="font-sans font-700 text-[#111] tracking-tight leading-[0.92] mb-6"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
               Ready to upgrade<br />
-              <span className="bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
+              <span style={{ color: '#6D28D9' }}>
                 your protocol?
               </span>
             </h2>

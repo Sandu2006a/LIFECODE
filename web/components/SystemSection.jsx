@@ -77,8 +77,8 @@ export default function SystemSection() {
             <div key={b.tag} style={{ padding: '1.5px', borderRadius: '18px', background: b.gradient }}>
               <div className="bg-white h-full p-7 flex flex-col gap-4" style={{ borderRadius: '16.5px' }}>
                 <span
-                  className="font-body text-[8px] tracking-widest3 uppercase bg-clip-text text-transparent"
-                  style={{ backgroundImage: b.gradient }}
+                  className="font-body text-[8px] tracking-widest3 uppercase"
+                  style={{ color: '#6D28D9' }}
                 >
                   {b.tag}
                 </span>

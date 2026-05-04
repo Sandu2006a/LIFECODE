@@ -84,7 +84,7 @@ function SuccessCard({ email, already }) {
         <div className="mt-5 inline-block" style={{ padding: '1.5px', borderRadius: '14px', background: BOX_G }}>
           <div className="bg-white px-7 py-4 text-center" style={{ borderRadius: '12.5px' }}>
             <p className="font-body text-[9px] tracking-[0.28em] uppercase text-[#888] mb-1.5">Your exclusive promo code</p>
-            <p className="font-sans font-700 text-[26px] tracking-[0.22em] bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
+            <p className="font-sans font-700 text-[26px] tracking-[0.22em]" style={{ color: '#6D28D9' }}>
               {PROMO}
             </p>
             <p className="font-body text-[11px] text-[#aaa] mt-1">70% off your first month · Apply at checkout</p>
@@ -166,7 +166,7 @@ export default function PreOrderSection() {
         <h2 className="po-rise font-sans font-700 text-[#0a0a0a] leading-[0.92] tracking-tight opacity-0 mx-auto"
           style={{ fontSize: 'clamp(2.6rem, 6vw, 5.6rem)' }}>
           The protocol drops soon.<br/>
-          <span className="bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>
+          <span style={{ color: '#6D28D9' }}>
             Be the first to get it.
           </span>
         </h2>
@@ -226,7 +226,7 @@ export default function PreOrderSection() {
             { tag: '$0',  label: 'No payment now',    sub: 'just your email' },
           ].map((p) => (
             <div key={p.label} className="rounded-xl border border-[#efe9f5] bg-white px-4 py-4 text-left">
-              <span className="font-sans font-800 text-xl tabular-nums bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>
+              <span className="font-sans font-800 text-xl tabular-nums" style={{ color: '#6D28D9' }}>
                 {p.tag}
               </span>
               <p className="font-sans font-700 text-[#111] text-[13px] mt-0.5">{p.label}</p>

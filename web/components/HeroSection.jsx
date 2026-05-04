@@ -40,8 +40,8 @@ export default function HeroSection() {
               style={{ fontSize: 'clamp(3.4rem, 7vw, 7.5rem)' }}>
               Train harder.
             </h1>
-            <h1 className="hs-h1 font-sans font-700 leading-[0.88] tracking-tight bg-clip-text text-transparent opacity-0"
-              style={{ fontSize: 'clamp(3.4rem, 7vw, 7.5rem)', backgroundImage: BOX_G }}>
+            <h1 className="hs-h1 font-sans font-700 leading-[0.88] tracking-tight opacity-0"
+              style={{ fontSize: 'clamp(3.4rem, 7vw, 7.5rem)', color: '#6D28D9' }}>
               Recover faster.
             </h1>
             <h1 className="hs-h1 font-sans font-700 text-[#111] leading-[0.88] tracking-tight opacity-0"
@@ -74,8 +74,8 @@ export default function HeroSection() {
           <div className="hs-btm flex gap-8 pt-5 border-t border-[#f2f2f2] opacity-0">
             {[['2', 'Formulas'], ['21', 'Compounds'], ['0', 'Fillers']].map(([v, l]) => (
               <div key={l}>
-                <p className="font-sans font-700 text-[2rem] leading-none bg-clip-text text-transparent"
-                  style={{ backgroundImage: BOX_G }}>{v}</p>
+                <p className="font-sans font-700 text-[2rem] leading-none"
+                  style={{ color: '#6D28D9' }}>{v}</p>
                 <p className="font-body text-[12px] tracking-widest text-[#ccc] uppercase mt-1">{l}</p>
               </div>
             ))}

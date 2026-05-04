@@ -56,7 +56,7 @@ function AdvText({ parts }) {
     <p className="font-body font-300 text-[#555] text-[13px] leading-relaxed">
       {parts.map((part, i) =>
         i % 2 === 1 ? (
-          <strong key={i} className="font-700 bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>
+          <strong key={i} className="font-700" style={{ color: '#6D28D9' }}>
             {part}
           </strong>
         ) : (
@@ -77,8 +77,8 @@ function AdvantageTable({ items, sectionClass, gradientFrom, gradientTo }) {
             style={{ color: gradientFrom }}>
             Ingredient
           </th>
-          <th className="text-left px-4 py-3 font-body text-[9px] tracking-[0.28em] uppercase font-700 border-b border-[#f0eef8] bg-clip-text text-transparent"
-            style={{ backgroundImage: grad }}>
+          <th className="text-left px-4 py-3 font-body text-[9px] tracking-[0.28em] uppercase font-700 border-b border-[#f0eef8]"
+            style={{ color: '#6D28D9' }}>
             The LIFECODE Advantage
           </th>
         </tr>
@@ -229,8 +229,8 @@ export default function ComparisonSection() {
                 <th className="pb-5 px-4 w-[24%]">
                   <div className="cs-col opacity-0" style={{ padding: '1.5px', borderRadius: '12px', background: BOX_G }}>
                     <div className="bg-white py-3 px-4 rounded-[10.5px] text-center">
-                      <p className="font-sans font-700 text-sm tracking-tight bg-clip-text text-transparent"
-                        style={{ backgroundImage: BOX_G }}>LIFECODE</p>
+                      <p className="font-sans font-700 text-sm tracking-tight"
+                        style={{ color: '#6D28D9' }}>LIFECODE</p>
                       <p className="font-body text-[13px] tracking-widest text-[#ccc] uppercase mt-0.5">System</p>
                     </div>
                   </div>
@@ -286,7 +286,7 @@ export default function ComparisonSection() {
             style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3.4rem)' }}
           >
             Not just what&apos;s in it —<br />
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>
+            <span style={{ color: '#6D28D9' }}>
               why every ingredient is different.
             </span>
           </h3>

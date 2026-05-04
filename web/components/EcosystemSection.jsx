@@ -52,8 +52,8 @@ export default function EcosystemSection() {
             </div>
 
             <h2
-              className="eco-el font-sans font-700 leading-[0.9] tracking-tight mb-6 opacity-0 bg-clip-text text-transparent"
-              style={{ fontSize: 'clamp(2.6rem, 6vw, 6rem)', backgroundImage: BOX_G }}
+              className="eco-el font-sans font-700 leading-[0.9] tracking-tight mb-6 opacity-0"
+              style={{ fontSize: 'clamp(2.6rem, 6vw, 6rem)', color: '#6D28D9' }}
             >
               Your biology,<br />tracked.
             </h2>
@@ -69,8 +69,8 @@ export default function EcosystemSection() {
                 <div key={f.title} style={{ padding: '1.5px', borderRadius: '14px', background: BOX_G }}>
                   <div className="bg-white h-full px-6 py-4 flex items-start gap-4" style={{ borderRadius: '12.5px' }}>
                     <span
-                      className="font-body text-[12px] tracking-widest3 uppercase mt-0.5 flex-shrink-0 bg-clip-text text-transparent"
-                      style={{ backgroundImage: BOX_G }}
+                      className="font-body text-[12px] tracking-widest3 uppercase mt-0.5 flex-shrink-0"
+                      style={{ color: '#6D28D9' }}
                     >
                       0{i + 1}
                     </span>

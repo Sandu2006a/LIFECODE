@@ -75,8 +75,8 @@ export default function VoicesSection() {
         {/* Header */}
         <div className="voice-hd opacity-0 flex items-center gap-3 mb-8">
           <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
-          <span className="font-body text-[11px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
-            style={{ backgroundImage: BOX_G }}>
+          <span className="font-body text-[11px] tracking-[0.32em] uppercase"
+            style={{ color: '#6D28D9' }}>
             From the field
           </span>
         </div>
@@ -84,7 +84,7 @@ export default function VoicesSection() {
         <h2 className="voice-hd opacity-0 font-sans font-700 text-white leading-[0.95] tracking-tight mb-4"
           style={{ fontSize: 'clamp(2.2rem, 5vw, 4.5rem)' }}>
           Coaches. Athletes.<br />
-          <span className="bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
+          <span style={{ color: '#6D28D9' }}>
             One system.
           </span>
         </h2>
@@ -101,8 +101,8 @@ export default function VoicesSection() {
               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
             >
               {/* Quote mark */}
-              <div className="font-sans font-700 text-[56px] leading-none bg-clip-text text-transparent select-none"
-                style={{ backgroundImage: BOX_G, lineHeight: '0.7' }}>
+              <div className="font-sans font-700 text-[56px] leading-none select-none"
+                style={{ color: '#6D28D9', lineHeight: '0.7' }}>
                 "
               </div>
 
@@ -130,19 +130,16 @@ export default function VoicesSection() {
 
                 <div className="min-w-0">
                   <p className="font-sans font-700 text-[17px] text-white tracking-tight leading-tight">{v.name}</p>
-                  <p className="font-body text-[13px] mt-1.5 bg-clip-text text-transparent leading-snug" style={{ backgroundImage: BOX_G }}>{v.role}</p>
+                  <p className="font-body text-[13px] mt-1.5 leading-snug" style={{ color: '#6D28D9' }}>{v.role}</p>
                 </div>
 
                 {/* Tag pill */}
                 <div className="ml-auto flex-shrink-0">
                   <span
-                    className="font-body text-[10px] tracking-[0.2em] uppercase px-3 py-1 rounded-full bg-clip-text text-transparent"
+                    className="font-body text-[10px] tracking-[0.2em] uppercase px-3 py-1 rounded-full"
                     style={{
-                      backgroundImage: BOX_G,
                       border: '1px solid rgba(124,58,237,0.3)',
                       background: 'rgba(124,58,237,0.1)',
-                      WebkitBackgroundClip: 'unset',
-                      WebkitTextFillColor: 'unset',
                       color: '#A78BFA',
                     }}
                   >

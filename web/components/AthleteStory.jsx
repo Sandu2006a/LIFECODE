@@ -44,7 +44,7 @@ export default function AthleteStory() {
               style={{ fontSize: 'clamp(2.2rem, 4.5vw, 4.8rem)' }}
             >
               Built by athletes.<br />
-              <span className="bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
+              <span style={{ color: '#6D28D9' }}>
                 For athletes.
               </span>
             </h2>
@@ -108,20 +108,39 @@ export default function AthleteStory() {
               </div>
             </div>
 
-            {/* 12+ years stat */}
-            <div className="as-el opacity-0 flex items-center gap-5">
-              <div className="flex-shrink-0">
-                <p className="font-sans font-800 leading-none bg-clip-text text-transparent"
-                  style={{ fontSize: 'clamp(3rem, 6vw, 5rem)', backgroundImage: MG }}>
-                  12+
-                </p>
-              </div>
-              <div>
-                <p className="font-sans font-700 text-[#111] text-lg tracking-tight leading-snug">Years of competing</p>
-                <p className="font-body font-300 text-[#999] text-sm leading-relaxed mt-1">
-                  Triathlons, sprints, climbing — every discipline shaped what went into the formula.
-                </p>
-              </div>
+            {/* Fact stats */}
+            <div className="as-el grid grid-cols-2 gap-4 opacity-0">
+              {FACTS.map(f => (
+                <div key={f.label} style={{ padding: '1.5px', borderRadius: '14px', background: f.gradient }}>
+                  <div className="bg-white text-center py-5 px-3" style={{ borderRadius: '12.5px' }}>
+                    <p
+                      className="font-sans font-700 text-xl md:text-2xl leading-none mb-1"
+                      style={{ color: '#6D28D9' }}
+                    >
+                      {f.value}
+                    </p>
+                    <p className="font-body text-[9px] tracking-widest text-[#bbb] uppercase leading-tight">
+                      {f.label}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* About button */}
+            <div className="as-el mt-6 opacity-0">
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-3 px-6 py-3 rounded-full font-body text-[12px] tracking-widest uppercase text-white transition-opacity duration-300 hover:opacity-85"
+                style={{ background: BOX_G }}
+              >
+                Our Story
+                <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
+                  <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 5h6M5.5 2.5L8 5l-2.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+              </Link>
             </div>
 
           </div>
