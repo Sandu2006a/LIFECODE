@@ -8,14 +8,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '../../src/components/Icon';
 import { colors, fonts, radii } from '../../src/theme';
 import { supabase } from '../../src/lib/supabase';
-import { getCachedTokens, getCachedUserId } from '../../src/lib/auth-cache';
+import { ensureSession } from '../../src/lib/session';
+import { localDayBounds } from '../../src/lib/dates';
 import {
   MORNING_NUTRIENTS, RECOVERY_NUTRIENTS, DEFAULT_TARGETS, calcProgress,
 } from '../../src/lib/nutrients';
+import { analyzeMealWithAI } from '../../src/lib/analyze-meal';
 
 type Message = { id: number; role: 'ai' | 'user'; text: string };
 
-const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_KEY!;
+const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_KEY;
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`;
 
 function Bubble({ msg }: { msg: Message }) {
@@ -43,6 +45,8 @@ const b = StyleSheet.create({
   meText: { fontFamily: fonts.sans, fontSize: 15, color: colors.ink, lineHeight: 22 },
 });
 
+type Memory = { memory: string; category: string };
+
 type ContextData = {
   name: string;
   age: number;
@@ -50,6 +54,7 @@ type ContextData = {
   weight: number;
   height: number;
   goal: string;
+  sport: string;
   caloriesTarget: number;
   proteinTarget: number;
   carbsTarget: number;
@@ -59,23 +64,24 @@ type ContextData = {
   recoveryTaken: boolean;
   todayMeals: { meal_name: string; quantity_g: number; nutrients: any }[];
   progress: Record<string, { current: number; target: number; pct: number }>;
+  memories: Memory[];
 };
 
 async function buildContext(userId: string): Promise<ContextData | null> {
-  const today = new Date().toISOString().split('T')[0];
+  const { startISO, endISO } = localDayBounds();
 
-  const [profileRes, logsRes, mealsRes] = await Promise.all([
+  const [profileRes, logsRes, mealsRes, memRes] = await Promise.all([
     supabase.from('profiles').select(
-      'display_name,full_name,age,gender,weight_kg,height_cm,goal,calories_target,protein_target,carbs_target,fats_target,micro_targets'
+      'display_name,full_name,age,gender,weight_kg,height_cm,goal,sport,calories_target,protein_target,carbs_target,fats_target,micro_targets'
     ).eq('id', userId).maybeSingle(),
     supabase.from('intake_logs').select('pack')
       .eq('user_id', userId)
-      .gte('taken_at', `${today}T00:00:00.000Z`)
-      .lte('taken_at', `${today}T23:59:59.999Z`),
+      .gte('taken_at', startISO).lte('taken_at', endISO),
     supabase.from('meal_logs').select('meal_name,quantity_g,nutrients,logged_at')
       .eq('user_id', userId)
-      .gte('logged_at', `${today}T00:00:00.000Z`)
-      .lte('logged_at', `${today}T23:59:59.999Z`),
+      .gte('logged_at', startISO).lte('logged_at', endISO),
+    supabase.from('user_memories').select('memory,category,created_at')
+      .eq('user_id', userId).order('created_at', { ascending: false }).limit(30),
   ]);
 
   const p = profileRes.data;
@@ -104,6 +110,7 @@ async function buildContext(userId: string): Promise<ContextData | null> {
     weight: p.weight_kg || 0,
     height: p.height_cm || 0,
     goal: p.goal || '',
+    sport: (p as any).sport || '',
     caloriesTarget: p.calories_target || 0,
     proteinTarget: p.protein_target || 0,
     carbsTarget: p.carbs_target || 0,
@@ -113,6 +120,7 @@ async function buildContext(userId: string): Promise<ContextData | null> {
     recoveryTaken,
     todayMeals,
     progress,
+    memories: (memRes.data || []) as Memory[],
   };
 }
 
@@ -137,14 +145,22 @@ function buildSystemPrompt(ctx: ContextData): string {
     ? ctx.todayMeals.map(m => `  • ${m.meal_name} — ${m.quantity_g}g`).join('\n')
     : '  None logged yet';
 
+  const memoryLines = ctx.memories.length > 0
+    ? ctx.memories.map(m => `  [${m.category}] ${m.memory}`).join('\n')
+    : '  No memories stored yet — extract any useful insights from this conversation.';
+
   return `You are the LIFECODE AI — the precision sports performance coach of ${ctx.name}.
 
-CRITICAL INSTRUCTION: Before answering ANY question, analyze ALL the data below. Reference specific numbers and gaps in your response. Never give generic advice — always personalize to ${ctx.name}'s exact data.
+CRITICAL INSTRUCTION: Before answering ANY question, analyze ALL the data below. Reference specific numbers and gaps in your response. Never give generic advice — always personalize to ${ctx.name}'s exact data and remembered insights.
 
 ━━━ ATHLETE PROFILE ━━━
 Name: ${ctx.name} | Age: ${ctx.age} | Gender: ${ctx.gender}
 Weight: ${ctx.weight}kg | Height: ${ctx.height}cm
+Sport: ${ctx.sport || 'Not specified'}
 Level: ${goalLabel[ctx.goal] || ctx.goal || 'Not set'}
+
+━━━ LONG-TERM MEMORY (use these every response) ━━━
+${memoryLines}
 
 ━━━ DAILY NUTRITION TARGETS (AI-calibrated) ━━━
 Calories: ${ctx.caloriesTarget > 0 ? ctx.caloriesTarget + ' kcal' : 'Not set yet'}
@@ -153,8 +169,8 @@ Carbs: ${ctx.carbsTarget > 0 ? ctx.carbsTarget + 'g' : 'Not set'}
 Fats: ${ctx.fatsTarget > 0 ? ctx.fatsTarget + 'g' : 'Not set'}
 
 ━━━ TODAY'S PROTOCOL — ${date} ━━━
-Morning Pack: ${ctx.morningTaken ? 'TAKEN ✓ (all 11 vitamins & minerals at full dose)' : 'NOT TAKEN ✗ — all morning micronutrients at 0%'}
-Recovery Pack: ${ctx.recoveryTaken ? 'TAKEN ✓ (all 10 compounds at full dose)' : 'NOT TAKEN ✗ — all recovery compounds at 0%'}
+Morning Pack: ${ctx.morningTaken ? 'TAKEN ✓' : 'NOT TAKEN ✗'}
+Recovery Pack: ${ctx.recoveryTaken ? 'TAKEN ✓' : 'NOT TAKEN ✗'}
 
 ━━━ MICRONUTRIENT STATUS TODAY ━━━
 MORNING PACK — Vitamins & Minerals:
@@ -167,16 +183,55 @@ ${microLines(RECOVERY_NUTRIENTS)}
 ${mealLines}
 
 ━━━ LIFECODE SUPPLEMENT FORMULAS ━━━
-Morning Pack (daily): Vitamin A 800μg | Vitamin C 200mg | Vitamin D3 25μg | Vitamin E 12mg | Vitamin K2 50μg | B12 100μg | B-Complex 100% RDA | Zinc 10mg | Copper 0.5mg | Magnesium Citrate 350mg | Selenium 50μg
-Recovery Pack (post-workout): Maltodextrin 20g | EAA 7g | Creatine 5g | L-Glutamine 3g | HMB 1.5g | Tart Cherry 500mg | Himalayan Salt 300mg | Mg Bisglycinate 150mg | L-Theanine 100mg | AstraGin 50mg
+Morning Pack (daily): Vit A 800μg | Vit C 200mg | Vit D3 25μg | Vit E 12mg | Vit K2 50μg | B12 100μg | B-Complex 100% RDA | Zinc 10mg | Copper 0.5mg | Mg Citrate 350mg | Selenium 50μg
+Recovery Pack: Maltodextrin 20g | EAA 7g | Creatine 5g | L-Glutamine 3g | HMB 1.5g | Tart Cherry 500mg | Himalayan Salt 300mg | Mg Bisglycinate 150mg | L-Theanine 100mg | AstraGin 50mg
 
-━━━ COACHING INSTRUCTIONS ━━━
-1. Analyze ${ctx.name}'s specific data FIRST — identify which nutrients are LOW, OK, or COMPLETE
-2. Give direct, data-driven answers referencing actual percentages and numbers
-3. If a nutrient is low, identify the gap and suggest food sources
-4. Be concise (2-4 sentences) unless the user asks for more detail
+━━━ COACHING RULES ━━━
+1. Analyze ${ctx.name}'s data FIRST — identify which nutrients are LOW (< 50%), partial (50-99%), or COMPLETE (≥100%)
+2. Give direct, data-driven answers using actual percentages and numbers
+3. If a nutrient is low, identify the gap and suggest food sources with realistic quantities
+4. Be concise (2-4 sentences) unless the user asks for detail
 5. Use ${ctx.name}'s name when addressing them
-6. If morning/recovery pack not taken, always mention this as the first priority`;
+6. If morning/recovery pack not taken, mention this as the first priority
+
+━━━ MANDATORY: FOOD LOGGING ━━━
+Whenever the user mentions eating, drinking, or consuming ANYTHING (a fruit, a meal, a snack), append EXACTLY this on a NEW LINE at the end of your response:
+LOG_FOOD:{"meal":"<food name>","quantity_g":<grams>}
+Use realistic gram estimates if the user doesn't specify (orange ~150g, apple ~180g, eggs ~50g each, chicken breast ~150g, salmon fillet ~150g, salad bowl ~100g).
+Example: user says "I ate an orange" → end response with: LOG_FOOD:{"meal":"orange","quantity_g":150}
+
+━━━ MANDATORY: MEMORY EXTRACTION ━━━
+When the user shares a personal insight, preference, allergy, training detail, schedule, recovery pattern, or any fact about themselves that would help future advice — append on a NEW LINE:
+SAVE_MEMORY:{"memory":"<the fact in third person>","category":"nutrition|training|recovery|preference|schedule|health"}
+Examples:
+- "I'm vegetarian" → SAVE_MEMORY:{"memory":"User is vegetarian","category":"nutrition"}
+- "I train twice a day" → SAVE_MEMORY:{"memory":"User trains twice daily","category":"training"}
+- "I can't eat dairy" → SAVE_MEMORY:{"memory":"User is dairy intolerant","category":"health"}
+
+NEVER mention the LOG_FOOD or SAVE_MEMORY tags in human-readable text. They're machine markers — keep them on their own lines at the end.`;
+}
+
+function extractTag(text: string, marker: string): { json: any | null; cleaned: string } {
+  const idx = text.indexOf(marker);
+  if (idx === -1) return { json: null, cleaned: text };
+  const start = text.indexOf('{', idx + marker.length);
+  if (start === -1) return { json: null, cleaned: text };
+  let depth = 0;
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === '{') depth++;
+    else if (text[i] === '}') {
+      depth--;
+      if (depth === 0) {
+        const block = text.slice(start, i + 1);
+        let parsed: any = null;
+        try { parsed = JSON.parse(block); } catch {}
+        const cleanFrom = (idx > 0 && text[idx - 1] === '\n') ? idx - 1 : idx;
+        const cleaned = (text.slice(0, cleanFrom) + text.slice(i + 1)).trim();
+        return { json: parsed, cleaned };
+      }
+    }
+  }
+  return { json: null, cleaned: text };
 }
 
 export default function AskScreen() {
@@ -190,17 +245,11 @@ export default function AskScreen() {
 
   useEffect(() => {
     (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      let user = session?.user ?? null;
-      if (!user) { const { data: { user: u } } = await supabase.auth.getUser(); user = u ?? null; }
-      if (!user) {
-        const tokens = getCachedTokens();
-        if (tokens) { const { data } = await supabase.auth.setSession(tokens); user = data?.session?.user ?? null; }
-      }
-      if (!user) { setLoadingContext(false); return; }
-      setUserId(user.id);
+      const { userId: uid } = await ensureSession();
+      if (!uid) { setLoadingContext(false); return; }
+      setUserId(uid);
 
-      const ctx = await buildContext(user.id);
+      const ctx = await buildContext(uid);
       if (ctx) {
         setSystemPrompt(buildSystemPrompt(ctx));
         const firstName = ctx.name.split(' ')[0];
@@ -212,21 +261,21 @@ export default function AskScreen() {
           .map(([k]) => [...MORNING_NUTRIENTS, ...RECOVERY_NUTRIENTS].find(n => n.key === k)?.name)
           .filter(Boolean).slice(0, 3);
 
-        let intro = `Hi ${firstName}! I've analyzed your full profile and today's data. `;
+        let intro = `Hi ${firstName}! I've analyzed your full profile, today's data, and ${ctx.memories.length} memories. `;
         if (missing.length > 0) {
-          intro += `Your ${missing.join(' and ')} ${missing.length > 1 ? 'are' : 'is'} not taken yet today — that's your priority. `;
+          intro += `Your ${missing.join(' and ')} ${missing.length > 1 ? 'are' : 'is'} not taken yet today. `;
         } else {
           intro += `Both packs taken — great work! `;
         }
         if (lowNutrients.length > 0) {
-          intro += `Nutrients needing attention: ${lowNutrients.join(', ')}. Ask me anything.`;
+          intro += `Nutrients low: ${lowNutrients.join(', ')}. Ask me anything.`;
         } else {
           intro += `Ask me anything about your nutrition, recovery, or training.`;
         }
 
         setMessages([{ id: 1, role: 'ai', text: intro }]);
       } else {
-        setMessages([{ id: 1, role: 'ai', text: "Hi! I'm your LIFECODE AI coach. Complete your profile to unlock personalized insights. Ask me anything about nutrition and performance." }]);
+        setMessages([{ id: 1, role: 'ai', text: "Hi! I'm your LIFECODE AI coach. Complete your profile from the You tab to unlock personalized insights." }]);
       }
       setLoadingContext(false);
     })();
@@ -261,15 +310,44 @@ export default function AskScreen() {
         }),
       });
 
+      if (!res.ok) throw new Error(`Gemini ${res.status}`);
       const data = await res.json();
-      const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'Unable to respond right now.';
+      let aiText: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'Unable to respond right now.';
+
+      // Extract LOG_FOOD → analyze + save to meal_logs
+      const foodTag = extractTag(aiText, 'LOG_FOOD:');
+      aiText = foodTag.cleaned;
+      if (foodTag.json && foodTag.json.meal && userId) {
+        const meal = String(foodTag.json.meal);
+        const qty = Number(foodTag.json.quantity_g) || 100;
+        try {
+          const nutrients = await analyzeMealWithAI(meal, qty);
+          await supabase.from('meal_logs').insert({
+            user_id: userId, meal_name: meal, quantity_g: qty,
+            nutrients, logged_at: new Date().toISOString(),
+          });
+        } catch {}
+      }
+
+      // Extract SAVE_MEMORY → insert into user_memories
+      const memTag = extractTag(aiText, 'SAVE_MEMORY:');
+      aiText = memTag.cleaned;
+      if (memTag.json && memTag.json.memory && userId) {
+        try {
+          await supabase.from('user_memories').insert({
+            user_id: userId,
+            memory: String(memTag.json.memory),
+            category: String(memTag.json.category || 'general'),
+          });
+        } catch {}
+      }
 
       // Save conversation
       if (userId) {
         supabase.from('conversations').insert([
           { user_id: userId, role: 'user', content: text },
           { user_id: userId, role: 'assistant', content: aiText },
-        ]).catch(() => {});
+        ]).then(() => {}).catch?.(() => {});
       }
 
       setMessages(prev => [...prev, { id: Date.now() + 1, role: 'ai', text: aiText }]);
