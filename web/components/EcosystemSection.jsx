@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
+const RED    = '#C62828';
+const PURPLE = '#7C3AED';
 
 const FEATURES = [
   { title: 'AI tracking',          desc: 'Say what you ate. Get every micro and macro calculated instantly.' },
@@ -38,7 +39,7 @@ export default function EcosystemSection() {
     >
       {/* Decorative glow */}
       <div className="pointer-events-none absolute right-[-10%] top-1/2 -translate-y-1/2 w-[50vw] h-[80vh] opacity-[0.07]"
-        style={{ background: BOX_G, filter: 'blur(100px)', borderRadius: '50%' }} />
+        style={{ background: PURPLE, filter: 'blur(100px)', borderRadius: '50%' }} />
 
       <div className="relative z-10 max-w-[1200px] mx-auto">
 
@@ -47,13 +48,13 @@ export default function EcosystemSection() {
           {/* ── Left: text content ── */}
           <div>
             <div className="eco-el flex items-center gap-3 mb-6 opacity-0">
-              <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
+              <div className="w-5 h-[1.5px]" style={{ background: RED }} />
               <span className="font-body text-[13px] tracking-widest3 text-[#999] uppercase">Your AI companion</span>
             </div>
 
             <h2
               className="eco-el font-sans font-700 leading-[0.9] tracking-tight mb-6 opacity-0"
-              style={{ fontSize: 'clamp(2.6rem, 6vw, 6rem)', color: '#6D28D9' }}
+              style={{ fontSize: 'clamp(2.6rem, 6vw, 6rem)', color: RED }}
             >
               Your biology,<br />tracked.
             </h2>
@@ -66,11 +67,11 @@ export default function EcosystemSection() {
             {/* Feature bullets */}
             <div className="eco-el flex flex-col gap-4 mb-10 opacity-0">
               {FEATURES.map((f, i) => (
-                <div key={f.title} style={{ padding: '1.5px', borderRadius: '14px', background: BOX_G }}>
+                <div key={f.title} style={{ padding: '1.5px', borderRadius: '14px', background: i % 2 === 0 ? RED : PURPLE }}>
                   <div className="bg-white h-full px-6 py-4 flex items-start gap-4" style={{ borderRadius: '12.5px' }}>
                     <span
                       className="font-body text-[12px] tracking-widest3 uppercase mt-0.5 flex-shrink-0"
-                      style={{ color: '#6D28D9' }}
+                      style={{ color: i % 2 === 0 ? RED : PURPLE }}
                     >
                       0{i + 1}
                     </span>
@@ -87,7 +88,7 @@ export default function EcosystemSection() {
               <Link
                 href="/pricing"
                 className="inline-flex items-center gap-4 px-8 py-4 rounded-full text-white font-sans font-600 text-sm tracking-widest uppercase hover:opacity-88 transition-opacity duration-300 group"
-                style={{ background: '#6D28D9' }}
+                style={{ background: RED }}
               >
                 <span>Start your protocol</span>
                 <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
@@ -114,7 +115,7 @@ export default function EcosystemSection() {
               />
               {/* Glow under phone */}
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-6 blur-2xl opacity-30 rounded-full"
-                style={{ background: BOX_G }} />
+                style={{ background: PURPLE }} />
             </div>
           </div>
 

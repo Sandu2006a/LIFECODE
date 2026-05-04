@@ -22,8 +22,8 @@ function useBannerTimer() {
   return t;
 }
 
-const BOX_G  = 'linear-gradient(90deg, #FF8A00, #C62828)';
-const HEAT_G = 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)';
+const RED    = '#C62828';
+const PURPLE = '#7C3AED';
 
 export default function Header() {
   const headerRef = useRef(null);
@@ -112,8 +112,8 @@ export default function Header() {
 
         {/* Wordmark */}
         <Link href="/"
-          className="font-sans font-700 tracking-[0.32em] uppercase select-none transition-opacity duration-300 hover:opacity-80 bg-clip-text text-transparent"
-          style={{ fontSize: '1.05rem', backgroundImage: BOX_G }}>
+          className="font-sans font-700 tracking-[0.32em] uppercase select-none transition-opacity duration-300 hover:opacity-80"
+          style={{ fontSize: '1.05rem', color: RED }}>
           LIFECODE
         </Link>
 
@@ -131,14 +131,10 @@ export default function Header() {
             return (
               <Link key={label} href={href}
                 className="relative font-sans font-600 text-[11px] tracking-[0.18em] uppercase transition-all duration-300 group"
-                style={{ color: isActive ? 'transparent' : '#444',
-                  backgroundImage: isActive ? BOX_G : undefined,
-                  WebkitBackgroundClip: isActive ? 'text' : undefined,
-                  backgroundClip: isActive ? 'text' : undefined,
-                }}>
+                style={{ color: isActive ? RED : '#444' }}>
                 {label}
                 <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 group-hover:w-full transition-all duration-300 rounded-full"
-                  style={{ background: BOX_G }} />
+                  style={{ background: RED }} />
               </Link>
             );
           })}
@@ -151,7 +147,7 @@ export default function Header() {
               <button onClick={() => setMenuOpen(v => !v)}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#e8e8e8] hover:border-[#ccc] transition-all duration-200 bg-white">
                 <span className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-sans font-700 flex-shrink-0"
-                  style={{ background: BOX_G }}>{initial}</span>
+                  style={{ background: RED }}>{initial}</span>
                 <span className="font-sans font-600 text-[12px] text-[#222]">{firstName}</span>
                 <svg width="9" height="5" viewBox="0 0 10 6" fill="none" className={`transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`}>
                   <path d="M1 1l4 4 4-4" stroke="#999" strokeWidth="1.5" strokeLinecap="round"/>
@@ -174,7 +170,7 @@ export default function Header() {
               </Link>
               <Link href="/pricing"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-white font-body text-[12px] tracking-widest uppercase transition-all duration-300 hover:opacity-85"
-                style={{ background: '#6D28D9' }}>
+                style={{ background: RED }}>
                 Get Started
               </Link>
             </>
@@ -188,15 +184,15 @@ export default function Header() {
         className="w-full flex items-center justify-center flex-wrap gap-3 md:gap-6 px-4 py-3 cursor-pointer group"
         style={{
           background: 'linear-gradient(90deg, #FFF9F5 0%, #FFF5F0 40%, #F8F5FF 100%)',
-          borderTop: '1px solid rgba(255,138,0,0.18)',
+          borderTop: '1px solid rgba(198,40,40,0.18)',
           borderBottom: '1px solid rgba(124,58,237,0.15)',
         }}
       >
         {/* Pulse + label */}
         <span className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#C62828' }} />
-          <span className="font-sans font-700 text-[11px] tracking-[0.28em] uppercase bg-clip-text text-transparent"
-            style={{ backgroundImage: HEAT_G }}>Coming Soon</span>
+          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: RED }} />
+          <span className="font-sans font-700 text-[11px] tracking-[0.28em] uppercase"
+            style={{ color: RED }}>Coming Soon</span>
         </span>
 
         <span className="hidden sm:block w-px h-4 bg-[#e0d0f0]" />
@@ -204,9 +200,9 @@ export default function Header() {
         {/* Offer */}
         <span className="font-body text-[13px] text-[#444]">
           First{' '}
-          <strong className="font-800 bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>100</strong>
+          <strong className="font-800" style={{ color: PURPLE }}>100</strong>
           {' '}founders get{' '}
-          <strong className="font-800 text-[15px] bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>70% OFF</strong>
+          <strong className="font-800 text-[15px]" style={{ color: RED }}>70% OFF</strong>
           {' '}their first month
         </span>
 
@@ -216,7 +212,7 @@ export default function Header() {
         <span className="flex items-center gap-1.5 font-sans font-700 text-[13px] tabular-nums">
           {[{v:timer.d,l:'d'},{v:timer.h,l:'h'},{v:timer.m,l:'m'},{v:timer.s,l:'s'}].map(({v,l},i)=>(
             <span key={l} className="flex items-center gap-1">
-              <span className="bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>{pad(v)}</span>
+              <span style={{ color: i % 2 === 0 ? RED : PURPLE }}>{pad(v)}</span>
               <span className="text-[10px] text-[#bbb] font-400">{l}</span>
               {i<3 && <span className="text-[#ddd] mx-0.5">:</span>}
             </span>
@@ -228,7 +224,7 @@ export default function Header() {
         {/* CTA pill */}
         <span
           className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white font-sans font-700 text-[11px] tracking-[0.15em] uppercase group-hover:opacity-85 transition-opacity"
-          style={{ background: HEAT_G }}
+          style={{ background: RED }}
         >
           Pre-order <span className="group-hover:translate-x-0.5 transition-transform duration-200">→</span>
         </span>

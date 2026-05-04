@@ -7,7 +7,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import IngredientChips from './IngredientChips';
 
-const RG = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 45%, #1D4ED8 100%)';
+const PURPLE = '#7C3AED';
 const CHIPS = ['EAA', 'Creatine', 'Magnesium', 'Hydration', 'Recovery Blend'];
 
 export default function RecoverySection() {
@@ -46,14 +46,14 @@ export default function RecoverySection() {
               <div className="flex items-center gap-3 mb-5">
                 <span
                   className="font-body text-[10px] tracking-widest3 uppercase font-600 px-3 py-1 rounded-full text-white"
-                  style={{ background: RG }}
+                  style={{ background: PURPLE }}
                 >
                   PM
                 </span>
               </div>
               <h2
                 className="font-sans font-700 leading-[0.88] tracking-tight"
-                style={{ fontSize: 'clamp(3rem, 6vw, 6.5rem)', color: '#6D28D9' }}
+                style={{ fontSize: 'clamp(3rem, 6vw, 6.5rem)', color: PURPLE }}
               >
                 Recovery<br />Pack
               </h2>
@@ -70,14 +70,14 @@ export default function RecoverySection() {
             </div>
 
             <div className="rs-text opacity-0">
-              <IngredientChips chips={CHIPS} gradient={RG} />
+              <IngredientChips chips={CHIPS} gradient={PURPLE} />
             </div>
 
             <div className="rs-text opacity-0">
               <Link
                 href="/products/recovery"
                 className="inline-flex items-center gap-4 px-8 py-3.5 rounded-full text-white font-sans font-600 text-[11px] tracking-widest uppercase hover:opacity-85 transition-opacity duration-300 group"
-                style={{ background: '#6D28D9' }}
+                style={{ background: PURPLE }}
               >
                 <span>View ingredients</span>
                 <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
@@ -98,12 +98,12 @@ export default function RecoverySection() {
             </div>
           </div>
 
-          {/* Image with full gradient border */}
+          {/* Image with solid border */}
           <div className="rs-img order-1 lg:order-2 opacity-0">
             <div className="relative">
               <div className="absolute inset-0 blur-3xl opacity-20 scale-95 pointer-events-none rounded-[28px]"
-                style={{ background: RG }} />
-              <div style={{ padding: '3px', borderRadius: '28px', background: RG }}>
+                style={{ background: PURPLE }} />
+              <div style={{ padding: '3px', borderRadius: '28px', background: PURPLE }}>
                 <div className="bg-white overflow-hidden" style={{ borderRadius: '25px' }}>
                   <Image
                     src="/Recov_deschis.png"

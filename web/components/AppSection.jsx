@@ -6,34 +6,33 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
-const MG    = 'linear-gradient(135deg, #FF8A00, #C62828)';
-const RG    = 'linear-gradient(135deg, #7C3AED, #1D4ED8)';
+const RED    = '#C62828';
+const PURPLE = '#7C3AED';
 
 const FEATURES = [
   {
     tag: '01',
     title: 'Understand why you felt worse today.',
     body: 'The AI cross-references your nutrition, training load, and sleep to explain performance dips — in plain language. No more guessing why yesterday felt hard.',
-    gradient: MG,
+    color: RED,
   },
   {
     tag: '02',
     title: 'Progress streak. Built for consistency.',
     body: 'Every day on protocol is tracked. The streak system shows what sustained commitment does to your body over weeks — and keeps you accountable when motivation drops.',
-    gradient: 'linear-gradient(135deg, #FF8A00, #7C3AED)',
+    color: PURPLE,
   },
   {
     tag: '03',
     title: 'Real-time micro tracking.',
     body: 'See all 20+ compounds live. Not at the end of the day — right now, after every meal. You always know exactly where you stand.',
-    gradient: RG,
+    color: RED,
   },
   {
     tag: '04',
     title: 'Become a stronger version of yourself.',
     body: 'Week over week, the system learns your patterns. The advice sharpens. The results compound. A new, more powerful version of you — built one day at a time.',
-    gradient: BOX_G,
+    color: PURPLE,
   },
 ];
 
@@ -70,14 +69,14 @@ export default function AppSection() {
     >
       {/* Background glow */}
       <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vh] opacity-[0.05]"
-        style={{ background: BOX_G, filter: 'blur(120px)', borderRadius: '50%' }} />
+        style={{ background: RED, filter: 'blur(120px)', borderRadius: '50%' }} />
 
       <div className="relative z-10 max-w-[1440px] mx-auto">
 
         {/* — Header — */}
         <div className="mb-12 md:mb-16 max-w-3xl">
           <div className="app-head flex items-center gap-3 mb-8 opacity-0">
-            <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
+            <div className="w-5 h-[1.5px]" style={{ background: RED }} />
             <span className="font-body text-[14px] tracking-widest3 text-[#aaa] uppercase">Your AI Performance Coach</span>
           </div>
 
@@ -86,7 +85,7 @@ export default function AppSection() {
             style={{ fontSize: 'clamp(2.8rem, 6vw, 7rem)' }}
           >
             The app that helps<br />
-            <span style={{ color: '#6D28D9' }}>
+            <span style={{ color: PURPLE }}>
               you become superhuman.
             </span>
           </h2>
@@ -106,12 +105,12 @@ export default function AppSection() {
               <div
                 key={f.tag}
                 className="app-feat opacity-0"
-                style={{ padding: '1.5px', borderRadius: '18px', background: f.gradient }}
+                style={{ padding: '1.5px', borderRadius: '18px', background: f.color }}
               >
                 <div className="bg-white h-full p-7 flex flex-col gap-4" style={{ borderRadius: '16.5px' }}>
                   <span
                     className="font-body text-[14px] tracking-widest3 uppercase"
-                    style={{ color: '#6D28D9' }}
+                    style={{ color: f.color }}
                   >
                     {f.tag}
                   </span>
@@ -130,8 +129,8 @@ export default function AppSection() {
           <div className="app-phone flex justify-center opacity-0">
             <div className="relative w-full max-w-[380px] mx-auto">
               <div className="absolute inset-[-12%] blur-3xl opacity-20 pointer-events-none rounded-full"
-                style={{ background: BOX_G }} />
-              <div style={{ padding: '2.5px', borderRadius: '38px', background: BOX_G }}>
+                style={{ background: RED }} />
+              <div style={{ padding: '2.5px', borderRadius: '38px', background: RED }}>
                 <div className="bg-white overflow-hidden" style={{ borderRadius: '35.5px' }}>
                   <Image
                     src="/PhoneApp.png"
@@ -152,12 +151,12 @@ export default function AppSection() {
               <div
                 key={f.tag}
                 className="app-feat opacity-0"
-                style={{ padding: '1.5px', borderRadius: '18px', background: f.gradient }}
+                style={{ padding: '1.5px', borderRadius: '18px', background: f.color }}
               >
                 <div className="bg-white h-full p-7 flex flex-col gap-4" style={{ borderRadius: '16.5px' }}>
                   <span
                     className="font-body text-[14px] tracking-widest3 uppercase"
-                    style={{ color: '#6D28D9' }}
+                    style={{ color: f.color }}
                   >
                     {f.tag}
                   </span>
@@ -176,7 +175,7 @@ export default function AppSection() {
               <Link
                 href="/pricing"
                 className="inline-flex items-center gap-4 px-8 py-3.5 rounded-full text-white font-sans font-600 text-[11px] tracking-widest uppercase hover:opacity-88 transition-opacity duration-300 group"
-                style={{ background: BOX_G }}
+                style={{ background: RED }}
               >
                 <span className="text-[14px]">Start your protocol</span>
                 <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">

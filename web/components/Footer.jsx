@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
-const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
+const RED    = '#C62828';
+const PURPLE = '#7C3AED';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -13,13 +14,13 @@ export default function Footer() {
       <div className="max-w-[1440px] mx-auto">
 
         {/* Top border */}
-        <div className="h-[1.5px] w-full mb-8 rounded-full" style={{ background: BOX_G }} />
+        <div className="h-[1.5px] w-full mb-8 rounded-full" style={{ background: RED }} />
 
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-10 pb-10 border-b border-[#e8e0ff]">
           <div>
             <span
               className="font-sans font-700 text-2xl tracking-[0.3em] uppercase select-none block mb-3"
-              style={{ color: '#6D28D9' }}
+              style={{ color: RED }}
             >
               LIFECODE
             </span>

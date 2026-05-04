@@ -4,8 +4,8 @@ import { useState } from 'react';
 import Header from '@/components/Header';
 import Link from 'next/link';
 
-const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
-const HEAT_G = 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)';
+const RED    = '#C62828';
+const PURPLE = '#7C3AED';
 
 const MORNING_ROWS = [
   { feature: 'B-Complex (Methylated)',    what: 'Energy metabolism and cognitive function',   lc: 'Full methylated complex, 100% NRV',               c2: 'Often included, forms vary',              c3: 'Usually included, often non-methylated',    adv: 'Methylated forms only. Works for everyone, including those with MTHFR variants that block standard B vitamins.' },
@@ -47,7 +47,7 @@ const RECOVERY_ROWS = [
   { feature: 'Artificial additives',        what: null,                                          lc: 'None',                                          c2: 'Common',                              c3: 'Common',                          c4: 'Common',                               adv: 'Zero artificial sweeteners, colours, or fillers. If you\'re taking this every day, what\'s in it matters.' },
 ];
 
-// Highlights numbers, %, ✓/✗, and ALL-CAPS words in gradient
+// Highlights numbers, %, ✓/✗, and ALL-CAPS words in solid color
 function AdvCell({ text }) {
   if (!text) return <span className="text-[#ddd]">—</span>;
   const parts = text.split(/(\d+[\d.,–]*\s*(?:mg|g|µg|IU|%|:\d+|\/\d+)?|✓|✗)/g);
@@ -58,10 +58,10 @@ function AdvCell({ text }) {
         const isCheck = p === '✓';
         const isCross = p === '✗';
         if (isCheck) return <span key={i} className="font-800 text-[#10b981]">{p}</span>;
-        if (isCross) return <span key={i} className="font-800 text-[#C62828]">{p}</span>;
+        if (isCross) return <span key={i} className="font-800" style={{ color: RED }}>{p}</span>;
         if (isNum) return (
-          <strong key={i} className="font-800 bg-clip-text text-transparent"
-            style={{ backgroundImage: BOX_G }}>{p}</strong>
+          <strong key={i} className="font-800"
+            style={{ color: RED }}>{p}</strong>
         );
         return <span key={i}>{p}</span>;
       })}
@@ -73,12 +73,12 @@ function LcCell({ text }) {
   const parts = text.split(/(\d+[\d.,–]*\s*(?:mg|g|µg|IU|%|:\d+|\/\d+)?|✓)/g);
   return (
     <div className="flex items-start gap-2">
-      <div className="flex-shrink-0 mt-[6px] w-1.5 h-1.5 rounded-full flex-none" style={{ background: BOX_G }} />
+      <div className="flex-shrink-0 mt-[6px] w-1.5 h-1.5 rounded-full flex-none" style={{ background: RED }} />
       <p className="font-sans font-700 text-[13px] leading-snug text-[#111]">
         {parts.map((p, i) => {
           const isNum = /\d/.test(p) || p === '✓';
           return isNum
-            ? <strong key={i} className="font-800 bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>{p}</strong>
+            ? <strong key={i} className="font-800" style={{ color: RED }}>{p}</strong>
             : <span key={i}>{p}</span>;
         })}
       </p>
@@ -94,8 +94,8 @@ function AdvTagCell({ text }) {
     <p className="font-body text-[12px] leading-relaxed text-[#444]">
       {parts.map((p, i) =>
         /\d/.test(p) ? (
-          <strong key={i} className="font-800 text-[15px] bg-clip-text text-transparent"
-            style={{ backgroundImage: BOX_G }}>{p}</strong>
+          <strong key={i} className="font-800 text-[15px]"
+            style={{ color: PURPLE }}>{p}</strong>
         ) : <span key={i}>{p}</span>
       )}
     </p>
@@ -116,7 +116,7 @@ function CompTable({ rows, numCompetitors }) {
           </td>
           {/* LIFECODE column */}
           <td className="py-4 px-3 align-top"
-            style={{ background: 'linear-gradient(180deg,rgba(255,138,0,0.06),rgba(124,58,237,0.06))', borderLeft: '2.5px solid rgba(255,138,0,0.4)', borderRight: '2.5px solid rgba(124,58,237,0.3)' }}>
+            style={{ background: 'linear-gradient(180deg,rgba(198,40,40,0.06),rgba(124,58,237,0.06))', borderLeft: `2.5px solid rgba(198,40,40,0.4)`, borderRight: `2.5px solid rgba(124,58,237,0.3)` }}>
             <LcCell text={row.lc} />
           </td>
           {/* Competitor columns */}
@@ -127,7 +127,7 @@ function CompTable({ rows, numCompetitors }) {
           ))}
           {/* LIFECODE Advantage */}
           <td className="py-4 pl-4 align-top border-l-2"
-            style={{ borderLeftColor: 'rgba(198,40,40,0.2)', background: 'linear-gradient(90deg,rgba(255,138,0,0.04),rgba(124,58,237,0.04))' }}>
+            style={{ borderLeftColor: 'rgba(198,40,40,0.2)', background: 'linear-gradient(90deg,rgba(198,40,40,0.04),rgba(124,58,237,0.04))' }}>
             <AdvTagCell text={row.adv} />
           </td>
         </tr>
@@ -149,16 +149,16 @@ export default function ComparisonPage() {
           style={{ background: 'linear-gradient(180deg, #F8F5FF 0%, #fff 80%)' }}>
           <div className="max-w-[1200px] mx-auto">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-5 h-[1.5px]" style={{ background: BOX_G }} />
+              <div className="w-5 h-[1.5px]" style={{ background: RED }} />
               <span className="font-body text-[11px] tracking-[0.32em] uppercase"
-                style={{ color: '#6D28D9' }}>
+                style={{ color: RED }}>
                 The Full Comparison
               </span>
             </div>
             <h1 className="font-sans font-700 text-[#111] leading-[0.92] tracking-tight mb-6"
               style={{ fontSize: 'clamp(2.8rem, 7vw, 6rem)' }}>
               LIFECODE<br />
-              <span style={{ color: '#6D28D9' }}>
+              <span style={{ color: PURPLE }}>
                 Comparison
               </span>
             </h1>
@@ -184,7 +184,7 @@ export default function ComparisonPage() {
               ].map(({ key, label }) => (
                 <button key={key} onClick={() => setTab(key)}
                   className="px-5 py-2.5 rounded-full font-sans font-700 text-[11px] tracking-[0.18em] uppercase transition-all duration-300"
-                  style={tab === key ? { background: BOX_G, color: '#fff' } : { color: '#aaa' }}>
+                  style={tab === key ? { background: key === 'morning' ? RED : PURPLE, color: '#fff' } : { color: '#aaa' }}>
                   {label}
                 </button>
               ))}
@@ -212,9 +212,9 @@ export default function ComparisonPage() {
                       <tr>
                         <th className="pb-5 text-left font-body text-[10px] tracking-[0.28em] uppercase text-[#ccc] font-400 pr-4" />
                         <th className="pb-5 px-3">
-                          <div style={{ padding: '1.5px', borderRadius: '12px', background: BOX_G }}>
+                          <div style={{ padding: '1.5px', borderRadius: '12px', background: RED }}>
                             <div className="bg-white py-3 px-3 text-center" style={{ borderRadius: '10.5px' }}>
-                              <p className="font-sans font-700 text-sm" style={{ color: '#6D28D9' }}>Life Code</p>
+                              <p className="font-sans font-700 text-sm" style={{ color: RED }}>Life Code</p>
                               <p className="font-body text-[11px] text-[#999] tracking-wide uppercase mt-0.5">Morning Pack</p>
                             </div>
                           </div>
@@ -227,8 +227,8 @@ export default function ComparisonPage() {
                           </th>
                         ))}
                         <th className="pb-5 pl-4">
-                          <div className="py-3 px-4 rounded-xl text-left" style={{ background: 'linear-gradient(135deg,rgba(255,138,0,0.08),rgba(124,58,237,0.08))', border: '1.5px solid rgba(198,40,40,0.2)' }}>
-                            <p className="font-sans font-700 text-sm bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>The LIFECODE Advantage</p>
+                          <div className="py-3 px-4 rounded-xl text-left" style={{ background: 'linear-gradient(135deg,rgba(198,40,40,0.08),rgba(124,58,237,0.08))', border: '1.5px solid rgba(198,40,40,0.2)' }}>
+                            <p className="font-sans font-700 text-sm" style={{ color: RED }}>The LIFECODE Advantage</p>
                             <p className="font-body text-[10px] text-[#bbb] mt-0.5">Why our formula wins</p>
                           </div>
                         </th>
@@ -263,9 +263,9 @@ export default function ComparisonPage() {
                       <tr>
                         <th className="pb-5 text-left font-body text-[10px] tracking-[0.28em] uppercase text-[#ccc] font-400 pr-4" />
                         <th className="pb-5 px-3">
-                          <div style={{ padding: '1.5px', borderRadius: '12px', background: BOX_G }}>
+                          <div style={{ padding: '1.5px', borderRadius: '12px', background: PURPLE }}>
                             <div className="bg-white py-3 px-3 text-center" style={{ borderRadius: '10.5px' }}>
-                              <p className="font-sans font-700 text-sm" style={{ color: '#6D28D9' }}>Life Code</p>
+                              <p className="font-sans font-700 text-sm" style={{ color: PURPLE }}>Life Code</p>
                               <p className="font-body text-[11px] text-[#999] tracking-wide uppercase mt-0.5">Anabolic Recovery</p>
                             </div>
                           </div>
@@ -279,7 +279,7 @@ export default function ComparisonPage() {
                         ))}
                         <th className="pb-5 pl-4">
                           <div className="py-3 px-4 rounded-xl text-left" style={{ background: 'linear-gradient(135deg,rgba(198,40,40,0.06),rgba(124,58,237,0.08))', border: '1.5px solid rgba(124,58,237,0.2)' }}>
-                            <p className="font-sans font-700 text-sm bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(90deg,#C62828,#7C3AED)' }}>The LIFECODE Advantage</p>
+                            <p className="font-sans font-700 text-sm" style={{ color: PURPLE }}>The LIFECODE Advantage</p>
                             <p className="font-body text-[10px] text-[#bbb] mt-0.5">Why our formula wins</p>
                           </div>
                         </th>
@@ -301,14 +301,14 @@ export default function ComparisonPage() {
             <h2 className="font-sans font-700 text-[#111] tracking-tight leading-[0.92] mb-6"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
               Ready to upgrade<br />
-              <span style={{ color: '#6D28D9' }}>
+              <span style={{ color: PURPLE }}>
                 your protocol?
               </span>
             </h2>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/pricing"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-white font-sans font-700 text-[12px] tracking-widest uppercase hover:opacity-85 transition-opacity duration-300"
-                style={{ background: '#6D28D9' }}>
+                style={{ background: RED }}>
                 Get Started
               </Link>
               <Link href="/"
@@ -323,8 +323,8 @@ export default function ComparisonPage() {
         <section className="py-10 px-6 md:px-16 border-t border-[#f0eef8]"
           style={{ background: '#fdfcff' }}>
           <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-            <Link href="/" className="font-sans font-700 text-base tracking-[0.3em] uppercase bg-clip-text text-transparent"
-              style={{ backgroundImage: BOX_G }}>
+            <Link href="/" className="font-sans font-700 text-base tracking-[0.3em] uppercase"
+              style={{ color: RED }}>
               LIFECODE
             </Link>
             <nav className="flex flex-wrap items-center justify-center gap-6">
@@ -341,7 +341,7 @@ export default function ComparisonPage() {
                   className="font-sans font-600 text-[11px] tracking-[0.18em] uppercase text-[#aaa] hover:text-[#111] transition-colors duration-300 relative group">
                   {label}
                   <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 group-hover:w-full transition-all duration-300 rounded-full"
-                    style={{ background: BOX_G }} />
+                    style={{ background: RED }} />
                 </Link>
               ))}
             </nav>
