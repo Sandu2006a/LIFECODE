@@ -324,7 +324,7 @@ export default function AboutPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/pricing"
                   className="inline-flex items-center justify-center px-9 py-4 rounded-full text-white font-body text-[13px] tracking-[0.2em] uppercase transition-all duration-300 hover:opacity-85"
-                  style={{ background: BOX_G }}>
+                  style={{ background: '#6D28D9' }}>
                   Get Started
                 </Link>
                 <Link href="/#morning"

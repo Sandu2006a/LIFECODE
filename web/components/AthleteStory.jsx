@@ -132,7 +132,7 @@ export default function AthleteStory() {
               <Link
                 href="/about"
                 className="inline-flex items-center gap-3 px-6 py-3 rounded-full font-body text-[12px] tracking-widest uppercase text-white transition-opacity duration-300 hover:opacity-85"
-                style={{ background: BOX_G }}
+                style={{ background: '#6D28D9' }}
               >
                 Our Story
                 <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">

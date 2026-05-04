@@ -192,8 +192,8 @@ export default function PreOrderSection() {
                   className="flex-1 bg-white rounded-full px-6 py-4 font-body text-[15px] text-[#0a0a0a] placeholder:text-[#bbb] outline-none disabled:opacity-70 text-center sm:text-left"
                 />
                 <button type="submit" disabled={status === 'loading'}
-                  className="relative overflow-hidden rounded-full px-7 py-4 text-white font-sans font-700 text-[12px] tracking-[0.18em] uppercase transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_10px_30px_rgba(198,40,40,0.35)] disabled:opacity-80 whitespace-nowrap group"
-                  style={{ background: BOX_G }}>
+                  className="relative overflow-hidden rounded-full px-7 py-4 text-white font-sans font-700 text-[12px] tracking-[0.18em] uppercase transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_10px_30px_rgba(255,138,0,0.35)] disabled:opacity-80 whitespace-nowrap group"
+                  style={{ background: '#FF8A00' }}>
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {status === 'loading' ? (
                       <>

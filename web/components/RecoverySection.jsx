@@ -77,7 +77,7 @@ export default function RecoverySection() {
               <Link
                 href="/products/recovery"
                 className="inline-flex items-center gap-4 px-8 py-3.5 rounded-full text-white font-sans font-600 text-[11px] tracking-widest uppercase hover:opacity-85 transition-opacity duration-300 group"
-                style={{ background: RG }}
+                style={{ background: '#6D28D9' }}
               >
                 <span>View ingredients</span>
                 <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">

@@ -333,7 +333,7 @@ export default function IngredientsPage() {
             </div>
             <a href="/pricing"
               className="inline-flex items-center justify-center px-8 py-4 rounded-full text-white font-body text-[13px] tracking-[0.2em] uppercase transition-all duration-300 hover:opacity-85"
-              style={{ background: BOX_G }}>
+              style={{ background: '#FF8A00' }}>
               Get Started
             </a>
           </div>

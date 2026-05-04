@@ -315,7 +315,7 @@ export default function ComparisonSection() {
           <Link
             href="/lifecode-comparison"
             className="inline-flex items-center gap-3 px-8 py-4 rounded-full font-sans font-700 text-[12px] tracking-widest uppercase text-white transition-opacity duration-300 hover:opacity-85"
-            style={{ background: BOX_G }}
+            style={{ background: '#6D28D9' }}
           >
             See Full Ingredient Comparison
             <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">

@@ -174,7 +174,7 @@ export default function Header() {
               </Link>
               <Link href="/pricing"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-white font-body text-[12px] tracking-widest uppercase transition-all duration-300 hover:opacity-85"
-                style={{ background: BOX_G }}>
+                style={{ background: '#6D28D9' }}>
                 Get Started
               </Link>
             </>

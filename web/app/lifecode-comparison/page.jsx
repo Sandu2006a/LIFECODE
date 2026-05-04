@@ -308,7 +308,7 @@ export default function ComparisonPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/pricing"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-white font-sans font-700 text-[12px] tracking-widest uppercase hover:opacity-85 transition-opacity duration-300"
-                style={{ background: BOX_G }}>
+                style={{ background: '#6D28D9' }}>
                 Get Started
               </Link>
               <Link href="/"
