@@ -11,13 +11,12 @@ import Icon from '../../src/components/Icon';
 import { colors, fonts, radii, gradients } from '../../src/theme';
 import { supabase } from '../../src/lib/supabase';
 import { ensureSession, authHeaders } from '../../src/lib/session';
-import { localDayBounds } from '../../src/lib/dates';
 import {
   MORNING_NUTRIENTS, RECOVERY_NUTRIENTS, DEFAULT_TARGETS,
   calcProgress, formatAmount,
 } from '../../src/lib/nutrients';
 import type { Nutrient } from '../../src/lib/nutrients';
-import { analyzeMealWithAI } from '../../src/lib/analyze-meal';
+import { logMeal, getState } from '../../src/lib/api';
 
 type Progress = Record<string, { current: number; target: number; pct: number }>;
 
@@ -119,29 +118,21 @@ export default function TrackScreen() {
     if (!uid) return;
     setUserId(uid);
     const authH = authHeaders(accessToken);
-    const { startISO, endISO } = localDayBounds();
 
-    const [profileRes, logsRes, mealsRes] = await Promise.all([
-      supabase.from('profiles').select('micro_targets, age, gender, weight_kg, height_cm, goal').eq('id', uid).maybeSingle(),
-      supabase.from('intake_logs').select('pack')
-        .eq('user_id', uid)
-        .gte('taken_at', startISO).lte('taken_at', endISO),
-      supabase.from('meal_logs').select('meal_name, quantity_g, nutrients, logged_at')
-        .eq('user_id', uid)
-        .gte('logged_at', startISO).lte('logged_at', endISO)
-        .order('logged_at', { ascending: false }),
-    ]);
+    const state = await getState();
+    if (!state) return;
 
-    const t: Record<string, number> = profileRes.data?.micro_targets || DEFAULT_TARGETS;
+    const pp = state.profile;
+    const t: Record<string, number> = pp?.micro_targets || DEFAULT_TARGETS;
     setTargets(t);
 
-    const packs = (logsRes.data || []).map((l: any) => l.pack);
+    const packs = (state.today?.intake || []).map((l: any) => l.pack);
     const mTaken = packs.includes('morning');
     const rTaken = packs.includes('recovery');
     setMorningTaken(mTaken);
     setRecoveryTaken(rTaken);
 
-    const meals = mealsRes.data || [];
+    const meals = state.today?.meals || [];
     setTodayMeals(meals);
 
     const accumulated: Record<string, number> = {};
@@ -153,8 +144,6 @@ export default function TrackScreen() {
     setMealNutrients(accumulated);
     setProgress(calcProgress(mTaken, rTaken, accumulated, t));
 
-    // Auto-trigger personalized micro target calculation if not done yet
-    const pp = profileRes.data;
     if (!pp?.micro_targets && pp?.age && pp?.weight_kg && pp?.height_cm) {
       fetch('https://web-zeta-lyart-53.vercel.app/api/analyze-nutrients', {
         method: 'POST',
@@ -182,23 +171,13 @@ export default function TrackScreen() {
     setMealError('');
 
     try {
-      const nutrients = await analyzeMealWithAI(mealInput.trim(), qty);
-
-      const { userId: uid } = await ensureSession();
-      if (!uid) { setMealError('Session expired. Re-login.'); setAnalyzing(false); return; }
-
-      const { error: insertErr } = await supabase.from('meal_logs').insert({
-        user_id: uid,
-        meal_name: mealInput.trim(),
-        quantity_g: qty,
-        nutrients,
-        logged_at: new Date().toISOString(),
-      });
-      if (insertErr) {
-        setMealError('Could not save meal. Please try again.');
+      const result = await logMeal(mealInput.trim(), qty);
+      if (!result.ok) {
+        setMealError(`Save failed: ${result.error}`);
         setAnalyzing(false);
         return;
       }
+      const nutrients = result.nutrients || {};
 
       const newAccumulated = { ...mealNutrients };
       for (const [k, v] of Object.entries(nutrients)) {
@@ -225,8 +204,8 @@ export default function TrackScreen() {
 
       setMealInput('');
       setMealQty('');
-    } catch {
-      setMealError('Analysis failed. Check connection.');
+    } catch (e: any) {
+      setMealError(`Analysis failed: ${e?.message || 'check connection'}`);
     } finally {
       setAnalyzing(false);
     }

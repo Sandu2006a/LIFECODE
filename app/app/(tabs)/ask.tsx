@@ -7,13 +7,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '../../src/components/Icon';
 import { colors, fonts, radii } from '../../src/theme';
-import { supabase } from '../../src/lib/supabase';
 import { ensureSession } from '../../src/lib/session';
-import { localDayBounds } from '../../src/lib/dates';
 import {
   MORNING_NUTRIENTS, RECOVERY_NUTRIENTS, DEFAULT_TARGETS, calcProgress,
 } from '../../src/lib/nutrients';
-import { analyzeMealWithAI } from '../../src/lib/analyze-meal';
+import { getState, logMeal, saveMemory } from '../../src/lib/api';
 
 type Message = { id: number; role: 'ai' | 'user'; text: string };
 
@@ -67,31 +65,17 @@ type ContextData = {
   memories: Memory[];
 };
 
-async function buildContext(userId: string): Promise<ContextData | null> {
-  const { startISO, endISO } = localDayBounds();
-
-  const [profileRes, logsRes, mealsRes, memRes] = await Promise.all([
-    supabase.from('profiles').select(
-      'display_name,full_name,age,gender,weight_kg,height_cm,goal,sport,calories_target,protein_target,carbs_target,fats_target,micro_targets'
-    ).eq('id', userId).maybeSingle(),
-    supabase.from('intake_logs').select('pack')
-      .eq('user_id', userId)
-      .gte('taken_at', startISO).lte('taken_at', endISO),
-    supabase.from('meal_logs').select('meal_name,quantity_g,nutrients,logged_at')
-      .eq('user_id', userId)
-      .gte('logged_at', startISO).lte('logged_at', endISO),
-    supabase.from('user_memories').select('memory,category,created_at')
-      .eq('user_id', userId).order('created_at', { ascending: false }).limit(30),
-  ]);
-
-  const p = profileRes.data;
+async function buildContext(): Promise<ContextData | null> {
+  const state = await getState();
+  if (!state) return null;
+  const p = state.profile;
   if (!p) return null;
 
-  const packs = (logsRes.data || []).map((l: any) => l.pack);
+  const packs = (state.today?.intake || []).map((l: any) => l.pack);
   const morningTaken = packs.includes('morning');
   const recoveryTaken = packs.includes('recovery');
 
-  const todayMeals = mealsRes.data || [];
+  const todayMeals = state.today?.meals || [];
   const microTargets: Record<string, number> = p.micro_targets || DEFAULT_TARGETS;
 
   const mealNutrients: Record<string, number> = {};
@@ -103,14 +87,18 @@ async function buildContext(userId: string): Promise<ContextData | null> {
 
   const progress = calcProgress(morningTaken, recoveryTaken, mealNutrients, microTargets);
 
+  const fallbackName = p.display_name || p.full_name
+    || (p.email ? String(p.email).split('@')[0] : '')
+    || 'Athlete';
+
   return {
-    name: p.display_name || p.full_name || 'Athlete',
+    name: fallbackName,
     age: p.age || 0,
     gender: p.gender || '',
     weight: p.weight_kg || 0,
     height: p.height_cm || 0,
     goal: p.goal || '',
-    sport: (p as any).sport || '',
+    sport: p.sport || '',
     caloriesTarget: p.calories_target || 0,
     proteinTarget: p.protein_target || 0,
     carbsTarget: p.carbs_target || 0,
@@ -120,7 +108,7 @@ async function buildContext(userId: string): Promise<ContextData | null> {
     recoveryTaken,
     todayMeals,
     progress,
-    memories: (memRes.data || []) as Memory[],
+    memories: (state.memories || []) as Memory[],
   };
 }
 
@@ -249,7 +237,7 @@ export default function AskScreen() {
       if (!uid) { setLoadingContext(false); return; }
       setUserId(uid);
 
-      const ctx = await buildContext(uid);
+      const ctx = await buildContext();
       if (ctx) {
         setSystemPrompt(buildSystemPrompt(ctx));
         const firstName = ctx.name.split(' ')[0];
@@ -314,40 +302,20 @@ export default function AskScreen() {
       const data = await res.json();
       let aiText: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'Unable to respond right now.';
 
-      // Extract LOG_FOOD → analyze + save to meal_logs
+      // Extract LOG_FOOD → save via backend
       const foodTag = extractTag(aiText, 'LOG_FOOD:');
       aiText = foodTag.cleaned;
-      if (foodTag.json && foodTag.json.meal && userId) {
+      if (foodTag.json && foodTag.json.meal) {
         const meal = String(foodTag.json.meal);
         const qty = Number(foodTag.json.quantity_g) || 100;
-        try {
-          const nutrients = await analyzeMealWithAI(meal, qty);
-          await supabase.from('meal_logs').insert({
-            user_id: userId, meal_name: meal, quantity_g: qty,
-            nutrients, logged_at: new Date().toISOString(),
-          });
-        } catch {}
+        await logMeal(meal, qty);
       }
 
-      // Extract SAVE_MEMORY → insert into user_memories
+      // Extract SAVE_MEMORY → save via backend
       const memTag = extractTag(aiText, 'SAVE_MEMORY:');
       aiText = memTag.cleaned;
-      if (memTag.json && memTag.json.memory && userId) {
-        try {
-          await supabase.from('user_memories').insert({
-            user_id: userId,
-            memory: String(memTag.json.memory),
-            category: String(memTag.json.category || 'general'),
-          });
-        } catch {}
-      }
-
-      // Save conversation
-      if (userId) {
-        supabase.from('conversations').insert([
-          { user_id: userId, role: 'user', content: text },
-          { user_id: userId, role: 'assistant', content: aiText },
-        ]).then(() => {}).catch?.(() => {});
+      if (memTag.json && memTag.json.memory) {
+        await saveMemory(String(memTag.json.memory), String(memTag.json.category || 'general'));
       }
 
       setMessages(prev => [...prev, { id: Date.now() + 1, role: 'ai', text: aiText }]);

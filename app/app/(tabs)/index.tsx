@@ -12,12 +12,12 @@ import GradientText from '../../src/components/GradientText';
 import { colors, fonts, radii, gradients } from '../../src/theme';
 import { supabase } from '../../src/lib/supabase';
 import { ensureSession, authHeaders } from '../../src/lib/session';
-import { localDayBounds, lastNDays, shortDayLabel, localDateString } from '../../src/lib/dates';
+import { lastNDays, shortDayLabel, localDateString } from '../../src/lib/dates';
 import {
   MORNING_NUTRIENTS, RECOVERY_NUTRIENTS, DEFAULT_TARGETS, calcProgress,
 } from '../../src/lib/nutrients';
 import { getSuggestions, type Suggestion } from '../../src/lib/suggestions';
-import { analyzeMealWithAI } from '../../src/lib/analyze-meal';
+import { logIntake, logMeal, getState } from '../../src/lib/api';
 
 const GRAD: [string, string, string] = ['#C62828', '#7C3AED', '#1D4ED8'];
 const API_URL = 'https://web-zeta-lyart-53.vercel.app';
@@ -116,23 +116,14 @@ export default function HomeScreen() {
       if (!uid) { setLoadingTargets(false); return; }
       setUserId(uid);
 
-      const { startISO, endISO } = localDayBounds();
-      const todayStr = localDateString();
       const headers = authHeaders(accessToken);
+      const state = await getState();
+      if (!state) { setLoadingTargets(false); return; }
 
-      const [profileRes, intakeRes, mealsRes] = await Promise.all([
-        supabase.from('profiles').select(
-          'display_name, full_name, goal, calories_target, protein_target, carbs_target, fats_target, age, gender, weight_kg, height_cm, micro_targets, sport'
-        ).eq('id', uid).maybeSingle(),
-        supabase.from('intake_logs').select('pack, taken_at')
-          .eq('user_id', uid)
-          .gte('taken_at', startISO).lte('taken_at', endISO),
-        supabase.from('meal_logs').select('nutrients, logged_at')
-          .eq('user_id', uid)
-          .gte('logged_at', startISO).lte('logged_at', endISO),
-      ]);
+      const intakeRes = { data: state.today?.intake || [] };
+      const mealsRes = { data: state.today?.meals || [] };
 
-      const p = profileRes.data;
+      const p = state.profile;
       if (p) {
         setProfile({
           display_name: p.display_name || p.full_name || 'Athlete',
@@ -208,33 +199,19 @@ export default function HomeScreen() {
       setProgress(prog);
       setSuggestions(getSuggestions(prog, 4));
 
-      // Weekly view: load last 7 days
+      // Weekly view: from state.week
       const days = lastNDays(7);
-      const weekStart = new Date(days[0]); weekStart.setHours(0, 0, 0, 0);
-      const weekEnd = new Date(); weekEnd.setHours(23, 59, 59, 999);
-
-      const [weekIntake, weekMeals] = await Promise.all([
-        supabase.from('intake_logs').select('pack, taken_at')
-          .eq('user_id', uid)
-          .gte('taken_at', weekStart.toISOString())
-          .lte('taken_at', weekEnd.toISOString()),
-        supabase.from('meal_logs').select('nutrients, logged_at')
-          .eq('user_id', uid)
-          .gte('logged_at', weekStart.toISOString())
-          .lte('logged_at', weekEnd.toISOString()),
-      ]);
-
       const dayBuckets: Record<string, { morning: boolean; recovery: boolean; nutrients: Record<string, number> }> = {};
       for (const d of days) {
         dayBuckets[localDateString(d)] = { morning: false, recovery: false, nutrients: {} };
       }
-      for (const it of (weekIntake.data || [])) {
+      for (const it of (state.week?.intake || [])) {
         const ds = localDateString(new Date(it.taken_at));
         if (!dayBuckets[ds]) continue;
         if (it.pack === 'morning') dayBuckets[ds].morning = true;
         if (it.pack === 'recovery') dayBuckets[ds].recovery = true;
       }
-      for (const m of (weekMeals.data || [])) {
+      for (const m of (state.week?.meals || [])) {
         const ds = localDateString(new Date(m.logged_at));
         if (!dayBuckets[ds]) continue;
         for (const [k, v] of Object.entries(m.nutrients || {})) {
@@ -281,18 +258,18 @@ export default function HomeScreen() {
   const recoveryPct = recoveryTaken ? 100 : 0;
   const overall = Math.round((morningPct + recoveryPct) / 2);
 
+  const [packError, setPackError] = useState('');
   const markTaken = async (pack: 'morning' | 'recovery') => {
     const already = pack === 'morning' ? morningTaken : recoveryTaken;
     if (already) return;
-    const { userId: uid } = await ensureSession();
-    if (!uid) return;
-    const { error } = await supabase.from('intake_logs').insert({
-      user_id: uid, pack, taken_at: new Date().toISOString(),
-    });
-    if (error) return;
+    setPackError('');
+    const result = await logIntake(pack);
+    if (!result.ok) {
+      setPackError(`Save failed: ${result.error}`);
+      return;
+    }
     if (pack === 'morning') setMorningTaken(true);
     else setRecoveryTaken(true);
-    // refresh derived state
     loadData();
   };
 
@@ -309,23 +286,15 @@ export default function HomeScreen() {
     const qty = parseInt(logQty) || 100;
     setLogBusy(true);
     setLogError('');
-    try {
-      const nutrients = await analyzeMealWithAI(name, qty);
-      const { userId: uid } = await ensureSession();
-      if (!uid) { setLogError('Session expired.'); setLogBusy(false); return; }
-      const { error } = await supabase.from('meal_logs').insert({
-        user_id: uid, meal_name: name, quantity_g: qty,
-        nutrients, logged_at: new Date().toISOString(),
-      });
-      if (error) { setLogError('Could not save. Try again.'); setLogBusy(false); return; }
-      setLogOpen(false);
-      setLogFood(''); setLogQty('');
-      await loadData();
-    } catch {
-      setLogError('Analysis failed. Check connection.');
-    } finally {
-      setLogBusy(false);
+    const result = await logMeal(name, qty);
+    setLogBusy(false);
+    if (!result.ok) {
+      setLogError(`Save failed: ${result.error}`);
+      return;
     }
+    setLogOpen(false);
+    setLogFood(''); setLogQty('');
+    await loadData();
   };
 
   const firstName = (profile?.display_name || 'Athlete').split(' ')[0];
@@ -458,6 +427,12 @@ export default function HomeScreen() {
               </View>
             )}
           </View>
+
+          {!!packError && (
+            <View style={s.errBanner}>
+              <Text style={s.errBannerText}>{packError}</Text>
+            </View>
+          )}
 
           {/* Morning pack */}
           <TouchableOpacity
@@ -622,4 +597,7 @@ const s = StyleSheet.create({
   modalBtn: { paddingVertical: 14, borderRadius: radii.pill, alignItems: 'center' },
   modalBtnTxt: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: '#fff', letterSpacing: 0.5 },
   modalCancel: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.ink3, textAlign: 'center' },
+
+  errBanner: { backgroundColor: 'rgba(229,85,85,0.10)', borderWidth: 1, borderColor: 'rgba(229,85,85,0.35)', borderRadius: 12, padding: 12 },
+  errBannerText: { fontFamily: fonts.sansMedium, fontSize: 13, color: '#c43030' },
 });
