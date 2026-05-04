@@ -11,7 +11,7 @@ import { ensureSession } from '../../src/lib/session';
 import {
   MORNING_NUTRIENTS, RECOVERY_NUTRIENTS, DEFAULT_TARGETS, calcProgress,
 } from '../../src/lib/nutrients';
-import { getState, logMeal, saveMemory } from '../../src/lib/api';
+import { getState, saveMemory } from '../../src/lib/api';
 
 type Message = { id: number; role: 'ai' | 'user'; text: string };
 
@@ -182,12 +182,6 @@ Recovery Pack: Maltodextrin 20g | EAA 7g | Creatine 5g | L-Glutamine 3g | HMB 1.
 5. Use ${ctx.name}'s name when addressing them
 6. If morning/recovery pack not taken, mention this as the first priority
 
-━━━ MANDATORY: FOOD LOGGING ━━━
-Whenever the user mentions eating, drinking, or consuming ANYTHING (a fruit, a meal, a snack), append EXACTLY this on a NEW LINE at the end of your response:
-LOG_FOOD:{"meal":"<food name>","quantity_g":<grams>}
-Use realistic gram estimates if the user doesn't specify (orange ~150g, apple ~180g, eggs ~50g each, chicken breast ~150g, salmon fillet ~150g, salad bowl ~100g).
-Example: user says "I ate an orange" → end response with: LOG_FOOD:{"meal":"orange","quantity_g":150}
-
 ━━━ MANDATORY: MEMORY EXTRACTION ━━━
 When the user shares a personal insight, preference, allergy, training detail, schedule, recovery pattern, or any fact about themselves that would help future advice — append on a NEW LINE:
 SAVE_MEMORY:{"memory":"<the fact in third person>","category":"nutrition|training|recovery|preference|schedule|health"}
@@ -196,7 +190,7 @@ Examples:
 - "I train twice a day" → SAVE_MEMORY:{"memory":"User trains twice daily","category":"training"}
 - "I can't eat dairy" → SAVE_MEMORY:{"memory":"User is dairy intolerant","category":"health"}
 
-NEVER mention the LOG_FOOD or SAVE_MEMORY tags in human-readable text. They're machine markers — keep them on their own lines at the end.`;
+NEVER mention the SAVE_MEMORY tag in human-readable text. It's a machine marker — keep it on its own line at the end.`;
 }
 
 function extractTag(text: string, marker: string): { json: any | null; cleaned: string } {
@@ -301,15 +295,6 @@ export default function AskScreen() {
       if (!res.ok) throw new Error(`Gemini ${res.status}`);
       const data = await res.json();
       let aiText: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'Unable to respond right now.';
-
-      // Extract LOG_FOOD → save via backend
-      const foodTag = extractTag(aiText, 'LOG_FOOD:');
-      aiText = foodTag.cleaned;
-      if (foodTag.json && foodTag.json.meal) {
-        const meal = String(foodTag.json.meal);
-        const qty = Number(foodTag.json.quantity_g) || 100;
-        await logMeal(meal, qty);
-      }
 
       // Extract SAVE_MEMORY → save via backend
       const memTag = extractTag(aiText, 'SAVE_MEMORY:');
