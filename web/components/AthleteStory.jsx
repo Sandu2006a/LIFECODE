@@ -6,7 +6,13 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const MG    = 'linear-gradient(135deg, #FF8A00, #C62828)';
+const RG    = 'linear-gradient(135deg, #7C3AED, #1D4ED8)';
 const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
+
+const FACTS = [
+  { value: '12+', label: 'Years competing',   gradient: MG },
+  { value: '100%', label: 'Athlete-founded',  gradient: RG },
+];
 
 export default function AthleteStory() {
   const sectionRef = useRef(null);
