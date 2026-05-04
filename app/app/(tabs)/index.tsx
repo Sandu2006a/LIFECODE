@@ -89,6 +89,9 @@ export default function HomeScreen() {
 
       const todayStr = today.toISOString().split('T')[0];
 
+      const accessToken = session?.access_token ?? null;
+      const authH = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+
       const { data: p } = await supabase
         .from('profiles')
         .select('display_name, full_name, goal, calories_target, protein_target, carbs_target, fats_target, age, gender, weight_kg, height_cm, micro_targets')
@@ -118,11 +121,11 @@ export default function HomeScreen() {
           const lvl = lvlMap[p.goal || ''] || 'Competitive';
           fetch(`${API_URL}/api/analyze-profile`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...authH },
             body: JSON.stringify({
               user_id: user.id, name: nm,
               age: p.age, height: p.height_cm, weight: p.weight_kg,
-              gender: p.gender || 'male', sport: 'General Athletics', result: lvl,
+              gender: p.gender || 'male', sport: (p as any).sport || 'General Athletics', result: lvl,
             }),
           }).then(r => r.json()).then(d => {
             if (d.targets?.calories_target) {
@@ -142,7 +145,7 @@ export default function HomeScreen() {
         if (!p.micro_targets && p.age && p.weight_kg && p.height_cm) {
           fetch(`${API_URL}/api/analyze-nutrients`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...authH },
             body: JSON.stringify({
               user_id: user.id, age: p.age, height: p.height_cm,
               weight: p.weight_kg, gender: p.gender || 'male', level: p.goal || 'competitive',

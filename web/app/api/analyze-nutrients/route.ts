@@ -2,13 +2,25 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
-function getGenAI() { return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!); }
-function getAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } }
-  );
+const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+
+function getGenAI() {
+  return new GoogleGenerativeAI((process.env.GEMINI_API_KEY || '').trim());
+}
+
+function getDb(req: NextRequest) {
+  const svcKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+  if (svcKey) {
+    return createClient(SUPA_URL, svcKey, { auth: { persistSession: false } });
+  }
+  const auth = req.headers.get('Authorization');
+  if (auth?.startsWith('Bearer ')) {
+    return createClient(SUPA_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+      auth: { persistSession: false },
+      global: { headers: { Authorization: auth } },
+    });
+  }
+  return null;
 }
 
 export async function POST(req: NextRequest) {
@@ -129,10 +141,13 @@ Now calculate the specific values for the athlete described above and return ONL
 
     const targets: Record<string, number> = JSON.parse(match[0]);
 
-    await getAdmin().from('profiles').update({
-      micro_targets: targets,
-      updated_at: new Date().toISOString(),
-    }).eq('id', user_id);
+    const db = getDb(req);
+    if (db) {
+      await db.from('profiles').update({
+        micro_targets: targets,
+        updated_at: new Date().toISOString(),
+      }).eq('id', user_id);
+    }
 
     return NextResponse.json({ targets });
   } catch (err: any) {

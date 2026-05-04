@@ -2,13 +2,25 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
-function getGenAI() { return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!); }
-function getAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } }
-  );
+const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+
+function getGenAI() {
+  return new GoogleGenerativeAI((process.env.GEMINI_API_KEY || '').trim());
+}
+
+function getDb(req: NextRequest) {
+  const svcKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+  if (svcKey) {
+    return createClient(SUPA_URL, svcKey, { auth: { persistSession: false } });
+  }
+  const auth = req.headers.get('Authorization');
+  if (auth?.startsWith('Bearer ')) {
+    return createClient(SUPA_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+      auth: { persistSession: false },
+      global: { headers: { Authorization: auth } },
+    });
+  }
+  return null;
 }
 
 export async function POST(req: NextRequest) {
@@ -87,25 +99,27 @@ Return ONLY this JSON (no text before or after, no markdown):
 {"calories_target":0,"protein_target":0,"carbs_target":0,"fats_target":0}`;
 
     const aiResult = await model.generateContent(prompt);
-    const raw  = aiResult.response.text().trim();
+    const raw = aiResult.response.text().trim();
     const jsonMatch = raw.match(/\{[\s\S]*?"calories_target"[\s\S]*?\}/);
     if (!jsonMatch) throw new Error('No JSON found in AI response');
 
     const targets = JSON.parse(jsonMatch[0]);
-
     targets.calories_target = Math.round(targets.calories_target);
     targets.protein_target  = Math.round(targets.protein_target);
     targets.carbs_target    = Math.round(targets.carbs_target);
     targets.fats_target     = Math.round(targets.fats_target);
 
-    await getAdmin().from('profiles').upsert({
-      id:              user_id,
-      calories_target: targets.calories_target,
-      protein_target:  targets.protein_target,
-      carbs_target:    targets.carbs_target,
-      fats_target:     targets.fats_target,
-      updated_at:      new Date().toISOString(),
-    }, { onConflict: 'id' });
+    const db = getDb(req);
+    if (db) {
+      await db.from('profiles').upsert({
+        id:              user_id,
+        calories_target: targets.calories_target,
+        protein_target:  targets.protein_target,
+        carbs_target:    targets.carbs_target,
+        fats_target:     targets.fats_target,
+        updated_at:      new Date().toISOString(),
+      }, { onConflict: 'id' });
+    }
 
     return NextResponse.json({ targets });
   } catch (err) {
@@ -116,10 +130,8 @@ Return ONLY this JSON (no text before or after, no markdown):
 
 export async function GET(req: NextRequest) {
   const user_id = req.nextUrl.searchParams.get('user_id');
-  const { data } = await getAdmin()
-    .from('profiles')
-    .select('*')
-    .eq('id', user_id)
-    .single();
+  const db = getDb(req);
+  if (!db) return NextResponse.json({ error: 'Not authorized' }, { status: 401 });
+  const { data } = await db.from('profiles').select('*').eq('id', user_id).single();
   return NextResponse.json({ data });
 }

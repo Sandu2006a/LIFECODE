@@ -165,13 +165,19 @@ export default function TrackScreen() {
   const loadData = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     let user = session?.user ?? null;
+    let accessToken = session?.access_token ?? null;
     if (!user) { const { data: { user: u } } = await supabase.auth.getUser(); user = u ?? null; }
     if (!user) {
       const tokens = getCachedTokens();
-      if (tokens) { const { data } = await supabase.auth.setSession(tokens); user = data?.session?.user ?? null; }
+      if (tokens) {
+        const { data } = await supabase.auth.setSession(tokens);
+        user = data?.session?.user ?? null;
+        accessToken = data?.session?.access_token ?? null;
+      }
     }
     if (!user) return;
     setUserId(user.id);
+    const authH = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
 
     const [profileRes, logsRes, mealsRes] = await Promise.all([
       supabase.from('profiles').select('micro_targets, age, gender, weight_kg, height_cm, goal').eq('id', user.id).maybeSingle(),
@@ -212,7 +218,7 @@ export default function TrackScreen() {
     if (!pp?.micro_targets && pp?.age && pp?.weight_kg && pp?.height_cm) {
       fetch('https://web-zeta-lyart-53.vercel.app/api/analyze-nutrients', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authH },
         body: JSON.stringify({
           user_id: user.id, age: pp.age, height: pp.height_cm,
           weight: pp.weight_kg, gender: pp.gender || 'male',

@@ -96,13 +96,28 @@ export default function OnboardingScreen() {
       const weight_kg = parseFloat(data.weight) || null;
       const height_cm = parseInt(data.height) || null;
 
+      // Get access token for auth header (fallback to JWT client when service role key is absent)
+      let accessToken: string | null = null;
+      const { data: { session: freshSession } } = await supabase.auth.getSession();
+      accessToken = freshSession?.access_token ?? null;
+      if (!accessToken) {
+        const cachedTokens = getCachedTokens();
+        accessToken = cachedTokens?.access_token ?? null;
+      }
+      const authHeaders: Record<string, string> = accessToken
+        ? { Authorization: `Bearer ${accessToken}` }
+        : {};
+
+      const sportDescription = data.bestResult.trim() || data.level;
+
       // Save profile via admin API (bypasses RLS — works even if session is lost)
       fetch(`${API_URL}/api/save-profile`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({
           user_id: uid, age, gender: data.gender || null,
           weight_kg, height_cm, goal: data.level,
+          sport: sportDescription,
         }),
       }).catch(() => {});
 
@@ -134,11 +149,11 @@ export default function OnboardingScreen() {
       // Macro targets (calories/protein/carbs/fats)
       fetch(`${API_URL}/api/analyze-profile`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({
           user_id: uid, name: userName,
           age: ageN, height: heightN, weight: weightN, gender: genderS,
-          sport: 'General Athletics',
+          sport: sportDescription,
           result: data.bestResult.trim() || levelLabel,
         }),
       }).catch(() => {});
@@ -146,7 +161,7 @@ export default function OnboardingScreen() {
       // Micronutrient targets (vitamin/mineral needs)
       fetch(`${API_URL}/api/analyze-nutrients`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({
           user_id: uid, age: ageN, height: heightN,
           weight: weightN, gender: genderS, level: data.level,
