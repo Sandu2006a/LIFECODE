@@ -89,6 +89,20 @@ export async function fetchProtocol(force = false): Promise<{ nutrients: Nutrien
       'Content-Type': 'application/json',
       ...authHeaders(accessToken),
     };
+
+    if (!force) {
+      // Cross-device: read existing analysis from server first
+      try {
+        const getRes = await fetch(`${API_URL}/api/analyze-protocol`, {
+          method: 'GET', headers,
+        });
+        const getJson = await getRes.json();
+        if (getRes.ok && Array.isArray(getJson.nutrients) && getJson.nutrients.length > 0) {
+          return { nutrients: getJson.nutrients as NutrientRow[] };
+        }
+      } catch {}
+    }
+
     const res = await fetch(`${API_URL}/api/analyze-protocol`, {
       method: 'POST', headers, body: JSON.stringify({ force }),
     });
@@ -237,4 +251,39 @@ export function pakSummary(rows: NutrientRow[], pak: 'morning' | 'recovery'): { 
   if (items.length === 0) return { percent: 0, count: 0 };
   const sum = items.reduce((s, r) => s + r.percent, 0);
   return { percent: Math.round(sum / items.length), count: items.length };
+}
+
+// Recompute live progress from static protocol + today's pack status + today's meals.
+// Each nutrient row's `total/percent/status/gap` is updated to reflect what the user
+// has actually consumed today across pack and food sources.
+export function applyLiveIntake(
+  rows: NutrientRow[],
+  morningTaken: boolean,
+  recoveryTaken: boolean,
+  meals: { nutrients?: Record<string, number> }[]
+): NutrientRow[] {
+  const food: Record<string, number> = {};
+  for (const meal of meals) {
+    for (const [k, v] of Object.entries(meal.nutrients || {})) {
+      food[k] = (food[k] || 0) + (Number(v) || 0);
+    }
+  }
+  return rows.map(row => {
+    const morning = morningTaken ? row.morningPak : 0;
+    const recovery = recoveryTaken ? row.recoveryPak : 0;
+    const fromFood = food[row.id] || 0;
+    const total = morning + recovery + fromFood;
+    const percent = row.dailyTarget > 0
+      ? Math.min(100, Math.round((total / row.dailyTarget) * 100))
+      : 0;
+    const status: NutrientRow['status'] = percent >= 85 ? 'covered' : percent >= 30 ? 'partial' : 'gap';
+    const gap = Math.max(0, row.dailyTarget - total);
+    return {
+      ...row,
+      total: Math.round(total * 100) / 100,
+      percent,
+      status,
+      gap: Math.round(gap * 100) / 100,
+    };
+  });
 }

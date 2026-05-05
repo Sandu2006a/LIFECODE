@@ -27,9 +27,32 @@ async function analyzeMeal(meal: string, qty: number): Promise<Record<string, nu
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const prompt = `You are a sports nutrition AI with USDA database access.
 MEAL: "${meal}" QUANTITY: ${qty}g
-Calculate micronutrient content. Return ONLY valid JSON. Include only nutrients with amounts > 0.
-Use these exact keys with values for ${qty}g: vitamin_a (μg), vitamin_c (mg), vitamin_d3 (μg), vitamin_e (mg), vitamin_k2 (μg, only fermented/cheese/natto), vitamin_b12 (μg, only animal), b_complex (% RDA), zinc (mg), copper (mg), magnesium_citrate (mg), selenium (μg), eaa (g), sodium (mg).
-Example chicken breast 200g: {"vitamin_b12":0.6,"zinc":4.4,"selenium":68,"magnesium_citrate":62,"copper":0.2,"eaa":38,"b_complex":25}
+Calculate micronutrient content for ${qty}g. Return ONLY valid JSON. Include only nutrients with meaningful amounts (>0).
+Use EXACTLY these keys with their units (values must be numeric, no unit strings):
+- vitamin_a (μg RAE)
+- vitamin_c (mg)
+- vitamin_d3 (μg)
+- vitamin_e (mg)
+- vitamin_k2 (μg, only fermented foods, cheese, natto)
+- vitamin_b12 (μg, only animal products)
+- b_complex (% RDA contribution)
+- vitamin_b6 (mg)
+- folate (μg)
+- zinc (mg)
+- copper (mg)
+- magnesium (mg, total)
+- selenium (μg)
+- iron (mg)
+- calcium (mg)
+- omega_3 (mg)
+- potassium (mg)
+- sodium (mg)
+- coq10 (mg)
+- eaa (mg, total essential amino acids)
+- creatine (mg)
+- glutamine (mg)
+Example "chicken breast 150g": {"vitamin_b12":0.5,"vitamin_b6":0.7,"zinc":1.5,"selenium":36,"magnesium":42,"copper":0.06,"iron":1.5,"potassium":390,"sodium":110,"eaa":33000,"creatine":420,"glutamine":4500,"b_complex":18}
+Example "orange 150g": {"vitamin_c":80,"vitamin_a":11,"folate":45,"calcium":60,"potassium":270,"magnesium":15,"b_complex":12}
 JSON only:`;
   try {
     const result = await model.generateContent(prompt);

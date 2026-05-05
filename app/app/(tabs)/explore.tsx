@@ -9,7 +9,7 @@ import { colors, fonts, radii, gradients } from '../../src/theme';
 import { getState } from '../../src/lib/api';
 import {
   fetchProtocol, getCachedProtocol, setCachedProtocol,
-  computeFallbackProtocol, sortNutrients, pakSummary,
+  computeFallbackProtocol, sortNutrients, pakSummary, applyLiveIntake,
   profileFromState, type NutrientRow, type ProfileSnapshot,
 } from '../../src/lib/protocol';
 
@@ -124,26 +124,31 @@ export default function ProtocolScreen() {
     const profileSnap = profileFromState(state);
     setSnap(profileSnap);
 
+    let staticProtocol: NutrientRow[] | null = null;
+
     if (!force) {
       const cached = await getCachedProtocol(profileSnap);
-      if (cached && cached.length > 0) {
-        setNutrients(cached);
-        setLoading(false);
-        return;
+      if (cached && cached.length > 0) staticProtocol = cached;
+    }
+
+    if (!staticProtocol) {
+      const result = await fetchProtocol(force);
+      if (result.nutrients && result.nutrients.length > 0) {
+        staticProtocol = result.nutrients;
+        await setCachedProtocol(profileSnap, result.nutrients);
+      } else {
+        staticProtocol = computeFallbackProtocol(profileSnap);
+        await setCachedProtocol(profileSnap, staticProtocol);
+        if (result.error) setError(`AI offline — using local calc (${result.error})`);
       }
     }
 
-    const result = await fetchProtocol(force);
-    if (result.nutrients && result.nutrients.length > 0) {
-      setNutrients(result.nutrients);
-      await setCachedProtocol(profileSnap, result.nutrients);
-    } else {
-      // Fallback local calculation
-      const fallback = computeFallbackProtocol(profileSnap);
-      setNutrients(fallback);
-      await setCachedProtocol(profileSnap, fallback);
-      if (result.error) setError(`AI offline — using local calc (${result.error})`);
-    }
+    // Apply today's pack + food intake to compute live percent / total / status
+    const intake = state.today?.intake || [];
+    const meals = state.today?.meals || [];
+    const morningTaken = intake.some((l: any) => l.pack === 'morning');
+    const recoveryTaken = intake.some((l: any) => l.pack === 'recovery');
+    setNutrients(applyLiveIntake(staticProtocol, morningTaken, recoveryTaken, meals));
 
     setLoading(false);
     setRecalculating(false);

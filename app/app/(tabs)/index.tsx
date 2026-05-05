@@ -13,7 +13,8 @@ import { lastNDays, shortDayLabel, localDateString } from '../../src/lib/dates';
 import { logIntake, getState } from '../../src/lib/api';
 import {
   fetchProtocol, getCachedProtocol, setCachedProtocol,
-  computeFallbackProtocol, profileFromState, type NutrientRow,
+  computeFallbackProtocol, profileFromState, applyLiveIntake, pakSummary,
+  type NutrientRow,
 } from '../../src/lib/protocol';
 
 const GRAD: [string, string, string] = ['#C62828', '#7C3AED', '#1D4ED8'];
@@ -70,44 +71,61 @@ export default function HomeScreen() {
       setMorningTaken(mTaken);
       setRecoveryTaken(rTaken);
 
-      // Weekly chips (purely pack-based since we removed meals)
+      // Protocol: cached first, then API, then local fallback
+      let staticProtocol: NutrientRow[] = [];
+      if (p) {
+        const snap = profileFromState(state);
+        const cached = await getCachedProtocol(snap);
+        if (cached && cached.length > 0) {
+          staticProtocol = cached;
+        } else {
+          const r = await fetchProtocol(false);
+          if (r.nutrients && r.nutrients.length > 0) {
+            staticProtocol = r.nutrients;
+            await setCachedProtocol(snap, r.nutrients);
+          } else {
+            staticProtocol = computeFallbackProtocol(snap);
+            await setCachedProtocol(snap, staticProtocol);
+          }
+        }
+      }
+
+      const todayMeals = state.today?.meals || [];
+      const live = applyLiveIntake(staticProtocol, mTaken, rTaken, todayMeals);
+      setProtocol(live);
+
+      // Weekly chips: real per-day coverage (pack contribution + that day's meals)
       const days = lastNDays(7);
       const weekPacks: Record<string, { morning: boolean; recovery: boolean }> = {};
-      for (const d of days) weekPacks[localDateString(d)] = { morning: false, recovery: false };
+      const weekMealsByDay: Record<string, any[]> = {};
+      for (const d of days) {
+        const k = localDateString(d);
+        weekPacks[k] = { morning: false, recovery: false };
+        weekMealsByDay[k] = [];
+      }
       for (const it of (state.week?.intake || [])) {
         const ds = localDateString(new Date(it.taken_at));
         if (!weekPacks[ds]) continue;
         if (it.pack === 'morning') weekPacks[ds].morning = true;
         if (it.pack === 'recovery') weekPacks[ds].recovery = true;
       }
+      for (const m of (state.week?.meals || [])) {
+        const ds = localDateString(new Date(m.logged_at));
+        if (weekMealsByDay[ds]) weekMealsByDay[ds].push(m);
+      }
       const week: DayPct[] = days.map(d => {
         const ds = localDateString(d);
         const b = weekPacks[ds];
-        const pct = (b.morning ? 50 : 0) + (b.recovery ? 50 : 0);
+        const meals = weekMealsByDay[ds];
+        const dayLive = applyLiveIntake(staticProtocol, b.morning, b.recovery, meals);
+        const pct = dayLive.length > 0
+          ? Math.round(dayLive.reduce((s, r) => s + r.percent, 0) / dayLive.length)
+          : 0;
         return {
           date: ds, label: shortDayLabel(d), dayNum: d.getDate(), pct,
         };
       });
       setWeekDays(week);
-
-      // Protocol: cached first, then API, then local fallback
-      if (p) {
-        const snap = profileFromState(state);
-        const cached = await getCachedProtocol(snap);
-        if (cached && cached.length > 0) {
-          setProtocol(cached);
-        } else {
-          const r = await fetchProtocol(false);
-          if (r.nutrients && r.nutrients.length > 0) {
-            setProtocol(r.nutrients);
-            await setCachedProtocol(snap, r.nutrients);
-          } else {
-            const fb = computeFallbackProtocol(snap);
-            setProtocol(fb);
-            await setCachedProtocol(snap, fb);
-          }
-        }
-      }
     } catch {}
   };
 
@@ -119,9 +137,14 @@ export default function HomeScreen() {
 
   useFocusEffect(useCallback(() => { loadData(); }, []));
 
-  const morningPct = morningTaken ? 100 : 0;
-  const recoveryPct = recoveryTaken ? 100 : 0;
-  const overall = Math.round((morningPct + recoveryPct) / 2);
+  // Real Whoop-style coverage: % of morning-pak nutrients & recovery-pak nutrients covered
+  const morningSum = pakSummary(protocol, 'morning');
+  const recoverySum = pakSummary(protocol, 'recovery');
+  const morningPct = morningSum.percent;
+  const recoveryPct = recoverySum.percent;
+  const overall = protocol.length > 0
+    ? Math.round(protocol.reduce((s, r) => s + r.percent, 0) / protocol.length)
+    : 0;
 
   const markTaken = async (pack: 'morning' | 'recovery') => {
     const already = pack === 'morning' ? morningTaken : recoveryTaken;

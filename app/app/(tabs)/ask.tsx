@@ -8,10 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '../../src/components/Icon';
 import { colors, fonts, radii } from '../../src/theme';
 import { ensureSession } from '../../src/lib/session';
-import {
-  MORNING_NUTRIENTS, RECOVERY_NUTRIENTS, DEFAULT_TARGETS, calcProgress,
-} from '../../src/lib/nutrients';
-import { getState, saveMemory } from '../../src/lib/api';
+import { applyLiveIntake, type NutrientRow } from '../../src/lib/protocol';
+import { getState, saveMemory, logMeal } from '../../src/lib/api';
 
 type Message = { id: number; role: 'ai' | 'user'; text: string };
 
@@ -53,15 +51,10 @@ type ContextData = {
   height: number;
   goal: string;
   sport: string;
-  caloriesTarget: number;
-  proteinTarget: number;
-  carbsTarget: number;
-  fatsTarget: number;
-  microTargets: Record<string, number>;
   morningTaken: boolean;
   recoveryTaken: boolean;
   todayMeals: { meal_name: string; quantity_g: number; nutrients: any }[];
-  progress: Record<string, { current: number; target: number; pct: number }>;
+  protocolRows: NutrientRow[];
   memories: Memory[];
 };
 
@@ -74,18 +67,12 @@ async function buildContext(): Promise<ContextData | null> {
   const packs = (state.today?.intake || []).map((l: any) => l.pack);
   const morningTaken = packs.includes('morning');
   const recoveryTaken = packs.includes('recovery');
-
   const todayMeals = state.today?.meals || [];
-  const microTargets: Record<string, number> = p.micro_targets || DEFAULT_TARGETS;
 
-  const mealNutrients: Record<string, number> = {};
-  for (const meal of todayMeals) {
-    for (const [k, v] of Object.entries(meal.nutrients || {})) {
-      mealNutrients[k] = (mealNutrients[k] || 0) + (v as number);
-    }
-  }
-
-  const progress = calcProgress(morningTaken, recoveryTaken, mealNutrients, microTargets);
+  const staticProtocol: NutrientRow[] = (p.protocol_analysis as NutrientRow[]) || [];
+  const protocolRows = staticProtocol.length > 0
+    ? applyLiveIntake(staticProtocol, morningTaken, recoveryTaken, todayMeals)
+    : [];
 
   const fallbackName = p.display_name || p.full_name
     || (p.email ? String(p.email).split('@')[0] : '')
@@ -99,15 +86,10 @@ async function buildContext(): Promise<ContextData | null> {
     height: p.height_cm || 0,
     goal: p.goal || '',
     sport: p.sport || '',
-    caloriesTarget: p.calories_target || 0,
-    proteinTarget: p.protein_target || 0,
-    carbsTarget: p.carbs_target || 0,
-    fatsTarget: p.fats_target || 0,
-    microTargets,
     morningTaken,
     recoveryTaken,
     todayMeals,
-    progress,
+    protocolRows,
     memories: (state.memories || []) as Memory[],
   };
 }
@@ -121,13 +103,13 @@ function buildSystemPrompt(ctx: ContextData): string {
     elite: 'Elite / Pro — national or professional level',
   };
 
-  const microLines = (nutrients: typeof MORNING_NUTRIENTS) =>
-    nutrients.map(n => {
-      const pr = ctx.progress[n.key];
-      if (!pr) return '';
-      const status = pr.pct >= 100 ? '✓ COMPLETE' : pr.pct >= 50 ? 'partial' : 'LOW';
-      return `  ${n.name}: ${pr.current}/${pr.target} ${n.unit} (${pr.pct}%) ${status}`;
-    }).filter(Boolean).join('\n');
+  const protocolLines = ctx.protocolRows.length > 0
+    ? ctx.protocolRows.map(r => {
+        const tag = r.status === 'covered' ? '✓ COMPLETE' : r.status === 'partial' ? 'partial' : 'LOW';
+        const inLabel = [r.inMorning ? 'Morning' : '', r.inRecovery ? 'Recovery' : ''].filter(Boolean).join('+') || 'food only';
+        return `  ${r.name}: ${r.total}/${r.dailyTarget} ${r.unit} (${r.percent}%) ${tag} [${inLabel}]`;
+      }).join('\n')
+    : '  Protocol not yet calculated — open Track tab to generate.';
 
   const mealLines = ctx.todayMeals.length > 0
     ? ctx.todayMeals.map(m => `  • ${m.meal_name} — ${m.quantity_g}g`).join('\n')
@@ -150,28 +132,18 @@ Level: ${goalLabel[ctx.goal] || ctx.goal || 'Not set'}
 ━━━ LONG-TERM MEMORY (use these every response) ━━━
 ${memoryLines}
 
-━━━ DAILY NUTRITION TARGETS (AI-calibrated) ━━━
-Calories: ${ctx.caloriesTarget > 0 ? ctx.caloriesTarget + ' kcal' : 'Not set yet'}
-Protein: ${ctx.proteinTarget > 0 ? ctx.proteinTarget + 'g' : 'Not set'}
-Carbs: ${ctx.carbsTarget > 0 ? ctx.carbsTarget + 'g' : 'Not set'}
-Fats: ${ctx.fatsTarget > 0 ? ctx.fatsTarget + 'g' : 'Not set'}
-
-━━━ TODAY'S PROTOCOL — ${date} ━━━
+━━━ TODAY'S PACKS — ${date} ━━━
 Morning Pack: ${ctx.morningTaken ? 'TAKEN ✓' : 'NOT TAKEN ✗'}
 Recovery Pack: ${ctx.recoveryTaken ? 'TAKEN ✓' : 'NOT TAKEN ✗'}
 
-━━━ MICRONUTRIENT STATUS TODAY ━━━
-MORNING PACK — Vitamins & Minerals:
-${microLines(MORNING_NUTRIENTS)}
-
-RECOVERY PACK — Performance Compounds:
-${microLines(RECOVERY_NUTRIENTS)}
+━━━ MICRONUTRIENT STATUS TODAY (live: pack + meals) ━━━
+${protocolLines}
 
 ━━━ MEALS LOGGED TODAY ━━━
 ${mealLines}
 
 ━━━ LIFECODE SUPPLEMENT FORMULAS ━━━
-Morning Pack (daily): Vit A 800μg | Vit C 200mg | Vit D3 25μg | Vit E 12mg | Vit K2 50μg | B12 100μg | B-Complex 100% RDA | Zinc 10mg | Copper 0.5mg | Mg Citrate 350mg | Selenium 50μg
+Morning Pack: Vit A 800μg | Vit C 200mg | Vit D3 25μg | Vit E 12mg | Vit K2 50μg | B12 100μg | B-Complex 100% RDA | Zinc 10mg | Copper 0.5mg | Mg Citrate 350mg | Selenium 50μg
 Recovery Pack: Maltodextrin 20g | EAA 7g | Creatine 5g | L-Glutamine 3g | HMB 1.5g | Tart Cherry 500mg | Himalayan Salt 300mg | Mg Bisglycinate 150mg | L-Theanine 100mg | AstraGin 50mg
 
 ━━━ COACHING RULES ━━━
@@ -182,7 +154,14 @@ Recovery Pack: Maltodextrin 20g | EAA 7g | Creatine 5g | L-Glutamine 3g | HMB 1.
 5. Use ${ctx.name}'s name when addressing them
 6. If morning/recovery pack not taken, mention this as the first priority
 
-━━━ MANDATORY: MEMORY EXTRACTION ━━━
+━━━ FOOD INTAKE TRACKING (mandatory) ━━━
+Whenever the user mentions eating, drinking, or consuming ANYTHING (a fruit, a meal, a snack, even water with lemon), append EXACTLY this on a NEW LINE at the end of your response:
+LOG_FOOD:{"meal":"<food name>","quantity_g":<grams>}
+If the user gives a quantity (like "30g cheese" or "2 eggs"), use it. Otherwise use realistic gram estimates: 1 orange ~150g, 1 apple ~180g, 1 egg ~50g, chicken breast ~150g, salmon fillet ~150g, salad bowl ~100g, slice of bread ~30g, glass of milk ~250g, 1 cup rice ~200g.
+Example: user says "I just ate an orange" → response text first, then on a new line: LOG_FOOD:{"meal":"orange","quantity_g":150}
+Logging this updates the user's micronutrient progress bars automatically.
+
+━━━ MEMORY EXTRACTION (mandatory) ━━━
 When the user shares a personal insight, preference, allergy, training detail, schedule, recovery pattern, or any fact about themselves that would help future advice — append on a NEW LINE:
 SAVE_MEMORY:{"memory":"<the fact in third person>","category":"nutrition|training|recovery|preference|schedule|health"}
 Examples:
@@ -190,7 +169,7 @@ Examples:
 - "I train twice a day" → SAVE_MEMORY:{"memory":"User trains twice daily","category":"training"}
 - "I can't eat dairy" → SAVE_MEMORY:{"memory":"User is dairy intolerant","category":"health"}
 
-NEVER mention the SAVE_MEMORY tag in human-readable text. It's a machine marker — keep it on its own line at the end.`;
+NEVER mention the LOG_FOOD or SAVE_MEMORY tags in human-readable text. They are machine markers — put them on their own lines at the end of your response.`;
 }
 
 function extractTag(text: string, marker: string): { json: any | null; cleaned: string } {
@@ -238,10 +217,11 @@ export default function AskScreen() {
         const missing = [];
         if (!ctx.morningTaken) missing.push('morning pack');
         if (!ctx.recoveryTaken) missing.push('recovery pack');
-        const lowNutrients = Object.entries(ctx.progress)
-          .filter(([, pr]) => pr.pct < 40 && pr.target > 0)
-          .map(([k]) => [...MORNING_NUTRIENTS, ...RECOVERY_NUTRIENTS].find(n => n.key === k)?.name)
-          .filter(Boolean).slice(0, 3);
+        const lowNutrients = ctx.protocolRows
+          .filter(r => r.status === 'gap' || (r.status === 'partial' && r.percent < 40))
+          .sort((a, b) => a.percent - b.percent)
+          .slice(0, 3)
+          .map(r => r.name);
 
         let intro = `Hi ${firstName}! I've analyzed your full profile, today's data, and ${ctx.memories.length} memories. `;
         if (missing.length > 0) {
@@ -288,13 +268,27 @@ export default function AskScreen() {
         body: JSON.stringify({
           system_instruction: { parts: [{ text: systemPrompt }] },
           contents: history,
-          generationConfig: { temperature: 0.6, maxOutputTokens: 600 },
+          generationConfig: {
+            temperature: 0.6,
+            maxOutputTokens: 2048,
+            thinkingConfig: { thinkingBudget: 0 },
+          },
         }),
       });
 
       if (!res.ok) throw new Error(`Gemini ${res.status}`);
       const data = await res.json();
       let aiText: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'Unable to respond right now.';
+
+      // Extract LOG_FOOD → save via backend (Gemini computes nutrients server-side and
+      // adds them to today's progress bars)
+      const foodTag = extractTag(aiText, 'LOG_FOOD:');
+      aiText = foodTag.cleaned;
+      if (foodTag.json && foodTag.json.meal) {
+        const meal = String(foodTag.json.meal);
+        const qty = Number(foodTag.json.quantity_g) || 100;
+        await logMeal(meal, qty);
+      }
 
       // Extract SAVE_MEMORY → save via backend
       const memTag = extractTag(aiText, 'SAVE_MEMORY:');
