@@ -53,6 +53,28 @@ export async function saveMemory(memory: string, category: string): Promise<{ ok
   }
 }
 
+export async function scanMeal(
+  imageBase64: string, mimeType: string = 'image/jpeg'
+): Promise<{ ok: boolean; error?: string; meal?: string; quantity_g?: number; nutrients?: Record<string, number>; isNutritionLabel?: boolean }> {
+  try {
+    const res = await authFetch('/api/scan-meal', {
+      method: 'POST',
+      body: JSON.stringify({ imageBase64, mimeType }),
+    });
+    const json = await res.json();
+    if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
+    return {
+      ok: true,
+      meal: json.meal,
+      quantity_g: json.quantity_g,
+      nutrients: json.nutrients,
+      isNutritionLabel: json.isNutritionLabel,
+    };
+  } catch (e: any) {
+    return { ok: false, error: e.message || 'network error' };
+  }
+}
+
 export async function getState(): Promise<any | null> {
   try {
     const res = await authFetch('/api/me/state');

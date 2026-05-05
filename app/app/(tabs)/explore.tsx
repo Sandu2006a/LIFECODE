@@ -4,102 +4,84 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
-import Ring from '../../src/components/Ring';
-import { colors, fonts, radii, gradients } from '../../src/theme';
+import { colors, fonts, radii } from '../../src/theme';
 import { getState } from '../../src/lib/api';
 import {
   fetchProtocol, getCachedProtocol, setCachedProtocol,
-  computeFallbackProtocol, sortNutrients, pakSummary, applyLiveIntake,
+  computeFallbackProtocol, sortNutrients, applyLiveIntake,
   profileFromState, type NutrientRow, type ProfileSnapshot,
 } from '../../src/lib/protocol';
 
-type Filter = 'all' | 'morning' | 'recovery';
+type Cat = 'morning' | 'essentials' | 'recovery';
 
-const STATUS_COLOR: Record<NutrientRow['status'], string> = {
-  covered: '#16a34a',
-  partial: '#e26a1f',
-  gap: '#e55',
+const CAT_ACCENT: Record<Cat, string> = {
+  morning: '#e26a1f',
+  essentials: '#0d0d0f',
+  recovery: '#4a3aa8',
 };
-const STATUS_LABEL: Record<NutrientRow['status'], string> = {
-  covered: 'covered',
-  partial: 'partial',
-  gap: 'gap',
+const CAT_LABEL: Record<Cat, string> = {
+  morning: 'Morning',
+  essentials: 'Essentials',
+  recovery: 'Recovery',
+};
+const CAT_HEAD: Record<Cat, string> = {
+  morning: 'Vitamins & Minerals',
+  essentials: 'Daily essentials',
+  recovery: 'Recovery compounds',
 };
 
-function PakCard({
-  label, percent, count, active, accent, gradient, onPress,
-}: {
-  label: string;
-  percent: number;
-  count: number;
-  active: boolean;
-  accent: string;
-  gradient: string[];
-  onPress: () => void;
-}) {
+function NutrientCard({ row, accent }: { row: NutrientRow; accent: string }) {
+  const [open, setOpen] = useState(false);
+  const isCovered = row.percent >= 85;
+  const isPartial = row.percent >= 30;
+  const barColor = isCovered ? '#16a34a' : isPartial ? accent : '#e55';
+
   return (
     <TouchableOpacity
-      style={[s.pak, { borderColor: active ? accent : colors.line }]}
-      activeOpacity={0.85}
-      onPress={onPress}
+      activeOpacity={0.75}
+      onPress={() => setOpen(!open)}
+      style={s.card}
     >
-      <Text style={[s.pakLabel, { color: accent }]}>{label}</Text>
-      <View style={s.pakRingWrap}>
-        <Ring size={92} stroke={5} pct={percent} gradient={gradient} id={`pak-${label}`} />
-        <View style={s.pakRingCenter}>
-          <Text style={[s.pakPct, { color: accent }]}>{percent}%</Text>
+      <View style={s.headRow}>
+        <Text style={s.idx}>{row.id.startsWith('vitamin_') ? '' : ''}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={s.name}>{row.name}</Text>
+          <Text style={s.form}>{row.dailyTarget}{row.unit} target</Text>
         </View>
+        <Text style={[s.pct, { color: barColor }]}>{row.percent}%</Text>
+        <Text style={[s.chev, open && { transform: [{ rotate: '90deg' }] }]}>›</Text>
       </View>
-      <Text style={s.pakSub}>{count} nutrients</Text>
-      {active && <View style={[s.pakActiveDot, { backgroundColor: accent }]} />}
-    </TouchableOpacity>
-  );
-}
-
-function NutrientCard({ row, filter }: { row: NutrientRow; filter: Filter }) {
-  const isOrphan = !row.inMorning && !row.inRecovery;
-  const barColor = isOrphan ? '#e55' : STATUS_COLOR[row.status];
-  const widthPct = isOrphan ? 0 : row.percent;
-  const sourceLabel =
-    row.inMorning && row.inRecovery ? 'Both Paks' :
-    row.inMorning ? 'Morning Pak' :
-    row.inRecovery ? 'Recovery Pak' :
-    'Not in supplements';
-
-  const accent =
-    filter === 'morning' && row.inMorning ? colors.morning :
-    filter === 'recovery' && row.inRecovery ? colors.recovery :
-    null;
-
-  return (
-    <View style={[s.nutCard, accent && { borderColor: accent, borderWidth: 1.5 }]}>
-      <View style={s.nutHeadRow}>
-        <Text style={s.nutName}>{row.name}</Text>
-        <Text style={s.nutAmount}>
-          {row.total.toLocaleString()} / {row.dailyTarget.toLocaleString()} {row.unit}
-        </Text>
-      </View>
-
       <View style={s.barTrack}>
-        <View style={[s.barFill, { width: `${widthPct}%` as any, backgroundColor: barColor }]} />
+        <View style={[s.barFill, { width: `${row.percent}%` as any, backgroundColor: barColor }]} />
       </View>
-
-      <View style={s.nutMetaRow}>
-        <Text style={s.nutMeta}>
-          <Text style={[s.nutPct, { color: barColor }]}>{widthPct}%</Text>
-          {'  ·  '}{sourceLabel}{!isOrphan && row.gap > 0 ? `  ·  Gap: ${row.gap}${row.unit}` : ''}
-        </Text>
-        <View style={[s.nutBadge, { backgroundColor: barColor + '22', borderColor: barColor }]}>
-          <Text style={[s.nutBadgeText, { color: barColor }]}>
-            {isOrphan ? 'gap' : STATUS_LABEL[row.status]}
-          </Text>
+      {open && (
+        <View style={s.expand}>
+          <View style={s.expRow}>
+            <Text style={s.expLbl}>From pack</Text>
+            <Text style={s.expVal}>
+              {(row.morningPak + row.essentialsPak + row.recoveryPak).toLocaleString()}{row.unit}
+            </Text>
+          </View>
+          <View style={s.expRow}>
+            <Text style={s.expLbl}>Current intake</Text>
+            <Text style={s.expVal}>{row.total.toLocaleString()}{row.unit}</Text>
+          </View>
+          <View style={s.expRow}>
+            <Text style={s.expLbl}>Daily target</Text>
+            <Text style={s.expVal}>{row.dailyTarget.toLocaleString()}{row.unit}</Text>
+          </View>
+          {row.gap > 0 && (
+            <View style={s.expRow}>
+              <Text style={s.expLbl}>Gap</Text>
+              <Text style={[s.expVal, { color: '#e55' }]}>{row.gap}{row.unit}</Text>
+            </View>
+          )}
+          {!!row.foodTip && (
+            <Text style={s.expTip}>Eat: {row.foodTip}</Text>
+          )}
         </View>
-      </View>
-
-      {!!row.foodTip && (
-        <Text style={s.nutTip}>Eat: {row.foodTip}</Text>
       )}
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -108,7 +90,7 @@ export default function ProtocolScreen() {
   const [recalculating, setRecalculating] = useState(false);
   const [error, setError] = useState('');
   const [nutrients, setNutrients] = useState<NutrientRow[]>([]);
-  const [filter, setFilter] = useState<Filter>('all');
+  const [cat, setCat] = useState<Cat>('morning');
   const [snap, setSnap] = useState<ProfileSnapshot | null>(null);
 
   const loadProtocol = async (force = false) => {
@@ -143,12 +125,12 @@ export default function ProtocolScreen() {
       }
     }
 
-    // Apply today's pack + food intake to compute live percent / total / status
     const intake = state.today?.intake || [];
     const meals = state.today?.meals || [];
     const morningTaken = intake.some((l: any) => l.pack === 'morning');
+    const essentialsTaken = intake.some((l: any) => l.pack === 'essentials');
     const recoveryTaken = intake.some((l: any) => l.pack === 'recovery');
-    setNutrients(applyLiveIntake(staticProtocol, morningTaken, recoveryTaken, meals));
+    setNutrients(applyLiveIntake(staticProtocol, morningTaken, recoveryTaken, meals, essentialsTaken));
 
     setLoading(false);
     setRecalculating(false);
@@ -156,21 +138,23 @@ export default function ProtocolScreen() {
 
   useFocusEffect(useCallback(() => { loadProtocol(); }, []));
 
-  const visible = filter === 'all'
-    ? nutrients
-    : nutrients.filter(r => filter === 'morning' ? r.inMorning : r.inRecovery);
-  const sorted = sortNutrients(visible);
-
-  const morningSum = pakSummary(nutrients, 'morning');
-  const recoverySum = pakSummary(nutrients, 'recovery');
+  const filtered = nutrients.filter(r =>
+    cat === 'morning' ? r.inMorning :
+    cat === 'essentials' ? r.inEssentials :
+    r.inRecovery
+  );
+  const sorted = sortNutrients(filtered);
+  const overall = filtered.length > 0
+    ? Math.round(filtered.reduce((s, r) => s + r.percent, 0) / filtered.length)
+    : 0;
 
   return (
     <SafeAreaView style={s.safe} edges={['top']}>
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
         <View style={s.greet}>
-          <Text style={s.day}>Daily Protocol</Text>
-          <Text style={s.h1}>Your <Text style={s.h1Italic}>nutrients.</Text></Text>
+          <Text style={s.day}>Today's protocol</Text>
+          <Text style={s.h1}>Track</Text>
         </View>
 
         {loading ? (
@@ -185,41 +169,47 @@ export default function ProtocolScreen() {
               <View style={s.errBanner}><Text style={s.errBannerText}>{error}</Text></View>
             )}
 
-            {/* Two pak cards */}
-            <View style={s.pakRow}>
-              <PakCard
-                label="MORNING PAK"
-                percent={morningSum.percent}
-                count={morningSum.count}
-                active={filter === 'morning'}
-                accent={colors.morning}
-                gradient={gradients.morning}
-                onPress={() => setFilter(filter === 'morning' ? 'all' : 'morning')}
-              />
-              <PakCard
-                label="RECOVERY PAK"
-                percent={recoverySum.percent}
-                count={recoverySum.count}
-                active={filter === 'recovery'}
-                accent={colors.recovery}
-                gradient={gradients.recovery}
-                onPress={() => setFilter(filter === 'recovery' ? 'all' : 'recovery')}
-              />
+            {/* 3-segment toggle */}
+            <View style={s.seg}>
+              {(['morning', 'essentials', 'recovery'] as Cat[]).map(c => {
+                const active = cat === c;
+                return (
+                  <TouchableOpacity
+                    key={c}
+                    style={[
+                      s.segBtn,
+                      active && { backgroundColor: CAT_ACCENT[c] },
+                    ]}
+                    onPress={() => setCat(c)}
+                  >
+                    <Text style={[s.segTxt, active && { color: '#fff' }]}>
+                      {CAT_LABEL[c]}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
 
-            {filter !== 'all' && (
-              <TouchableOpacity onPress={() => setFilter('all')} style={s.clearFilter}>
-                <Text style={s.clearFilterText}>Showing only {filter} pak · tap to show all</Text>
-              </TouchableOpacity>
-            )}
+            {/* Overall summary bar */}
+            <View style={s.summary}>
+              <View>
+                <Text style={s.eyebrow}>{CAT_LABEL[cat]} coverage</Text>
+                <Text style={[s.summaryPct, { color: CAT_ACCENT[cat] }]}>
+                  {overall}<Text style={s.summaryPctUnit}>%</Text>
+                </Text>
+              </View>
+              <View style={{ flex: 1, marginLeft: 18, marginTop: 14 }}>
+                <View style={s.summaryBar}>
+                  <View style={[s.summaryBarFill, {
+                    width: `${overall}%` as any, backgroundColor: CAT_ACCENT[cat],
+                  }]} />
+                </View>
+                <Text style={s.summaryHint}>{filtered.length} compounds</Text>
+              </View>
+            </View>
 
-            {/* Header */}
-            <View style={s.listHeader}>
-              <Text style={s.eyebrow}>
-                {filter === 'all' ? `All Nutrients (${sorted.length})` :
-                 filter === 'morning' ? `Morning Pak (${sorted.length})` :
-                 `Recovery Pak (${sorted.length})`}
-              </Text>
+            <View style={s.headRowTop}>
+              <Text style={s.eyebrow}>{CAT_HEAD[cat]}</Text>
               <TouchableOpacity
                 onPress={() => loadProtocol(true)}
                 disabled={recalculating}
@@ -231,9 +221,8 @@ export default function ProtocolScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Nutrient list */}
             {sorted.map(row => (
-              <NutrientCard key={row.id} row={row} filter={filter} />
+              <NutrientCard key={row.id} row={row} accent={CAT_ACCENT[cat]} />
             ))}
 
             {snap && (
@@ -252,12 +241,11 @@ export default function ProtocolScreen() {
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { paddingBottom: 48 },
-  px: { paddingHorizontal: 22, gap: 14 },
+  px: { paddingHorizontal: 22, gap: 12 },
 
   greet: { paddingHorizontal: 22, paddingTop: 16, paddingBottom: 20 },
   day: { fontFamily: fonts.sansSemiBold, fontSize: 12, letterSpacing: 1, color: colors.ink3, textTransform: 'uppercase', marginBottom: 4 },
   h1: { fontFamily: fonts.serif, fontSize: 40, color: colors.ink },
-  h1Italic: { fontFamily: fonts.serifItalic },
 
   loadingWrap: { paddingVertical: 80, alignItems: 'center', gap: 16 },
   loadingText: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.ink3, letterSpacing: 0.3 },
@@ -265,35 +253,37 @@ const s = StyleSheet.create({
   errBanner: { backgroundColor: 'rgba(229,85,85,0.10)', borderWidth: 1, borderColor: 'rgba(229,85,85,0.35)', borderRadius: 12, padding: 12 },
   errBannerText: { fontFamily: fonts.sansMedium, fontSize: 12, color: '#c43030' },
 
-  pakRow: { flexDirection: 'row', gap: 10 },
-  pak: { flex: 1, backgroundColor: colors.surf, borderRadius: 18, paddingVertical: 18, paddingHorizontal: 14, borderWidth: 1, alignItems: 'center', position: 'relative' },
-  pakLabel: { fontFamily: fonts.sansSemiBold, fontSize: 10, letterSpacing: 1.4, textTransform: 'uppercase', marginBottom: 10 },
-  pakRingWrap: { width: 92, height: 92, alignItems: 'center', justifyContent: 'center' },
-  pakRingCenter: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
-  pakPct: { fontFamily: fonts.serifItalic, fontSize: 22 },
-  pakSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.ink3, marginTop: 8 },
-  pakActiveDot: { position: 'absolute', top: 10, right: 10, width: 6, height: 6, borderRadius: 3 },
+  seg: { flexDirection: 'row', backgroundColor: 'rgba(13,13,15,0.06)', borderRadius: radii.pill, padding: 4 },
+  segBtn: { flex: 1, paddingVertical: 9, borderRadius: radii.pill, alignItems: 'center' },
+  segTxt: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.ink2 },
 
-  clearFilter: { alignSelf: 'center', paddingVertical: 4 },
-  clearFilterText: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.ink3, letterSpacing: 0.3 },
+  summary: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: colors.surf, borderRadius: radii.card, padding: 18, borderWidth: 1, borderColor: colors.line },
+  summaryPct: { fontFamily: fonts.serifItalic, fontSize: 38, lineHeight: 40, marginTop: 4 },
+  summaryPctUnit: { fontSize: 18, color: colors.ink3 },
+  summaryBar: { height: 6, backgroundColor: 'rgba(13,13,15,0.08)', borderRadius: 3, overflow: 'hidden' },
+  summaryBarFill: { height: 6, borderRadius: 3 },
+  summaryHint: { fontFamily: fonts.sans, fontSize: 11, color: colors.ink3, marginTop: 6 },
 
-  listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 },
+  headRowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, marginBottom: 2 },
   eyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, letterSpacing: 1.2, color: colors.ink3, textTransform: 'uppercase' },
   recalcBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radii.pill, backgroundColor: 'rgba(13,13,15,0.06)' },
   recalcText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.ink2, letterSpacing: 0.5, textTransform: 'uppercase' },
 
-  nutCard: { backgroundColor: colors.surf, borderRadius: 16, padding: 14, borderWidth: 1, borderColor: colors.line, gap: 8 },
-  nutHeadRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  nutName: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.ink },
-  nutAmount: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.ink3 },
-  barTrack: { height: 6, backgroundColor: 'rgba(13,13,15,0.08)', borderRadius: 3, overflow: 'hidden' },
-  barFill: { height: 6, borderRadius: 3 },
-  nutMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  nutMeta: { fontFamily: fonts.sans, fontSize: 12, color: colors.ink3, flex: 1 },
-  nutPct: { fontFamily: fonts.sansSemiBold, fontSize: 12 },
-  nutBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1, marginLeft: 8 },
-  nutBadgeText: { fontFamily: fonts.sansSemiBold, fontSize: 10, letterSpacing: 0.5, textTransform: 'uppercase' },
-  nutTip: { fontFamily: fonts.sans, fontSize: 12, color: colors.ink2, fontStyle: 'italic' },
+  card: { backgroundColor: colors.surf, borderRadius: 14, padding: 14, borderWidth: 1, borderColor: colors.line },
+  headRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  idx: { width: 0 },
+  name: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.ink },
+  form: { fontFamily: fonts.sans, fontSize: 11, color: colors.ink3, marginTop: 2 },
+  pct: { fontFamily: fonts.sansBold, fontSize: 14 },
+  chev: { fontFamily: fonts.sans, fontSize: 18, color: colors.ink3, marginLeft: 6 },
+  barTrack: { height: 5, backgroundColor: 'rgba(13,13,15,0.08)', borderRadius: 3, overflow: 'hidden', marginTop: 10 },
+  barFill: { height: 5, borderRadius: 3 },
+
+  expand: { backgroundColor: 'rgba(13,13,15,0.03)', borderRadius: 10, padding: 12, marginTop: 10, gap: 6 },
+  expRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  expLbl: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.ink3, letterSpacing: 0.5, textTransform: 'uppercase' },
+  expVal: { fontFamily: fonts.serifItalic, fontSize: 14, color: colors.ink },
+  expTip: { fontFamily: fonts.sans, fontSize: 12, color: colors.ink2, fontStyle: 'italic', marginTop: 4 },
 
   footnote: { fontFamily: fonts.sans, fontSize: 11, color: colors.ink3, textAlign: 'center', marginTop: 12, fontStyle: 'italic' },
 });

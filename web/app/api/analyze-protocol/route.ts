@@ -58,6 +58,11 @@ Vitamin A 800μg, Vitamin C 200mg, Vitamin D3 25μg, Vitamin E 12mg,
 Vitamin K2 50μg, Vitamin B12 100μg, B Complex 100% RDA, Zinc 10mg,
 Copper 0.5mg, Magnesium Citrate 350mg, Selenium 50μg
 
+ESSENTIALS PAK (daily general health) provides per day:
+Iron 18mg (Bisglycinate), Calcium 500mg (Citrate-Malate), Omega-3 1000mg (EPA+DHA Algal),
+Potassium 400mg (Citrate), Iodine 150μg (Potassium Iodide), CoQ10 100mg (Ubiquinol),
+Choline 275mg (Bitartrate), Vitamin B6 5mg (P-5-P), Folate 400μg (Methyl-Folate 5-MTHF)
+
 RECOVERY PAK provides per serving:
 Maltodextrin 20000mg, EAA Complex 7000mg, Creatine Monohydrate 5000mg,
 L-Glutamine 3000mg, HMB 1500mg, Tart Cherry Extract 500mg,
@@ -65,12 +70,10 @@ Himalayan Pink Salt 300mg, Magnesium Bisglycinate 150mg,
 L-Theanine 100mg, AstraGin 50mg
 
 TASK:
-For each nutrient below, calculate the exact daily target for THIS athlete (adjust for weight, sport, training load, level). Then calculate how much each supplement provides and what percentage is covered.
-
-Also add any critical nutrients missing from the supplements (like Iron, Calcium, Omega-3) with 0% coverage but marked as important gaps.
+For each nutrient below, calculate the exact daily target for THIS athlete (adjust for weight, sport, training load, level). Then calculate how much each of the three supplements provides and what percentage of the daily target is covered when ALL three are taken.
 
 NUTRIENTS TO CALCULATE:
-Vitamin D3, Magnesium (total from both paks), Zinc, Vitamin C, Vitamin B12, B Complex, Selenium, Vitamin K2, Vitamin E, Copper, Vitamin A, Creatine, EAA, L-Glutamine, Iron, Calcium, Omega-3, Potassium, Sodium, CoQ10, Vitamin B6, Folate
+Vitamin A, Vitamin C, Vitamin D3, Vitamin E, Vitamin K2, Vitamin B12, B Complex, Zinc, Copper, Magnesium (total across paks), Selenium, Creatine, EAA, L-Glutamine, Iron, Calcium, Omega-3, Potassium, Iodine, Sodium, CoQ10, Choline, Vitamin B6, Folate
 
 Respond ONLY with a JSON array. No markdown, no explanation.
 Exact format:
@@ -81,6 +84,7 @@ Exact format:
     "unit": "μg",
     "dailyTarget": 62.5,
     "morningPak": 25,
+    "essentialsPak": 0,
     "recoveryPak": 0,
     "total": 25,
     "percent": 40,
@@ -88,11 +92,15 @@ Exact format:
     "gap": 37.5,
     "foodTip": "Salmon, egg yolks",
     "inMorning": true,
+    "inEssentials": false,
     "inRecovery": false
   }
 ]
 
-Status rules: "covered" if percent >= 85, "partial" if 30-84, "gap" if below 30.`;
+IMPORTANT id rules: use snake_case ids matching the table above (vitamin_a, vitamin_c, vitamin_d3, vitamin_e, vitamin_k2, vitamin_b12, b_complex, zinc, copper, magnesium, selenium, creatine, eaa, glutamine, iron, calcium, omega_3, potassium, iodine, sodium, coq10, choline, vitamin_b6, folate).
+
+Status rules: "covered" if percent >= 85, "partial" if 30-84, "gap" if below 30.
+Set inMorning=true if morningPak>0, inEssentials=true if essentialsPak>0, inRecovery=true if recoveryPak>0.`;
 
     const key = (process.env.GEMINI_API_KEY || '').trim();
     if (!key) return NextResponse.json({ error: 'gemini not configured' }, { status: 500 });
