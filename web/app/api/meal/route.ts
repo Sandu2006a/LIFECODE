@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
+import { STRICT_INSTRUCTIONS, normalizeStrictNutrients } from '@/lib/nutrients';
 
 const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
@@ -20,46 +21,29 @@ function getAdmin() {
   return createClient(SUPA_URL, svcKey, { auth: { persistSession: false } });
 }
 
-async function analyzeMeal(meal: string, qty: number): Promise<Record<string, number>> {
+async function analyzeMealText(meal: string, qty: number): Promise<Record<string, number>> {
   const key = (process.env.GEMINI_API_KEY || '').trim();
   if (!key) return {};
   const genAI = new GoogleGenerativeAI(key);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  const prompt = `You are a sports nutrition AI with USDA database access.
-MEAL: "${meal}" QUANTITY: ${qty}g
-Calculate micronutrient content for ${qty}g. Return ONLY valid JSON. Include only nutrients with meaningful amounts (>0).
-Use EXACTLY these keys with their units (values must be numeric, no unit strings):
-- vitamin_a (μg RAE)
-- vitamin_c (mg)
-- vitamin_d3 (μg)
-- vitamin_e (mg)
-- vitamin_k2 (μg, only fermented foods, cheese, natto)
-- vitamin_b12 (μg, only animal products)
-- b_complex (% RDA contribution)
-- vitamin_b6 (mg)
-- folate (μg)
-- zinc (mg)
-- copper (mg)
-- magnesium (mg, total)
-- selenium (μg)
-- iron (mg)
-- calcium (mg)
-- omega_3 (mg)
-- potassium (mg)
-- sodium (mg)
-- coq10 (mg)
-- eaa (mg, total essential amino acids)
-- creatine (mg)
-- glutamine (mg)
-Example "chicken breast 150g": {"vitamin_b12":0.5,"vitamin_b6":0.7,"zinc":1.5,"selenium":36,"magnesium":42,"copper":0.06,"iron":1.5,"potassium":390,"sodium":110,"eaa":33000,"creatine":420,"glutamine":4500,"b_complex":18}
-Example "orange 150g": {"vitamin_c":80,"vitamin_a":11,"folate":45,"calcium":60,"potassium":270,"magnesium":15,"b_complex":12}
-JSON only:`;
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-2.5-flash',
+    generationConfig: { temperature: 0.1, maxOutputTokens: 1500 },
+  });
+  const prompt = `${STRICT_INSTRUCTIONS}
+
+INPUT (text, nu imagine):
+Aliment: "${meal}"
+Cantitate: ${qty} grame
+
+Setează "isNutritionLabel": false. Setează "quantity_g": ${qty}. Calculează nutrienții pentru exact ${qty} grame din "${meal}".`;
+
   try {
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) return {};
-    return JSON.parse(match[0]);
+    const parsed = JSON.parse(match[0]);
+    return normalizeStrictNutrients(parsed.nutrients || {});
   } catch {
     return {};
   }
@@ -77,7 +61,7 @@ export async function POST(req: NextRequest) {
 
     let nutrients = providedNutrients;
     if (!nutrients || typeof nutrients !== 'object' || Object.keys(nutrients).length === 0) {
-      nutrients = await analyzeMeal(name, qty);
+      nutrients = await analyzeMealText(name, qty);
     }
 
     const admin = getAdmin();
