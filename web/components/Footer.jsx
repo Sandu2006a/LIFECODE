@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-const BLACK  = '#0a0a0a';
+const BLACK  = '#0F172A';
 
 export default function Footer() {
   const year = new Date().getFullYear();

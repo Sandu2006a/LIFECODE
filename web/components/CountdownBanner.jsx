@@ -30,7 +30,7 @@ export default function CountdownBanner() {
   return (
     <div
       className="w-full z-[100] sticky top-0"
-      style={{ background: '#0a0a0a', borderBottom: '1px solid rgba(255,138,0,0.2)' }}
+      style={{ background: '#0F172A', borderBottom: '1px solid rgba(255,138,0,0.2)' }}
     >
       <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-2.5 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-center">
 

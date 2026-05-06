@@ -197,7 +197,7 @@ export default function AboutPage() {
 
           <p data-s className="font-body text-[18px] max-w-2xl leading-relaxed" style={{ color: INK2 }}>
             The brands that don't lie cost €60–90 a product — and you still need four of them to run a real protocol.{' '}
-            <span className="font-700 text-[#0a0a0a]">
+            <span className="font-700 text-[#0F172A]">
               So we stopped looking. We built it ourselves.
             </span>
           </p>

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const BLACK  = '#0a0a0a';
+const BLACK  = '#0F172A';
 const PROMO  = 'LC70X';
 const LAUNCH = new Date('2026-08-03T00:00:00');
 const SPOTS  = 100;
@@ -74,11 +74,11 @@ function SuccessCard({ email, already }) {
         <p className="font-body text-[10px] tracking-[0.32em] uppercase font-700 text-[#059669] mb-2">
           {already ? 'Already on the list' : "You're in"}
         </p>
-        <h3 className="font-sans font-700 text-[#0a0a0a] text-2xl md:text-3xl tracking-tight leading-tight">
+        <h3 className="font-sans font-700 text-[#0F172A] text-2xl md:text-3xl tracking-tight leading-tight">
           {already ? 'Your spot is safe.' : 'Welcome to the founders list.'}
         </h3>
         <p className="font-body font-300 text-[#666] text-[14px] leading-relaxed mt-3 max-w-[440px] mx-auto">
-          We just sent a confirmation to <span className="font-700 text-[#0a0a0a]">{email}</span>.
+          We just sent a confirmation to <span className="font-700 text-[#0F172A]">{email}</span>.
         </p>
         <div className="mt-5 inline-block" style={{ padding: '1.5px', borderRadius: '14px', background: BLACK }}>
           <div className="bg-white px-7 py-4 text-center" style={{ borderRadius: '12.5px' }}>
@@ -162,7 +162,7 @@ export default function PreOrderSection() {
           <TimeUnit value={secs}  label="Sec" />
         </div>
 
-        <h2 className="po-rise font-sans font-700 text-[#0a0a0a] leading-[0.92] tracking-tight opacity-0 mx-auto"
+        <h2 className="po-rise font-sans font-700 text-[#0F172A] leading-[0.92] tracking-tight opacity-0 mx-auto"
           style={{ fontSize: 'clamp(2.6rem, 6vw, 5.6rem)' }}>
           The protocol drops soon.<br/>
           <span style={{ color: BLACK }}>
@@ -172,7 +172,7 @@ export default function PreOrderSection() {
 
         <p className="po-rise font-body font-300 text-[#666] text-base md:text-[17px] leading-relaxed max-w-[620px] mx-auto mt-7 opacity-0">
           Drop your email to join the founders list. You&apos;ll be the
-          <span className="font-700 text-[#0a0a0a]"> first to pre-order</span>,
+          <span className="font-700 text-[#0F172A]"> first to pre-order</span>,
           lock in <span className="font-700" style={{ color: BLACK }}>founder pricing</span>,
           and ship before the public release.
         </p>
@@ -188,7 +188,7 @@ export default function PreOrderSection() {
                   placeholder="your@email.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="flex-1 bg-white rounded-full px-6 py-4 font-body text-[15px] text-[#0a0a0a] placeholder:text-[#bbb] outline-none disabled:opacity-70 text-center sm:text-left"
+                  className="flex-1 bg-white rounded-full px-6 py-4 font-body text-[15px] text-[#0F172A] placeholder:text-[#bbb] outline-none disabled:opacity-70 text-center sm:text-left"
                 />
                 <button type="submit" disabled={status === 'loading'}
                   className="relative overflow-hidden rounded-full px-7 py-4 text-white font-sans font-700 text-[12px] tracking-[0.18em] uppercase transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_10px_30px_rgba(198,40,40,0.35)] disabled:opacity-80 whitespace-nowrap group"
@@ -238,7 +238,7 @@ export default function PreOrderSection() {
         <div className="po-rise mt-8 max-w-[480px] mx-auto opacity-0">
           <div className="flex items-center justify-between mb-2">
             <span className="font-body text-[12px] text-[#888]">
-              <span className="font-700 text-[#0a0a0a]">{SPOTS}</span> of {TOTAL} founder spots remaining
+              <span className="font-700 text-[#0F172A]">{SPOTS}</span> of {TOTAL} founder spots remaining
             </span>
             <span className="font-body text-[12px] font-700" style={{ color: BLACK }}>{taken} taken</span>
           </div>

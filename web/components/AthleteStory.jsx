@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const BLACK  = '#0a0a0a';
+const BLACK  = '#0F172A';
 
 export default function AthleteStory() {
   const sectionRef = useRef(null);
@@ -88,7 +88,7 @@ export default function AthleteStory() {
               <div className="bg-white p-8 md:p-10" style={{ borderRadius: '18.5px' }}>
                 <svg width="28" height="20" viewBox="0 0 28 20" fill="none" className="mb-5">
                   <path d="M0 20V12C0 8.667 0.833 5.833 2.5 3.5 4.167 1.167 6.5 0 9.5 0l1 2C8.833 2.667 7.5 3.833 6.5 5.5 5.5 7.167 5 9 5 11h4v9H0zm15 0V12c0-3.333.833-6.167 2.5-8.5C19.167 1.167 21.5 0 24.5 0l1 2c-1.667.667-3 1.833-4 3.5-1 1.667-1.5 3.5-1.5 5.5h4v9H15z"
-                    fill="#0a0a0a"/>
+                    fill="#0F172A"/>
                 </svg>
                 <p className="font-sans font-600 text-[#222] text-base md:text-lg leading-relaxed tracking-tight mb-6">
                   &ldquo;Every product we tried was made for general health. We needed performance.

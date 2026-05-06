@@ -22,7 +22,7 @@ function useBannerTimer() {
   return t;
 }
 
-const BLACK  = '#0a0a0a';
+const BLACK  = '#0F172A';
 
 export default function Header() {
   const headerRef = useRef(null);

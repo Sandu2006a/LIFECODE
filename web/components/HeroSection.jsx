@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { gsap } from 'gsap';
 
-const BLACK  = '#0a0a0a';
+const BLACK  = '#0F172A';
 
 export default function HeroSection() {
   useEffect(() => {

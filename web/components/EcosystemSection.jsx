@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const BLACK  = '#0a0a0a';
+const BLACK  = '#0F172A';
 
 const FEATURES = [
   { title: 'AI tracking',          desc: 'Say what you ate. Get every micro and macro calculated instantly.' },

@@ -25,7 +25,7 @@ const BLOCKS = [
     tag: '24/7 · AI App',
     title: 'Biology tracked.',
     body: 'Log meals. Track micronutrients in real time. Get protocol advice built around your actual biology.',
-    color: '#0a0a0a',
+    color: '#0F172A',
   },
 ];
 
