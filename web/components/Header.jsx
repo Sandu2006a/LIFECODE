@@ -22,6 +22,8 @@ function useBannerTimer() {
   return t;
 }
 
+const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
+const HEAT_G = 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)';
 const BLACK  = '#0F172A';
 
 export default function Header() {
@@ -111,8 +113,8 @@ export default function Header() {
 
         {/* Wordmark */}
         <Link href="/"
-          className="font-sans font-700 tracking-[0.32em] uppercase select-none transition-opacity duration-300 hover:opacity-80"
-          style={{ fontSize: '1.05rem', color: BLACK }}>
+          className="font-sans font-700 tracking-[0.32em] uppercase select-none transition-opacity duration-300 hover:opacity-80 bg-clip-text text-transparent"
+          style={{ fontSize: '1.05rem', backgroundImage: BOX_G }}>
           LIFECODE
         </Link>
 
@@ -133,7 +135,7 @@ export default function Header() {
                 style={{ color: isActive ? BLACK : '#444' }}>
                 {label}
                 <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 group-hover:w-full transition-all duration-300 rounded-full"
-                  style={{ background: BLACK }} />
+                  style={{ background: BOX_G }} />
               </Link>
             );
           })}
@@ -146,7 +148,7 @@ export default function Header() {
               <button onClick={() => setMenuOpen(v => !v)}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#e8e8e8] hover:border-[#ccc] transition-all duration-200 bg-white">
                 <span className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-sans font-700 flex-shrink-0"
-                  style={{ background: BLACK }}>{initial}</span>
+                  style={{ background: BOX_G }}>{initial}</span>
                 <span className="font-sans font-600 text-[12px] text-[#222]">{firstName}</span>
                 <svg width="9" height="5" viewBox="0 0 10 6" fill="none" className={`transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`}>
                   <path d="M1 1l4 4 4-4" stroke="#999" strokeWidth="1.5" strokeLinecap="round"/>
@@ -169,7 +171,7 @@ export default function Header() {
               </Link>
               <Link href="/pricing"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-white font-body text-[12px] tracking-widest uppercase transition-all duration-300 hover:opacity-85"
-                style={{ background: BLACK }}>
+                style={{ background: BOX_G }}>
                 Get Started
               </Link>
             </>
@@ -177,54 +179,55 @@ export default function Header() {
         </div>
       </div>{/* close Row 1 */}
 
-      {/* ── Row 2: Countdown banner ── */}
+      {/* ── Row 2: Countdown banner — LIFECODE style ── */}
       <Link
         href={pathname === '/' ? '#preorder' : '/#preorder'}
-        className="w-full flex items-center justify-center flex-wrap gap-3 md:gap-6 px-4 py-3 cursor-pointer group"
-        style={{ background: '#0F172A', borderBottom: '2px solid #C62828' }}
+        className="w-full flex items-center justify-center flex-wrap gap-3 md:gap-6 px-4 py-2.5 cursor-pointer group"
+        style={{
+          background: 'linear-gradient(90deg, #FFF9F5 0%, #FFF3EC 40%, #F8F5FF 100%)',
+          borderTop: '1px solid rgba(255,138,0,0.2)',
+          borderBottom: '1px solid rgba(124,58,237,0.15)',
+        }}
       >
         {/* Pulse + label */}
         <span className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full animate-pulse bg-[#C62828]" />
-          <span className="font-sans font-700 text-[11px] tracking-[0.28em] uppercase text-white">
-            Coming Soon
-          </span>
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#FF8A00' }} />
+          <span className="font-sans font-700 text-[10px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
+            style={{ backgroundImage: BOX_G }}>Coming Soon</span>
         </span>
 
-        <span className="hidden sm:block w-px h-4 bg-white/20" />
+        <span className="hidden sm:block w-px h-3.5" style={{ background: 'rgba(198,40,40,0.2)' }} />
 
         {/* Offer */}
-        <span className="font-body text-[13px] text-white/70">
+        <span className="font-body text-[12px] text-[#555]">
           First{' '}
-          <strong className="font-800 text-white">100</strong>
+          <strong className="font-800 bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>100</strong>
           {' '}founders get{' '}
-          <strong
-            className="font-800 text-[16px] px-2 py-0.5 rounded-md mx-0.5"
-            style={{ background: '#C62828', color: '#fff' }}>
+          <strong className="font-800 text-[14px] bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
             30% OFF
           </strong>
           {' '}their first month
         </span>
 
-        <span className="hidden sm:block w-px h-4 bg-white/20" />
+        <span className="hidden sm:block w-px h-3.5" style={{ background: 'rgba(198,40,40,0.2)' }} />
 
         {/* Timer */}
         <span className="flex items-center gap-1.5 font-sans font-700 text-[13px] tabular-nums">
           {[{v:timer.d,l:'d'},{v:timer.h,l:'h'},{v:timer.m,l:'m'},{v:timer.s,l:'s'}].map(({v,l},i)=>(
             <span key={l} className="flex items-center gap-1">
-              <span className="text-[#C62828]">{pad(v)}</span>
-              <span className="text-[10px] text-white/40 font-400">{l}</span>
-              {i<3 && <span className="text-white/25 mx-0.5">:</span>}
+              <span className="bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>{pad(v)}</span>
+              <span className="text-[9px] text-[#bbb] font-400">{l}</span>
+              {i<3 && <span className="text-[#ddd] mx-0.5">·</span>}
             </span>
           ))}
         </span>
 
-        <span className="hidden sm:block w-px h-4 bg-white/20" />
+        <span className="hidden sm:block w-px h-3.5" style={{ background: 'rgba(198,40,40,0.2)' }} />
 
         {/* CTA pill */}
         <span
-          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-sans font-700 text-[11px] tracking-[0.15em] uppercase transition-all duration-200 group-hover:scale-105"
-          style={{ background: '#C62828', color: '#fff', boxShadow: '0 0 16px rgba(198,40,40,0.5)' }}
+          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white font-sans font-700 text-[10px] tracking-[0.18em] uppercase group-hover:opacity-85 transition-all duration-200 group-hover:scale-[1.03]"
+          style={{ background: BOX_G }}
         >
           Pre-order <span className="group-hover:translate-x-0.5 transition-transform duration-200">→</span>
         </span>

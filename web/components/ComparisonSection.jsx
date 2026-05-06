@@ -6,8 +6,9 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const RED    = '#C62828';
-const PURPLE = '#7C3AED';
+const MG    = 'linear-gradient(135deg, #FFF5DC 0%, #FF8A00 60%, #C62828 100%)';
+const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
+const HEAT_G = 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)';
 
 const ROWS = [
   { label: 'System structure',  lifecode: 'Designed as one protocol',    blend: 'Random products',    multi: 'Multiple brands' },
@@ -50,12 +51,12 @@ const RECOVERY_ADVANTAGE = [
   { ingredient: 'Sweetener System',     advantage: ['Reb-M + Thaumatin — natural only. ', 'Sucralose and acesulfame-K', ' (used by competitors) have been linked to gut microbiome disruption.'] },
 ];
 
-function AdvText({ parts, color }) {
+function AdvText({ parts }) {
   return (
     <p className="font-body font-300 text-[#555] text-[13px] leading-relaxed">
       {parts.map((part, i) =>
         i % 2 === 1 ? (
-          <strong key={i} className="font-700" style={{ color }}>
+          <strong key={i} className="font-700 bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>
             {part}
           </strong>
         ) : (
@@ -67,7 +68,7 @@ function AdvText({ parts, color }) {
 }
 
 function AdvantageTable({ items, sectionClass, gradientFrom, gradientTo }) {
-  const color = gradientFrom;
+  const grad = `linear-gradient(135deg, ${gradientFrom}, ${gradientTo})`;
   return (
     <table className="w-full border-collapse">
       <thead>
@@ -76,8 +77,8 @@ function AdvantageTable({ items, sectionClass, gradientFrom, gradientTo }) {
             style={{ color: gradientFrom }}>
             Ingredient
           </th>
-          <th className="text-left px-4 py-3 font-body text-[9px] tracking-[0.28em] uppercase font-700 border-b border-[#f0eef8]"
-            style={{ color: gradientFrom }}>
+          <th className="text-left px-4 py-3 font-body text-[9px] tracking-[0.28em] uppercase font-700 border-b border-[#f0eef8] bg-clip-text text-transparent"
+            style={{ backgroundImage: grad }}>
             The LIFECODE Advantage
           </th>
         </tr>
@@ -87,14 +88,14 @@ function AdvantageTable({ items, sectionClass, gradientFrom, gradientTo }) {
           <tr key={i} className={`${sectionClass} border-t border-[#f0eef8] opacity-0 ${i % 2 === 0 ? 'bg-white' : 'bg-[#fdfcff]'}`}>
             <td className="px-4 py-3.5 align-top w-[28%]">
               <div className="flex items-center gap-2">
-                <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: color }} />
-                <span className="font-sans font-700 text-[13px] tracking-tight text-[#0F172A]">
+                <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: grad }} />
+                <span className="font-sans font-700 text-[13px] tracking-tight text-[#0a0a0a]">
                   {row.ingredient}
                 </span>
               </div>
             </td>
             <td className="px-4 py-3.5 align-top">
-              <AdvText parts={Array.isArray(row.advantage) ? row.advantage : [row.advantage]} color={gradientTo} />
+              <AdvText parts={Array.isArray(row.advantage) ? row.advantage : [row.advantage]} />
             </td>
           </tr>
         ))}
@@ -122,7 +123,7 @@ function AdvantageBlock({ title, items, sectionClass, gradientFrom, gradientTo }
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{ padding: '1.5px', background: gradientFrom }}
+      style={{ padding: '1.5px', background: `linear-gradient(135deg, ${gradientFrom}, ${gradientTo})` }}
     >
       <div className="bg-white rounded-[14.5px] overflow-hidden">
         <button
@@ -134,14 +135,14 @@ function AdvantageBlock({ title, items, sectionClass, gradientFrom, gradientTo }
                style={{ color: gradientFrom }}>
               The LIFECODE Advantage
             </p>
-            <h3 className="font-sans font-700 text-[#0F172A] text-lg md:text-xl tracking-tight">
+            <h3 className="font-sans font-700 text-[#0a0a0a] text-lg md:text-xl tracking-tight">
               {title}
             </h3>
           </div>
           <div
             className="flex-shrink-0 ml-4 w-8 h-8 rounded-full flex items-center justify-center transition-transform duration-300"
             style={{
-              background: gradientFrom,
+              background: `linear-gradient(135deg, ${gradientFrom}, ${gradientTo})`,
               transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
             }}
           >
@@ -153,7 +154,7 @@ function AdvantageBlock({ title, items, sectionClass, gradientFrom, gradientTo }
 
         <div ref={bodyRef} style={{ height: 0, overflow: 'hidden', opacity: 0 }}>
           <div className="px-6 md:px-8 pb-6">
-            <div className="h-px w-full mb-2" style={{ background: `${gradientFrom}33` }} />
+            <div className="h-px w-full mb-2" style={{ background: `linear-gradient(90deg, ${gradientFrom}33, ${gradientTo}33)` }} />
             <AdvantageTable items={items} sectionClass={sectionClass} gradientFrom={gradientFrom} gradientTo={gradientTo} />
           </div>
         </div>
@@ -196,7 +197,7 @@ export default function ComparisonSection() {
       <div className="max-w-[1440px] mx-auto">
 
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-px w-5 bg-[#222]" />
+          <div className="h-px w-5" style={{ background: MG }} />
           <span className="font-body text-[14px] tracking-widest3 text-[#999] uppercase">The comparison</span>
         </div>
 
@@ -226,9 +227,10 @@ export default function ComparisonSection() {
               <tr>
                 <th className="text-left pb-5 pr-4 font-body text-[13px] tracking-widest text-[#ccc] uppercase font-400 w-[28%]"></th>
                 <th className="pb-5 px-4 w-[24%]">
-                  <div className="cs-col opacity-0" style={{ padding: '1.5px', borderRadius: '12px', background: '#0F172A' }}>
+                  <div className="cs-col opacity-0" style={{ padding: '1.5px', borderRadius: '12px', background: BOX_G }}>
                     <div className="bg-white py-3 px-4 rounded-[10.5px] text-center">
-                      <p className="font-sans font-700 text-sm tracking-tight text-[#0F172A]">LIFECODE</p>
+                      <p className="font-sans font-700 text-sm tracking-tight bg-clip-text text-transparent"
+                        style={{ backgroundImage: BOX_G }}>LIFECODE</p>
                       <p className="font-body text-[13px] tracking-widest text-[#ccc] uppercase mt-0.5">System</p>
                     </div>
                   </div>
@@ -255,7 +257,7 @@ export default function ComparisonSection() {
                   </td>
                   <td className="py-5 px-4">
                     <div className="flex items-start gap-2">
-                      <div className="flex-shrink-0 mt-[5px] w-1.5 h-1.5 rounded-full bg-[#0F172A]" />
+                      <div className="flex-shrink-0 mt-[5px] w-1.5 h-1.5 rounded-full" style={{ background: BOX_G }} />
                       <p className="font-sans font-600 text-[#222] text-[17px] leading-snug">{row.lifecode}</p>
                     </div>
                   </td>
@@ -274,17 +276,17 @@ export default function ComparisonSection() {
         {/* The LIFECODE Advantage blocks */}
         <div className="adv-blocks">
           <div className="flex items-center gap-3 mb-6">
-            <div className="h-px w-5 bg-[#222]" />
-            <span className="font-body text-[10px] tracking-[0.32em] uppercase font-700 text-[#444]">
+            <div className="h-px w-5" style={{ background: HEAT_G }} />
+            <span className="font-body text-[10px] tracking-[0.32em] uppercase font-700" style={{ color: '#C62828' }}>
               Ingredient breakdown
             </span>
           </div>
           <h3
-            className="font-sans font-700 text-[#0F172A] tracking-tight leading-[0.92] mb-8"
+            className="font-sans font-700 text-[#0a0a0a] tracking-tight leading-[0.92] mb-8"
             style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3.4rem)' }}
           >
             Not just what&apos;s in it —<br />
-            <span style={{ color: '#0F172A' }}>
+            <span className="bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>
               why every ingredient is different.
             </span>
           </h3>
@@ -294,15 +296,15 @@ export default function ComparisonSection() {
               title="Morning Pack — 13 reasons it outperforms"
               items={MORNING_ADVANTAGE}
               sectionClass="adv-row"
-              gradientFrom={RED}
-              gradientTo={PURPLE}
+              gradientFrom="#FF8A00"
+              gradientTo="#C62828"
             />
             <AdvantageBlock
               title="Anabolic Recovery — 13 reasons it outperforms"
               items={RECOVERY_ADVANTAGE}
               sectionClass="adv-row"
-              gradientFrom={PURPLE}
-              gradientTo={RED}
+              gradientFrom="#C62828"
+              gradientTo="#7C3AED"
             />
 
           </div>
@@ -313,7 +315,7 @@ export default function ComparisonSection() {
           <Link
             href="/lifecode-comparison"
             className="inline-flex items-center gap-3 px-8 py-4 rounded-full font-sans font-700 text-[12px] tracking-widest uppercase text-white transition-opacity duration-300 hover:opacity-85"
-            style={{ background: '#0F172A' }}
+            style={{ background: BOX_G }}
           >
             See Full Ingredient Comparison
             <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">

@@ -5,27 +5,28 @@ import Image from 'next/image';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const RED    = '#C62828';
-const PURPLE = '#7C3AED';
+const MG = 'linear-gradient(135deg, #FF8A00, #C62828)';
+const RG = 'linear-gradient(135deg, #7C3AED, #1D4ED8)';
+const AG = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
 
 const BLOCKS = [
   {
     tag: 'AM · Morning Pack',
     title: 'Daily activation.',
     body: '11 precision compounds. Vitamins, adaptogens, CoQ10. Everything your body needs to start at full capacity.',
-    color: RED,
+    gradient: MG,
   },
   {
     tag: 'PM · Recovery Pack',
     title: 'Post-effort repair.',
     body: '10 targeted compounds. EAA, creatine, magnesium. Cellular rebuild starts within the 45-minute window.',
-    color: PURPLE,
+    gradient: RG,
   },
   {
     tag: '24/7 · AI App',
     title: 'Biology tracked.',
     body: 'Log meals. Track micronutrients in real time. Get protocol advice built around your actual biology.',
-    color: '#0F172A',
+    gradient: AG,
   },
 ];
 
@@ -55,9 +56,9 @@ export default function SystemSection() {
 
         <div className="text-center mb-10">
           <div className="ss-text flex items-center justify-center gap-3 mb-6 opacity-0">
-            <div className="h-px w-5 bg-[#222]" />
+            <div className="h-px w-5" style={{ background: MG }} />
             <span className="font-body text-[9px] tracking-widest3 text-[#999] uppercase">The solution</span>
-            <div className="h-px w-5 bg-[#222]" />
+            <div className="h-px w-5" style={{ background: RG }} />
           </div>
           <h2
             className="ss-text font-sans font-700 text-[#111] tracking-tight leading-[0.92] opacity-0"
@@ -73,11 +74,11 @@ export default function SystemSection() {
         {/* 3 blocks */}
         <div className="ss-text grid grid-cols-1 md:grid-cols-3 gap-5 mb-10 opacity-0">
           {BLOCKS.map((b) => (
-            <div key={b.tag} style={{ padding: '1.5px', borderRadius: '18px', background: b.color }}>
+            <div key={b.tag} style={{ padding: '1.5px', borderRadius: '18px', background: b.gradient }}>
               <div className="bg-white h-full p-7 flex flex-col gap-4" style={{ borderRadius: '16.5px' }}>
                 <span
-                  className="font-body text-[8px] tracking-widest3 uppercase"
-                  style={{ color: b.color }}
+                  className="font-body text-[8px] tracking-widest3 uppercase bg-clip-text text-transparent"
+                  style={{ backgroundImage: b.gradient }}
                 >
                   {b.tag}
                 </span>

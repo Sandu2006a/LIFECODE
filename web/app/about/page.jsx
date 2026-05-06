@@ -6,8 +6,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Header from '@/components/Header';
 
-const RED    = '#C62828';
-const PURPLE = '#7C3AED';
+const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
 const ORANGE = '#FF8A00';
 const VIOLET = '#7C3AED';
 const NAVY   = '#1D4ED8';
@@ -18,10 +17,10 @@ const INK2   = '#4A4570';
 const BORDER = '#E0DCF0';
 const CARD_BG = '#F5F3FF';
 
-function SolidText({ children, className = '', color }) {
+function GradientText({ children, className = '' }) {
   return (
-    <span className={`inline-block ${className}`}
-      style={{ color: color || RED }}>
+    <span className={`bg-clip-text text-transparent inline-block ${className}`}
+      style={{ backgroundImage: BOX_G }}>
       {children}
     </span>
   );
@@ -30,8 +29,9 @@ function SolidText({ children, className = '', color }) {
 function Eyebrow({ children }) {
   return (
     <div className="inline-flex items-center gap-3 mb-6">
-      <span className="h-px w-8 flex-shrink-0 bg-[#222]" />
-      <span className="font-body text-[11px] tracking-[0.32em] uppercase text-[#444]">
+      <span className="h-px w-8 flex-shrink-0" style={{ background: BOX_G }} />
+      <span className="font-body text-[11px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
+        style={{ backgroundImage: BOX_G }}>
         {children}
       </span>
     </div>
@@ -47,8 +47,8 @@ const PRINCIPLES = [
 ];
 
 const PHASES = [
-  { name: 'Morning Pak',       desc: 'Sets the day. Clinically dosed vitamins, minerals, and methylated B-complex for performance and immune function.', color: RED },
-  { name: 'Anabolic Recovery', desc: 'Rebuilds it. EAAs, creatine, HMB, tart cherry — everything the body needs post-training.', color: PURPLE },
+  { name: 'Morning Pak',       desc: 'Sets the day. Clinically dosed vitamins, minerals, and methylated B-complex for performance and immune function.', color: ORANGE },
+  { name: 'Anabolic Recovery', desc: 'Rebuilds it. EAAs, creatine, HMB, tart cherry — everything the body needs post-training.', color: VIOLET },
 ];
 
 const LIES = [
@@ -64,9 +64,6 @@ const WHO = [
   "Won't settle for a green powder with a celebrity on it.",
   'Demands clinical doses. Every time.',
 ];
-
-// Alternating colors for lie titles: RED, PURPLE, RED
-const LIE_COLORS = [RED, PURPLE, RED];
 
 export default function AboutPage() {
   const heroRef = useRef(null);
@@ -107,7 +104,7 @@ export default function AboutPage() {
             className="font-sans font-700 text-[56px] md:text-[72px] lg:text-[86px] leading-[0.93] tracking-[-0.02em]"
             style={{ color: INK }}>
             We didn't<br />start a<br />
-            <SolidText color={RED}>supplement<br />company.</SolidText>
+            <GradientText>supplement<br />company.</GradientText>
           </h1>
 
           <p data-h className="mt-10 font-body text-[22px] md:text-[28px] max-w-lg leading-snug"
@@ -117,11 +114,11 @@ export default function AboutPage() {
 
           <div data-h className="mt-20 flex items-center gap-3" style={{ color: `${INK2}60` }}>
             <span className="font-body text-[11px] tracking-[0.25em] uppercase">Scroll</span>
-            <span className="h-px w-16 bg-[#444]" />
+            <span className="h-px w-16" style={{ background: BOX_G }} />
           </div>
         </section>
 
-        <div className="h-px bg-[#e8e8e8]" />
+        <div className="h-px" style={{ background: BOX_G }} />
 
         {/* ─── THE PROBLEM ──────────────────────────────────────── */}
         <section className="py-16 px-8 md:px-16 max-w-[1200px] mx-auto">
@@ -133,8 +130,8 @@ export default function AboutPage() {
                 A kitchen counter<br />that looked like<br />a pharmacy.
               </h2>
               <div className="rounded-3xl p-8 inline-block" style={{ background: CARD_BG, border: `1px solid ${BORDER}` }}>
-                <span className="font-sans font-700 text-[64px] leading-none block"
-                  style={{ color: RED }}>
+                <span className="font-sans font-700 text-[64px] leading-none block bg-clip-text text-transparent"
+                  style={{ backgroundImage: BOX_G }}>
                   €300
                 </span>
                 <span className="font-body text-[13px] tracking-wide mt-1 block" style={{ color: INK2 }}>
@@ -161,7 +158,7 @@ export default function AboutPage() {
           <div className="max-w-[1200px] mx-auto">
             <p data-s className="font-sans font-700 text-[26px] md:text-[40px] lg:text-[52px] leading-[1.1] max-w-5xl" style={{ color: INK }}>
               "We spent years reading peer-reviewed journals, studying EFSA dossiers, learning the difference between{' '}
-              <SolidText color={PURPLE}>zinc bisglycinate and zinc oxide.</SolidText>{' '}
+              <GradientText>zinc bisglycinate and zinc oxide.</GradientText>{' '}
               We talked to formulators. We audited manufacturers."
             </p>
             <p data-s className="mt-8 font-body text-[15px] tracking-wide max-w-xl" style={{ color: INK2 }}>
@@ -176,18 +173,18 @@ export default function AboutPage() {
             <Eyebrow>What We Found</Eyebrow>
             <h2 className="font-sans font-700 text-[36px] md:text-[54px] leading-[1.05]" style={{ color: INK }}>
               The supplement industry<br />is built on{' '}
-              <SolidText color={RED}>three quiet lies.</SolidText>
+              <GradientText>three quiet lies.</GradientText>
             </h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-5 mb-14">
-            {LIES.map(({ num, title, body }, i) => (
+            {LIES.map(({ num, title, body }) => (
               <div key={num} data-s
                 className="rounded-3xl p-9 transition-all duration-300 hover:shadow-xl"
                 style={{ background: CARD_BG, border: `1px solid ${BORDER}` }}>
-                <span className="font-sans font-700 text-[11px] tracking-[0.3em] block mb-5" style={{ color: LIE_COLORS[i] }}>{num}</span>
-                <h3 className="font-sans font-700 text-[26px] mb-4 leading-tight"
-                  style={{ color: LIE_COLORS[i] }}>
+                <GradientText className="font-sans font-700 text-[11px] tracking-[0.3em] block mb-5">{num}</GradientText>
+                <h3 className="font-sans font-700 text-[26px] mb-4 leading-tight bg-clip-text text-transparent"
+                  style={{ backgroundImage: BOX_G }}>
                   {title}
                 </h3>
                 <p className="font-body text-[15px] leading-relaxed" style={{ color: INK2 }}>{body}</p>
@@ -197,7 +194,7 @@ export default function AboutPage() {
 
           <p data-s className="font-body text-[18px] max-w-2xl leading-relaxed" style={{ color: INK2 }}>
             The brands that don't lie cost €60–90 a product — and you still need four of them to run a real protocol.{' '}
-            <span className="font-700 text-[#0F172A]">
+            <span className="font-700 bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
               So we stopped looking. We built it ourselves.
             </span>
           </p>
@@ -208,15 +205,15 @@ export default function AboutPage() {
           <div className="max-w-[1200px] mx-auto">
             <div data-s className="mb-10">
               <div className="inline-flex items-center gap-3 mb-6">
-                <span className="h-px w-8" style={{ background: RED }} />
-                <span className="font-body text-[11px] tracking-[0.32em] uppercase"
-                  style={{ color: RED }}>
+                <span className="h-px w-8" style={{ background: BOX_G }} />
+                <span className="font-body text-[11px] tracking-[0.32em] uppercase bg-clip-text text-transparent"
+                  style={{ backgroundImage: BOX_G }}>
                   Where We Start
                 </span>
               </div>
               <h2 className="font-sans font-700 text-[36px] md:text-[54px] leading-[1.05] text-white max-w-2xl">
                 A complete daily<br />performance system.<br />
-                <SolidText color={PURPLE}>Two phases. Launched.</SolidText>
+                <GradientText>Two phases. Launched.</GradientText>
               </h2>
               <p className="mt-6 font-body text-[17px] max-w-lg leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
                 Each phase is a single stick. Clinically dosed, naturally sweetened, fully transparent. The work of an eight-product stack — in two sticks.
@@ -251,7 +248,7 @@ export default function AboutPage() {
             <Eyebrow>What We Stand For</Eyebrow>
             <h2 className="font-sans font-700 text-[36px] md:text-[54px] leading-[1.05]" style={{ color: INK }}>
               Five things<br />
-              <SolidText color={PURPLE}>we never compromise on.</SolidText>
+              <GradientText>we never compromise on.</GradientText>
             </h2>
           </div>
 
@@ -260,14 +257,13 @@ export default function AboutPage() {
               <div key={num} data-s
                 className="flex items-start gap-8 md:gap-14 py-8 group cursor-default"
                 style={{ borderBottom: i < PRINCIPLES.length - 1 ? `1px solid ${BORDER}` : 'none' }}>
-                <span className="font-sans font-700 text-[11px] tracking-[0.28em] mt-2 flex-shrink-0 opacity-50 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ color: i % 2 === 0 ? RED : PURPLE }}>
+                <GradientText className="font-sans font-700 text-[11px] tracking-[0.28em] mt-2 flex-shrink-0 opacity-50 group-hover:opacity-100 transition-opacity duration-300">
                   {num}
-                </span>
+                </GradientText>
                 <p className="font-sans font-700 text-[22px] md:text-[30px] leading-tight transition-all duration-300"
                   style={{ color: INK }}
-                  onMouseEnter={e => { e.currentTarget.style.color = i % 2 === 0 ? RED : PURPLE; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = INK; }}>
+                  onMouseEnter={e => { e.currentTarget.style.backgroundImage = BOX_G; e.currentTarget.style.webkitBackgroundClip = 'text'; e.currentTarget.style.webkitTextFillColor = 'transparent'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundImage = ''; e.currentTarget.style.webkitBackgroundClip = ''; e.currentTarget.style.webkitTextFillColor = ''; }}>
                   {text}
                 </p>
               </div>
@@ -281,7 +277,7 @@ export default function AboutPage() {
             <div data-s>
               <Eyebrow>Who This Is Built For</Eyebrow>
               <h2 className="font-sans font-700 text-[40px] md:text-[56px] leading-[1.0] mb-8" style={{ color: INK }}>
-                The <SolidText color={RED}>serious</SolidText><br />amateur.
+                The <GradientText>serious</GradientText><br />amateur.
               </h2>
               <p className="font-body text-[17px] leading-relaxed max-w-md mb-5" style={{ color: INK2 }}>
                 The lifter, the runner, the cyclist, the fighter, the early-morning lap swimmer with a real job and a real family. The high-performer who treats nutrition as part of the work.
@@ -295,7 +291,7 @@ export default function AboutPage() {
               {WHO.map((line, i) => (
                 <div key={i} className="flex items-center gap-5 py-5"
                   style={{ borderBottom: i < WHO.length - 1 ? `1px solid ${BORDER}` : 'none' }}>
-                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: i % 2 === 0 ? RED : PURPLE }} />
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: BOX_G }} />
                   <p className="font-sans font-700 text-[18px] md:text-[20px]" style={{ color: INK }}>{line}</p>
                 </div>
               ))}
@@ -309,7 +305,7 @@ export default function AboutPage() {
             <Eyebrow>The Line We Drew</Eyebrow>
             <h2 className="font-sans font-700 text-[32px] md:text-[48px] leading-[1.1] mb-8" style={{ color: INK }}>
               We exist against underdosing. Against hidden blends.{' '}
-              <SolidText color={PURPLE}>Against sucralose in products that charge premium prices.</SolidText>
+              <GradientText>Against sucralose in products that charge premium prices.</GradientText>
             </h2>
             <p className="font-body text-[17px] leading-relaxed" style={{ color: INK2 }}>
               Against the assumption that athletes won't read the label. If you train seriously, you deserve a supplement system that does the same.
@@ -328,7 +324,7 @@ export default function AboutPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/pricing"
                   className="inline-flex items-center justify-center px-9 py-4 rounded-full text-white font-body text-[13px] tracking-[0.2em] uppercase transition-all duration-300 hover:opacity-85"
-                  style={{ background: RED }}>
+                  style={{ background: BOX_G }}>
                   Get Started
                 </Link>
                 <Link href="/#morning"
