@@ -34,6 +34,13 @@
           "backgroundColor": "#fafaf7",
           "resizeMode": "contain"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "LIFECODE needs photo access to log meals you scan.",
+          "cameraPermission": "LIFECODE needs camera access to scan meals and nutrition labels."
+        }
       ]
     ],
     "experiments": {

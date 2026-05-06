@@ -132,17 +132,13 @@ const MORNING_PAK: Record<string, { name: string; amount: number; unit: string }
   selenium:    { name: 'Selenium',    amount: 50,  unit: 'μg' },
 };
 
-const ESSENTIALS_PAK: Record<string, { name: string; amount: number; unit: string }> = {
-  iron:       { name: 'Iron',       amount: 18,   unit: 'mg' },
-  calcium:    { name: 'Calcium',    amount: 500,  unit: 'mg' },
-  omega_3:    { name: 'Omega-3',    amount: 1000, unit: 'mg' },
-  potassium:  { name: 'Potassium',  amount: 400,  unit: 'mg' },
-  iodine:     { name: 'Iodine',     amount: 150,  unit: 'μg' },
-  coq10:      { name: 'CoQ10',      amount: 100,  unit: 'mg' },
-  choline:    { name: 'Choline',    amount: 275,  unit: 'mg' },
-  vitamin_b6: { name: 'Vitamin B6', amount: 5,    unit: 'mg' },
-  folate:     { name: 'Folate',     amount: 400,  unit: 'μg' },
-};
+// Essentials is a CATEGORY (food-sourced nutrients), not a sellable pak.
+// These ids are flagged inEssentials=true so they appear in the Essentials
+// segment of Track, but no supplement provides them — they come from food.
+const ESSENTIALS_CATEGORY_IDS = new Set([
+  'iron', 'calcium', 'omega_3', 'potassium', 'iodine',
+  'coq10', 'choline', 'vitamin_b6', 'folate',
+]);
 
 const RECOVERY_PAK: Record<string, { name: string; amount: number; unit: string }> = {
   maltodextrin: { name: 'Maltodextrin', amount: 20000, unit: 'mg' },
@@ -226,12 +222,11 @@ export function computeFallbackProtocol(snap: ProfileSnapshot): NutrientRow[] {
     const target = Math.round(base.rda * lf * weightFactor * (sf[id] || 1) * 100) / 100;
 
     const morningEntry = MORNING_PAK[id];
-    const essentialsEntry = ESSENTIALS_PAK[id];
     const recoveryEntry = RECOVERY_PAK[id];
     const morningPak = morningEntry?.amount || 0;
-    const essentialsPak = essentialsEntry?.amount || 0;
     const recoveryPak = recoveryEntry?.amount || 0;
-    const total = morningPak + essentialsPak + recoveryPak;
+    const essentialsPak = 0; // Essentials is a category, not a supplement
+    const total = morningPak + recoveryPak;
     const percent = target > 0 ? Math.min(100, Math.round((total / target) * 100)) : 0;
     const status: NutrientRow['status'] = percent >= 85 ? 'covered' : percent >= 30 ? 'partial' : 'gap';
     const gap = Math.max(0, target - total);
@@ -250,7 +245,7 @@ export function computeFallbackProtocol(snap: ProfileSnapshot): NutrientRow[] {
       gap: Math.round(gap * 100) / 100,
       foodTip: base.tip,
       inMorning: !!morningEntry,
-      inEssentials: !!essentialsEntry,
+      inEssentials: ESSENTIALS_CATEGORY_IDS.has(id),
       inRecovery: !!recoveryEntry,
     });
   }

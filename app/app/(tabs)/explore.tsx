@@ -56,12 +56,19 @@ function NutrientCard({ row, accent }: { row: NutrientRow; accent: string }) {
       </View>
       {open && (
         <View style={s.expand}>
-          <View style={s.expRow}>
-            <Text style={s.expLbl}>From pack</Text>
-            <Text style={s.expVal}>
-              {(row.morningPak + row.essentialsPak + row.recoveryPak).toLocaleString()}{row.unit}
-            </Text>
-          </View>
+          {(row.morningPak + row.recoveryPak) > 0 ? (
+            <View style={s.expRow}>
+              <Text style={s.expLbl}>From supplements</Text>
+              <Text style={s.expVal}>
+                {(row.morningPak + row.recoveryPak).toLocaleString()}{row.unit}
+              </Text>
+            </View>
+          ) : (
+            <View style={s.expRow}>
+              <Text style={s.expLbl}>Source</Text>
+              <Text style={s.expVal}>Food only</Text>
+            </View>
+          )}
           <View style={s.expRow}>
             <Text style={s.expLbl}>Current intake</Text>
             <Text style={s.expVal}>{row.total.toLocaleString()}{row.unit}</Text>
@@ -128,9 +135,8 @@ export default function ProtocolScreen() {
     const intake = state.today?.intake || [];
     const meals = state.today?.meals || [];
     const morningTaken = intake.some((l: any) => l.pack === 'morning');
-    const essentialsTaken = intake.some((l: any) => l.pack === 'essentials');
     const recoveryTaken = intake.some((l: any) => l.pack === 'recovery');
-    setNutrients(applyLiveIntake(staticProtocol, morningTaken, recoveryTaken, meals, essentialsTaken));
+    setNutrients(applyLiveIntake(staticProtocol, morningTaken, recoveryTaken, meals));
 
     setLoading(false);
     setRecalculating(false);

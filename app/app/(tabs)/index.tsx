@@ -46,7 +46,6 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [displayName, setDisplayName] = useState('Athlete');
   const [morningTaken, setMorningTaken] = useState(false);
-  const [essentialsTaken, setEssentialsTaken] = useState(false);
   const [recoveryTaken, setRecoveryTaken] = useState(false);
   const [weekDays, setWeekDays] = useState<DayPct[]>([]);
   const [packError, setPackError] = useState('');
@@ -82,10 +81,8 @@ export default function HomeScreen() {
       const intake = state.today?.intake || [];
       const packs = intake.map((l: any) => l.pack);
       const mTaken = packs.includes('morning');
-      const eTaken = packs.includes('essentials');
       const rTaken = packs.includes('recovery');
       setMorningTaken(mTaken);
-      setEssentialsTaken(eTaken);
       setRecoveryTaken(rTaken);
 
       // Protocol: cached first, then API, then local fallback
@@ -108,23 +105,22 @@ export default function HomeScreen() {
       }
 
       const todayMeals = state.today?.meals || [];
-      const live = applyLiveIntake(staticProtocol, mTaken, rTaken, todayMeals, eTaken);
+      const live = applyLiveIntake(staticProtocol, mTaken, rTaken, todayMeals);
       setProtocol(live);
 
       // Weekly chips: real per-day coverage
       const days = lastNDays(7);
-      const weekPacks: Record<string, { morning: boolean; essentials: boolean; recovery: boolean }> = {};
+      const weekPacks: Record<string, { morning: boolean; recovery: boolean }> = {};
       const weekMealsByDay: Record<string, any[]> = {};
       for (const d of days) {
         const k = localDateString(d);
-        weekPacks[k] = { morning: false, essentials: false, recovery: false };
+        weekPacks[k] = { morning: false, recovery: false };
         weekMealsByDay[k] = [];
       }
       for (const it of (state.week?.intake || [])) {
         const ds = localDateString(new Date(it.taken_at));
         if (!weekPacks[ds]) continue;
         if (it.pack === 'morning') weekPacks[ds].morning = true;
-        if (it.pack === 'essentials') weekPacks[ds].essentials = true;
         if (it.pack === 'recovery') weekPacks[ds].recovery = true;
       }
       for (const m of (state.week?.meals || [])) {
@@ -135,7 +131,7 @@ export default function HomeScreen() {
         const ds = localDateString(d);
         const b = weekPacks[ds];
         const meals = weekMealsByDay[ds];
-        const dayLive = applyLiveIntake(staticProtocol, b.morning, b.recovery, meals, b.essentials);
+        const dayLive = applyLiveIntake(staticProtocol, b.morning, b.recovery, meals);
         const pct = dayLive.length > 0
           ? Math.round(dayLive.reduce((s, r) => s + r.percent, 0) / dayLive.length)
           : 0;
@@ -164,8 +160,8 @@ export default function HomeScreen() {
     ? Math.round(protocol.reduce((s, r) => s + r.percent, 0) / protocol.length)
     : 0;
 
-  const markTaken = async (pack: 'morning' | 'essentials' | 'recovery') => {
-    const already = pack === 'morning' ? morningTaken : pack === 'essentials' ? essentialsTaken : recoveryTaken;
+  const markTaken = async (pack: 'morning' | 'recovery') => {
+    const already = pack === 'morning' ? morningTaken : recoveryTaken;
     if (already) return;
     setPackError('');
     const result = await logIntake(pack);
@@ -174,7 +170,6 @@ export default function HomeScreen() {
       return;
     }
     if (pack === 'morning') setMorningTaken(true);
-    else if (pack === 'essentials') setEssentialsTaken(true);
     else setRecoveryTaken(true);
     loadData();
   };
@@ -417,21 +412,6 @@ export default function HomeScreen() {
             <Text style={s.packTitle}>Morning Pack <Text style={s.em}>—</Text></Text>
             <Text style={s.packSub}>Activate. Focus. Perform.</Text>
             <View style={{ marginTop: 16 }}><ProgressBar pct={morningTaken ? 100 : morningPct} kind="morning" /></View>
-          </TouchableOpacity>
-
-          {/* Essentials pack */}
-          <TouchableOpacity
-            style={[s.packCard, { borderColor: essentialsTaken ? 'rgba(13,13,15,0.35)' : 'rgba(13,13,15,0.1)' }]}
-            onPress={() => markTaken('essentials')}
-            activeOpacity={0.8}
-          >
-            <View style={s.row}>
-              <Text style={s.packTime}>{essentialsTaken ? 'Taken ✓' : 'Anytime · with food'}</Text>
-              <Text style={[s.eyebrow, { color: colors.ink }]}>Essentials</Text>
-            </View>
-            <Text style={s.packTitle}>Essentials Pack <Text style={s.em}>—</Text></Text>
-            <Text style={s.packSub}>Iron · Calcium · Omega-3 · daily core.</Text>
-            <View style={{ marginTop: 16 }}><ProgressBar pct={essentialsTaken ? 100 : essentialsPct} kind="essentials" /></View>
           </TouchableOpacity>
 
           {/* Recovery pack */}
