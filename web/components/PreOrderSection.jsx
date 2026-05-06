@@ -86,7 +86,7 @@ function SuccessCard({ email, already }) {
             <p className="font-sans font-700 text-[26px] tracking-[0.22em]" style={{ color: BLACK }}>
               {PROMO}
             </p>
-            <p className="font-body text-[11px] text-[#aaa] mt-1">70% off your first month · Apply at checkout</p>
+            <p className="font-body text-[11px] text-[#aaa] mt-1">30% off your first month · Apply at checkout</p>
           </div>
         </div>
         <div className="mt-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f1fdf7] border border-[#d1fae5]">
@@ -220,7 +220,7 @@ export default function PreOrderSection() {
 
         <div className="po-rise grid grid-cols-1 sm:grid-cols-3 gap-3 mt-12 opacity-0 max-w-[720px] mx-auto">
           {[
-            { tag: '70%', label: 'Off first month',  sub: 'first 100 founders only', color: BLACK },
+            { tag: '30%', label: 'Off first month',  sub: 'first 100 founders only', color: BLACK },
             { tag: '1ST', label: 'Priority shipping', sub: 'before everyone else',    color: BLACK },
             { tag: '$0',  label: 'No payment now',    sub: 'just your email',         color: BLACK },
           ].map((p) => (
@@ -246,7 +246,7 @@ export default function PreOrderSection() {
             <div className="h-full rounded-full" style={{ width: `${pct}%`, background: BLACK }} />
           </div>
           <p className="mt-2 font-body text-[11px] text-[#bbb] tracking-wide">
-            First 100 get <span className="font-700" style={{ color: BLACK }}>70% off</span> for the first month
+            First 100 get <span className="font-700" style={{ color: BLACK }}>30% off</span> for the first month
           </p>
         </div>
 

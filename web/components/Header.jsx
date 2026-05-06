@@ -181,49 +181,50 @@ export default function Header() {
       <Link
         href={pathname === '/' ? '#preorder' : '/#preorder'}
         className="w-full flex items-center justify-center flex-wrap gap-3 md:gap-6 px-4 py-3 cursor-pointer group"
-        style={{
-          background: 'linear-gradient(90deg, #FFF9F5 0%, #FFF5F0 40%, #F8F5FF 100%)',
-          borderTop: '1px solid rgba(198,40,40,0.18)',
-          borderBottom: '1px solid rgba(124,58,237,0.15)',
-        }}
+        style={{ background: '#0F172A', borderBottom: '2px solid #C62828' }}
       >
         {/* Pulse + label */}
         <span className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: BLACK }} />
-          <span className="font-sans font-700 text-[11px] tracking-[0.28em] uppercase"
-            style={{ color: BLACK }}>Coming Soon</span>
+          <span className="w-2 h-2 rounded-full animate-pulse bg-[#C62828]" />
+          <span className="font-sans font-700 text-[11px] tracking-[0.28em] uppercase text-white">
+            Coming Soon
+          </span>
         </span>
 
-        <span className="hidden sm:block w-px h-4 bg-[#e0d0f0]" />
+        <span className="hidden sm:block w-px h-4 bg-white/20" />
 
         {/* Offer */}
-        <span className="font-body text-[13px] text-[#444]">
+        <span className="font-body text-[13px] text-white/70">
           First{' '}
-          <strong className="font-800" style={{ color: BLACK }}>100</strong>
+          <strong className="font-800 text-white">100</strong>
           {' '}founders get{' '}
-          <strong className="font-800 text-[15px]" style={{ color: BLACK }}>70% OFF</strong>
+          <strong
+            className="font-800 text-[16px] px-2 py-0.5 rounded-md mx-0.5"
+            style={{ background: '#C62828', color: '#fff' }}>
+            30% OFF
+          </strong>
           {' '}their first month
         </span>
 
-        <span className="hidden sm:block w-px h-4 bg-[#e0d0f0]" />
+        <span className="hidden sm:block w-px h-4 bg-white/20" />
 
         {/* Timer */}
         <span className="flex items-center gap-1.5 font-sans font-700 text-[13px] tabular-nums">
           {[{v:timer.d,l:'d'},{v:timer.h,l:'h'},{v:timer.m,l:'m'},{v:timer.s,l:'s'}].map(({v,l},i)=>(
             <span key={l} className="flex items-center gap-1">
-              <span style={{ color: i % 2 === 0 ? BLACK : BLACK }}>{pad(v)}</span>
-              <span className="text-[10px] text-[#bbb] font-400">{l}</span>
-              {i<3 && <span className="text-[#ddd] mx-0.5">:</span>}
+              <span className="text-[#C62828]">{pad(v)}</span>
+              <span className="text-[10px] text-white/40 font-400">{l}</span>
+              {i<3 && <span className="text-white/25 mx-0.5">:</span>}
             </span>
           ))}
         </span>
 
-        <span className="hidden sm:block w-px h-4 bg-[#e0d0f0]" />
+        <span className="hidden sm:block w-px h-4 bg-white/20" />
 
         {/* CTA pill */}
         <span
-          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white font-sans font-700 text-[11px] tracking-[0.15em] uppercase group-hover:opacity-85 transition-opacity"
-          style={{ background: BLACK }}
+          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-sans font-700 text-[11px] tracking-[0.15em] uppercase transition-all duration-200 group-hover:scale-105"
+          style={{ background: '#C62828', color: '#fff', boxShadow: '0 0 16px rgba(198,40,40,0.5)' }}
         >
           Pre-order <span className="group-hover:translate-x-0.5 transition-transform duration-200">→</span>
         </span>
