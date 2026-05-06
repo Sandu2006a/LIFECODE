@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  RefreshControl, ActivityIndicator,
+  RefreshControl, ActivityIndicator, Modal, TextInput,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
@@ -10,7 +11,7 @@ import MultiRing from '../../src/components/MultiRing';
 import GradientText from '../../src/components/GradientText';
 import { colors, fonts, radii, gradients } from '../../src/theme';
 import { lastNDays, shortDayLabel, localDateString } from '../../src/lib/dates';
-import { logIntake, getState, scanMeal } from '../../src/lib/api';
+import { logIntake, getState, scanMeal, logMeal } from '../../src/lib/api';
 import {
   fetchProtocol, getCachedProtocol, setCachedProtocol,
   computeFallbackProtocol, profileFromState, applyLiveIntake, pakSummary,
@@ -51,8 +52,16 @@ export default function HomeScreen() {
   const [packError, setPackError] = useState('');
   const [protocol, setProtocol] = useState<NutrientRow[]>([]);
   const [scanning, setScanning] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [scanError, setScanError] = useState('');
+
+  // Confirm modal state
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmDesc, setConfirmDesc] = useState('');
+  const [confirmQty, setConfirmQty] = useState('');
+  const [confirmLabelNutrients, setConfirmLabelNutrients] = useState<Record<string, number> | null>(null);
+  const [confirmIsLabel, setConfirmIsLabel] = useState(false);
 
   const today = new Date();
   const dateLabel = `${DAYS_SHORT[today.getDay()]} · ${MONTHS[today.getMonth()]} ${today.getDate()}`;
@@ -176,7 +185,6 @@ export default function HomeScreen() {
     try {
       const perm = await ImagePicker.requestCameraPermissionsAsync();
       if (!perm.granted) {
-        // Fall back to library if camera denied
         const libPerm = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!libPerm.granted) {
           setScanError('Camera/photo permission denied.');
@@ -199,49 +207,70 @@ export default function HomeScreen() {
         setScanError(`Scan failed: ${resp.error}`);
         return;
       }
-      // Build gain chips by mapping nutrient ids to category
-      const gains: ScanResult['gains'] = [];
-      const idMap: Record<string, 'morning' | 'essentials' | 'recovery'> = {};
-      for (const r of protocol) {
-        if (r.inMorning) idMap[r.id] = 'morning';
-        else if (r.inEssentials) idMap[r.id] = 'essentials';
-        else if (r.inRecovery) idMap[r.id] = 'recovery';
-      }
-      const labelMap: Record<string, string> = {
-        vitamin_a: 'Vit A', vitamin_c: 'Vit C', vitamin_d3: 'Vit D3',
-        vitamin_e: 'Vit E', vitamin_k2: 'Vit K2', vitamin_b12: 'B12',
-        vitamin_b6: 'B6', folate: 'Folate', b_complex: 'B-Complex',
-        zinc: 'Zinc', copper: 'Cu', magnesium: 'Mg', selenium: 'Se',
-        iron: 'Iron', calcium: 'Ca', omega_3: 'Omega-3', potassium: 'K+',
-        iodine: 'Iodine', sodium: 'Na', coq10: 'CoQ10', choline: 'Choline',
-        eaa: 'EAA', creatine: 'Creatine', glutamine: 'Glutamine',
-      };
-      const unitMap: Record<string, string> = {
-        vitamin_a: 'μg', vitamin_c: 'mg', vitamin_d3: 'μg', vitamin_e: 'mg',
-        vitamin_k2: 'μg', vitamin_b12: 'μg', vitamin_b6: 'mg', folate: 'μg',
-        b_complex: '%', zinc: 'mg', copper: 'mg', magnesium: 'mg',
-        selenium: 'μg', iron: 'mg', calcium: 'mg', omega_3: 'mg',
-        potassium: 'mg', iodine: 'μg', sodium: 'mg', coq10: 'mg',
-        choline: 'mg', eaa: 'mg', creatine: 'mg', glutamine: 'mg',
-      };
-      const top = Object.entries(resp.nutrients || {})
-        .map(([k, v]) => [k, Number(v) || 0] as [string, number])
-        .filter(([, v]) => v > 0)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 4);
-      for (const [k, v] of top) {
-        gains.push({
-          name: labelMap[k] || k,
-          value: `+${Math.round(v)}${unitMap[k] || ''}`,
-          kind: idMap[k] || 'essentials',
-        });
-      }
-      setScanResult({ meal: resp.meal || 'Scanned meal', quantity_g: resp.quantity_g || 100, gains });
-      await loadData();
+      // Open confirm modal — let user edit description before nutrients are calculated
+      setConfirmDesc(resp.description || '');
+      setConfirmQty(String(resp.quantity_g || 100));
+      setConfirmIsLabel(!!resp.isNutritionLabel);
+      setConfirmLabelNutrients(resp.labelNutrients || null);
+      setConfirmOpen(true);
     } catch (e: any) {
       setScanning(false);
       setScanError(e?.message || 'Scan error.');
     }
+  };
+
+  const submitConfirm = async () => {
+    const desc = confirmDesc.trim();
+    if (!desc) { setScanError('Description cannot be empty.'); return; }
+    const qty = parseInt(confirmQty) || 100;
+    setConfirming(true);
+    setScanError('');
+    // If label and we already have nutrients parsed → pass them; otherwise let backend re-analyze the text
+    const nutrients = confirmIsLabel && confirmLabelNutrients ? confirmLabelNutrients : undefined;
+    const result = await logMeal(desc, qty, nutrients);
+    setConfirming(false);
+    if (!result.ok) {
+      setScanError(`Save failed: ${result.error}`);
+      return;
+    }
+    // Build gain chips
+    const idMap: Record<string, 'morning' | 'essentials' | 'recovery'> = {};
+    for (const r of protocol) {
+      if (r.inMorning) idMap[r.id] = 'morning';
+      else if (r.inEssentials) idMap[r.id] = 'essentials';
+      else if (r.inRecovery) idMap[r.id] = 'recovery';
+    }
+    const labelMap: Record<string, string> = {
+      vitamin_a: 'Vit A', vitamin_c: 'Vit C', vitamin_d3: 'Vit D3',
+      vitamin_e: 'Vit E', vitamin_k2: 'Vit K2', vitamin_b12: 'B12',
+      vitamin_b6: 'B6', folate: 'Folate', b_complex: 'B-Complex',
+      zinc: 'Zinc', copper: 'Cu', magnesium: 'Mg', selenium: 'Se',
+      iron: 'Iron', calcium: 'Ca', omega_3: 'Omega-3', potassium: 'K+',
+      iodine: 'Iodine', sodium: 'Na', coq10: 'CoQ10', choline: 'Choline',
+      eaa: 'EAA', creatine: 'Creatine', glutamine: 'Glutamine',
+    };
+    const unitMap: Record<string, string> = {
+      vitamin_a: 'μg', vitamin_c: 'mg', vitamin_d3: 'μg', vitamin_e: 'mg',
+      vitamin_k2: 'μg', vitamin_b12: 'μg', vitamin_b6: 'mg', folate: 'μg',
+      b_complex: '%', zinc: 'mg', copper: 'mg', magnesium: 'mg',
+      selenium: 'μg', iron: 'mg', calcium: 'mg', omega_3: 'mg',
+      potassium: 'mg', iodine: 'μg', sodium: 'mg', coq10: 'mg',
+      choline: 'mg', eaa: 'mg', creatine: 'mg', glutamine: 'mg',
+    };
+    const gainSource = result.nutrients || nutrients || {};
+    const top = Object.entries(gainSource)
+      .map(([k, v]) => [k, Number(v) || 0] as [string, number])
+      .filter(([, v]) => v > 0)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 4);
+    const gains: ScanResult['gains'] = top.map(([k, v]) => ({
+      name: labelMap[k] || k,
+      value: `+${Math.round(v)}${unitMap[k] || ''}`,
+      kind: idMap[k] || 'essentials',
+    }));
+    setScanResult({ meal: desc, quantity_g: qty, gains });
+    setConfirmOpen(false);
+    await loadData();
   };
 
   const firstName = displayName.split(' ')[0];
@@ -422,6 +451,59 @@ export default function HomeScreen() {
 
         </View>
       </ScrollView>
+
+      {/* Confirm/edit modal */}
+      <Modal visible={confirmOpen} transparent animationType="slide" onRequestClose={() => setConfirmOpen(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={s.modalRoot}>
+          <TouchableOpacity style={s.modalBackdrop} activeOpacity={1} onPress={() => !confirming && setConfirmOpen(false)} />
+          <View style={s.modalCard}>
+            <View style={s.modalHandle} />
+            <Text style={s.modalEyebrow}>{confirmIsLabel ? 'Nutrition label detected' : 'AI sees'}</Text>
+            <Text style={s.modalTitle}>Confirm what you ate</Text>
+            <Text style={s.modalHint}>Edit if needed, then continue. We'll calculate the micronutrients.</Text>
+
+            <View style={s.modalInputBox}>
+              <TextInput
+                style={s.modalInput}
+                value={confirmDesc}
+                onChangeText={setConfirmDesc}
+                multiline
+                placeholder="e.g. Grilled chicken breast with rice and broccoli"
+                placeholderTextColor={colors.ink3}
+                editable={!confirming}
+              />
+            </View>
+
+            <View style={s.modalQtyRow}>
+              <Text style={s.modalQtyLabel}>Portion size</Text>
+              <View style={s.modalQtyInputBox}>
+                <TextInput
+                  style={s.modalQtyInput}
+                  value={confirmQty}
+                  onChangeText={setConfirmQty}
+                  keyboardType="numeric"
+                  maxLength={5}
+                  editable={!confirming}
+                />
+                <Text style={s.modalQtyUnit}>g</Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={[s.modalBtn, { backgroundColor: confirming ? colors.ink4 : colors.ink }]}
+              onPress={submitConfirm}
+              disabled={confirming || !confirmDesc.trim()}
+            >
+              {confirming
+                ? <ActivityIndicator color="#fff" />
+                : <Text style={s.modalBtnText}>Continue · Calculate nutrients</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => !confirming && setConfirmOpen(false)} style={{ paddingVertical: 8 }}>
+              <Text style={s.modalCancel}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -491,4 +573,22 @@ const s = StyleSheet.create({
 
   errBanner: { backgroundColor: 'rgba(229,85,85,0.10)', borderWidth: 1, borderColor: 'rgba(229,85,85,0.35)', borderRadius: 12, padding: 12 },
   errBannerText: { fontFamily: fonts.sansMedium, fontSize: 13, color: '#c43030' },
+
+  modalRoot: { flex: 1, justifyContent: 'flex-end' },
+  modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)' },
+  modalCard: { backgroundColor: colors.surf, paddingHorizontal: 22, paddingTop: 14, paddingBottom: 28, borderTopLeftRadius: 26, borderTopRightRadius: 26, gap: 14 },
+  modalHandle: { alignSelf: 'center', width: 38, height: 4, borderRadius: 2, backgroundColor: 'rgba(13,13,15,0.18)', marginBottom: 6 },
+  modalEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, letterSpacing: 1.2, color: colors.ink3, textTransform: 'uppercase' },
+  modalTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.ink, marginTop: -4 },
+  modalHint: { fontFamily: fonts.sans, fontSize: 13, color: colors.ink3, marginTop: -8, lineHeight: 18 },
+  modalInputBox: { backgroundColor: 'rgba(13,13,15,0.04)', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: colors.line },
+  modalInput: { fontFamily: fonts.sans, fontSize: 15, color: colors.ink, minHeight: 56, lineHeight: 22, textAlignVertical: 'top' },
+  modalQtyRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, marginTop: 2 },
+  modalQtyLabel: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.ink2 },
+  modalQtyInputBox: { flexDirection: 'row', alignItems: 'baseline', backgroundColor: 'rgba(13,13,15,0.06)', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6 },
+  modalQtyInput: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.ink, minWidth: 50, textAlign: 'right' },
+  modalQtyUnit: { fontFamily: fonts.sans, fontSize: 14, color: colors.ink3, marginLeft: 4 },
+  modalBtn: { paddingVertical: 14, borderRadius: radii.pill, alignItems: 'center', marginTop: 6 },
+  modalBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: '#fff', letterSpacing: 0.4 },
+  modalCancel: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.ink3, textAlign: 'center' },
 });
