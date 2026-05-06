@@ -35,6 +35,18 @@ export default function Icon({ name, size = 20, color = '#0d0d0f', strokeWidth =
       return <Svg {...props}><Path {...sp} d="M6 9l6 6 6-6"/></Svg>;
     case 'chevron-right':
       return <Svg {...props}><Path {...sp} d="M9 6l6 6-6 6"/></Svg>;
+    case 'calendar':
+      return <Svg {...props}><Rect {...sp} x="3" y="4" width="18" height="18" rx="3"/><Path {...sp} d="M16 2v4M8 2v4M3 10h18"/></Svg>;
+    case 'dumbbell':
+      return <Svg {...props}><Path {...sp} d="M6 4h2v16H6zM16 4h2v16h-2zM8 8h8M8 16h8M2 8h4M18 8h4M2 16h4M18 16h4"/></Svg>;
+    case 'clock':
+      return <Svg {...props}><Circle {...sp} cx="12" cy="12" r="9"/><Path {...sp} d="M12 7v5l3 3"/></Svg>;
+    case 'pill':
+      return <Svg {...props}><Path {...sp} d="M9 3h6a6 6 0 0 1 0 12H9A6 6 0 0 1 9 3z"/><Path {...sp} d="M12 3v12"/></Svg>;
+    case 'check':
+      return <Svg {...props}><Path {...sp} d="M5 12l5 5L19 7"/></Svg>;
+    case 'trash':
+      return <Svg {...props}><Path {...sp} d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></Svg>;
     default:
       return null;
   }
