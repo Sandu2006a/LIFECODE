@@ -196,7 +196,7 @@ export default function ComparisonSection() {
       <div className="max-w-[1440px] mx-auto">
 
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-px w-5" style={{ background: RED }} />
+          <div className="h-px w-5 bg-[#222]" />
           <span className="font-body text-[14px] tracking-widest3 text-[#999] uppercase">The comparison</span>
         </div>
 
@@ -226,10 +226,9 @@ export default function ComparisonSection() {
               <tr>
                 <th className="text-left pb-5 pr-4 font-body text-[13px] tracking-widest text-[#ccc] uppercase font-400 w-[28%]"></th>
                 <th className="pb-5 px-4 w-[24%]">
-                  <div className="cs-col opacity-0" style={{ padding: '1.5px', borderRadius: '12px', background: RED }}>
+                  <div className="cs-col opacity-0" style={{ padding: '1.5px', borderRadius: '12px', background: '#0a0a0a' }}>
                     <div className="bg-white py-3 px-4 rounded-[10.5px] text-center">
-                      <p className="font-sans font-700 text-sm tracking-tight"
-                        style={{ color: RED }}>LIFECODE</p>
+                      <p className="font-sans font-700 text-sm tracking-tight text-[#0a0a0a]">LIFECODE</p>
                       <p className="font-body text-[13px] tracking-widest text-[#ccc] uppercase mt-0.5">System</p>
                     </div>
                   </div>
@@ -256,7 +255,7 @@ export default function ComparisonSection() {
                   </td>
                   <td className="py-5 px-4">
                     <div className="flex items-start gap-2">
-                      <div className="flex-shrink-0 mt-[5px] w-1.5 h-1.5 rounded-full" style={{ background: RED }} />
+                      <div className="flex-shrink-0 mt-[5px] w-1.5 h-1.5 rounded-full bg-[#0a0a0a]" />
                       <p className="font-sans font-600 text-[#222] text-[17px] leading-snug">{row.lifecode}</p>
                     </div>
                   </td>
@@ -275,8 +274,8 @@ export default function ComparisonSection() {
         {/* The LIFECODE Advantage blocks */}
         <div className="adv-blocks">
           <div className="flex items-center gap-3 mb-6">
-            <div className="h-px w-5" style={{ background: RED }} />
-            <span className="font-body text-[10px] tracking-[0.32em] uppercase font-700" style={{ color: RED }}>
+            <div className="h-px w-5 bg-[#222]" />
+            <span className="font-body text-[10px] tracking-[0.32em] uppercase font-700 text-[#444]">
               Ingredient breakdown
             </span>
           </div>
@@ -285,7 +284,7 @@ export default function ComparisonSection() {
             style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3.4rem)' }}
           >
             Not just what&apos;s in it —<br />
-            <span style={{ color: PURPLE }}>
+            <span style={{ color: '#0a0a0a' }}>
               why every ingredient is different.
             </span>
           </h3>
@@ -314,7 +313,7 @@ export default function ComparisonSection() {
           <Link
             href="/lifecode-comparison"
             className="inline-flex items-center gap-3 px-8 py-4 rounded-full font-sans font-700 text-[12px] tracking-widest uppercase text-white transition-opacity duration-300 hover:opacity-85"
-            style={{ background: RED }}
+            style={{ background: '#0a0a0a' }}
           >
             See Full Ingredient Comparison
             <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">

@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const RED    = '#C62828';
-const PURPLE = '#7C3AED';
+const BLACK  = '#0a0a0a';
 const PROMO  = 'LC70X';
 const LAUNCH = new Date('2026-08-03T00:00:00');
 const SPOTS  = 100;
@@ -36,7 +35,7 @@ function TimeUnit({ value, label }) {
     <div className="flex flex-col items-center gap-1.5">
       <div
         className="w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center font-sans font-700 text-xl md:text-2xl text-white tabular-nums"
-        style={{ background: RED }}
+        style={{ background: BLACK }}
       >
         {String(value).padStart(2, '0')}
       </div>
@@ -81,10 +80,10 @@ function SuccessCard({ email, already }) {
         <p className="font-body font-300 text-[#666] text-[14px] leading-relaxed mt-3 max-w-[440px] mx-auto">
           We just sent a confirmation to <span className="font-700 text-[#0a0a0a]">{email}</span>.
         </p>
-        <div className="mt-5 inline-block" style={{ padding: '1.5px', borderRadius: '14px', background: RED }}>
+        <div className="mt-5 inline-block" style={{ padding: '1.5px', borderRadius: '14px', background: BLACK }}>
           <div className="bg-white px-7 py-4 text-center" style={{ borderRadius: '12.5px' }}>
             <p className="font-body text-[9px] tracking-[0.28em] uppercase text-[#888] mb-1.5">Your exclusive promo code</p>
-            <p className="font-sans font-700 text-[26px] tracking-[0.22em]" style={{ color: RED }}>
+            <p className="font-sans font-700 text-[26px] tracking-[0.22em]" style={{ color: BLACK }}>
               {PROMO}
             </p>
             <p className="font-body text-[11px] text-[#aaa] mt-1">70% off your first month · Apply at checkout</p>
@@ -145,11 +144,11 @@ export default function PreOrderSection() {
       <div className="max-w-[920px] mx-auto text-center">
 
         <div className="po-rise inline-flex items-center gap-3 mb-6 opacity-0">
-          <div className="w-5 h-px" style={{ background: RED }} />
-          <span className="font-body text-[10px] tracking-[0.32em] uppercase font-600" style={{ color: RED }}>
+          <div className="w-5 h-px" style={{ background: BLACK }} />
+          <span className="font-body text-[10px] tracking-[0.32em] uppercase font-600" style={{ color: BLACK }}>
             Founders list · Pre-order opens soon
           </span>
-          <div className="w-5 h-px" style={{ background: PURPLE }} />
+          <div className="w-5 h-px" style={{ background: BLACK }} />
         </div>
 
         {/* Countdown timer */}
@@ -166,7 +165,7 @@ export default function PreOrderSection() {
         <h2 className="po-rise font-sans font-700 text-[#0a0a0a] leading-[0.92] tracking-tight opacity-0 mx-auto"
           style={{ fontSize: 'clamp(2.6rem, 6vw, 5.6rem)' }}>
           The protocol drops soon.<br/>
-          <span style={{ color: PURPLE }}>
+          <span style={{ color: BLACK }}>
             Be the first to get it.
           </span>
         </h2>
@@ -174,7 +173,7 @@ export default function PreOrderSection() {
         <p className="po-rise font-body font-300 text-[#666] text-base md:text-[17px] leading-relaxed max-w-[620px] mx-auto mt-7 opacity-0">
           Drop your email to join the founders list. You&apos;ll be the
           <span className="font-700 text-[#0a0a0a]"> first to pre-order</span>,
-          lock in <span className="font-700" style={{ color: RED }}>founder pricing</span>,
+          lock in <span className="font-700" style={{ color: BLACK }}>founder pricing</span>,
           and ship before the public release.
         </p>
 
@@ -183,7 +182,7 @@ export default function PreOrderSection() {
             <SuccessCard email={email} already={status === 'already'} />
           ) : (
             <form onSubmit={onSubmit}>
-              <div className="flex flex-col sm:flex-row gap-2 p-[1.5px] rounded-full" style={{ background: RED }}>
+              <div className="flex flex-col sm:flex-row gap-2 p-[1.5px] rounded-full" style={{ background: BLACK }}>
                 <input type="email" required inputMode="email" autoComplete="email"
                   disabled={status === 'loading'}
                   placeholder="your@email.com"
@@ -193,7 +192,7 @@ export default function PreOrderSection() {
                 />
                 <button type="submit" disabled={status === 'loading'}
                   className="relative overflow-hidden rounded-full px-7 py-4 text-white font-sans font-700 text-[12px] tracking-[0.18em] uppercase transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_10px_30px_rgba(198,40,40,0.35)] disabled:opacity-80 whitespace-nowrap group"
-                  style={{ background: RED }}>
+                  style={{ background: BLACK }}>
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {status === 'loading' ? (
                       <>
@@ -211,7 +210,7 @@ export default function PreOrderSection() {
                     style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)' }} />
                 </button>
               </div>
-              {status === 'error' && <p className="mt-3 font-body text-[13px]" style={{ color: RED }}>{errorMsg}</p>}
+              {status === 'error' && <p className="mt-3 font-body text-[13px]" style={{ color: BLACK }}>{errorMsg}</p>}
               <p className="mt-3 font-body text-[11px] text-[#aaa] tracking-wide">
                 Subscribe now to get your promo · No spam · One email when we launch
               </p>
@@ -221,9 +220,9 @@ export default function PreOrderSection() {
 
         <div className="po-rise grid grid-cols-1 sm:grid-cols-3 gap-3 mt-12 opacity-0 max-w-[720px] mx-auto">
           {[
-            { tag: '70%', label: 'Off first month',  sub: 'first 100 founders only', color: RED },
-            { tag: '1ST', label: 'Priority shipping', sub: 'before everyone else',    color: PURPLE },
-            { tag: '$0',  label: 'No payment now',    sub: 'just your email',         color: RED },
+            { tag: '70%', label: 'Off first month',  sub: 'first 100 founders only', color: BLACK },
+            { tag: '1ST', label: 'Priority shipping', sub: 'before everyone else',    color: BLACK },
+            { tag: '$0',  label: 'No payment now',    sub: 'just your email',         color: BLACK },
           ].map((p) => (
             <div key={p.label} className="rounded-xl border border-[#efe9f5] bg-white px-4 py-4 text-left">
               <span className="font-sans font-800 text-xl tabular-nums" style={{ color: p.color }}>
@@ -241,13 +240,13 @@ export default function PreOrderSection() {
             <span className="font-body text-[12px] text-[#888]">
               <span className="font-700 text-[#0a0a0a]">{SPOTS}</span> of {TOTAL} founder spots remaining
             </span>
-            <span className="font-body text-[12px] font-700" style={{ color: RED }}>{taken} taken</span>
+            <span className="font-body text-[12px] font-700" style={{ color: BLACK }}>{taken} taken</span>
           </div>
           <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
-            <div className="h-full rounded-full" style={{ width: `${pct}%`, background: RED }} />
+            <div className="h-full rounded-full" style={{ width: `${pct}%`, background: BLACK }} />
           </div>
           <p className="mt-2 font-body text-[11px] text-[#bbb] tracking-wide">
-            First 100 get <span className="font-700" style={{ color: RED }}>70% off</span> for the first month
+            First 100 get <span className="font-700" style={{ color: BLACK }}>70% off</span> for the first month
           </p>
         </div>
 

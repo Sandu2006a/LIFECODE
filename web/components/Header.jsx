@@ -22,8 +22,7 @@ function useBannerTimer() {
   return t;
 }
 
-const RED    = '#C62828';
-const PURPLE = '#7C3AED';
+const BLACK  = '#0a0a0a';
 
 export default function Header() {
   const headerRef = useRef(null);
@@ -113,7 +112,7 @@ export default function Header() {
         {/* Wordmark */}
         <Link href="/"
           className="font-sans font-700 tracking-[0.32em] uppercase select-none transition-opacity duration-300 hover:opacity-80"
-          style={{ fontSize: '1.05rem', color: RED }}>
+          style={{ fontSize: '1.05rem', color: BLACK }}>
           LIFECODE
         </Link>
 
@@ -131,10 +130,10 @@ export default function Header() {
             return (
               <Link key={label} href={href}
                 className="relative font-sans font-600 text-[11px] tracking-[0.18em] uppercase transition-all duration-300 group"
-                style={{ color: isActive ? RED : '#444' }}>
+                style={{ color: isActive ? BLACK : '#444' }}>
                 {label}
                 <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 group-hover:w-full transition-all duration-300 rounded-full"
-                  style={{ background: RED }} />
+                  style={{ background: BLACK }} />
               </Link>
             );
           })}
@@ -147,7 +146,7 @@ export default function Header() {
               <button onClick={() => setMenuOpen(v => !v)}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#e8e8e8] hover:border-[#ccc] transition-all duration-200 bg-white">
                 <span className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-sans font-700 flex-shrink-0"
-                  style={{ background: RED }}>{initial}</span>
+                  style={{ background: BLACK }}>{initial}</span>
                 <span className="font-sans font-600 text-[12px] text-[#222]">{firstName}</span>
                 <svg width="9" height="5" viewBox="0 0 10 6" fill="none" className={`transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`}>
                   <path d="M1 1l4 4 4-4" stroke="#999" strokeWidth="1.5" strokeLinecap="round"/>
@@ -170,7 +169,7 @@ export default function Header() {
               </Link>
               <Link href="/pricing"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-white font-body text-[12px] tracking-widest uppercase transition-all duration-300 hover:opacity-85"
-                style={{ background: RED }}>
+                style={{ background: BLACK }}>
                 Get Started
               </Link>
             </>
@@ -190,9 +189,9 @@ export default function Header() {
       >
         {/* Pulse + label */}
         <span className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: RED }} />
+          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: BLACK }} />
           <span className="font-sans font-700 text-[11px] tracking-[0.28em] uppercase"
-            style={{ color: RED }}>Coming Soon</span>
+            style={{ color: BLACK }}>Coming Soon</span>
         </span>
 
         <span className="hidden sm:block w-px h-4 bg-[#e0d0f0]" />
@@ -200,9 +199,9 @@ export default function Header() {
         {/* Offer */}
         <span className="font-body text-[13px] text-[#444]">
           First{' '}
-          <strong className="font-800" style={{ color: PURPLE }}>100</strong>
+          <strong className="font-800" style={{ color: BLACK }}>100</strong>
           {' '}founders get{' '}
-          <strong className="font-800 text-[15px]" style={{ color: RED }}>70% OFF</strong>
+          <strong className="font-800 text-[15px]" style={{ color: BLACK }}>70% OFF</strong>
           {' '}their first month
         </span>
 
@@ -212,7 +211,7 @@ export default function Header() {
         <span className="flex items-center gap-1.5 font-sans font-700 text-[13px] tabular-nums">
           {[{v:timer.d,l:'d'},{v:timer.h,l:'h'},{v:timer.m,l:'m'},{v:timer.s,l:'s'}].map(({v,l},i)=>(
             <span key={l} className="flex items-center gap-1">
-              <span style={{ color: i % 2 === 0 ? RED : PURPLE }}>{pad(v)}</span>
+              <span style={{ color: i % 2 === 0 ? BLACK : BLACK }}>{pad(v)}</span>
               <span className="text-[10px] text-[#bbb] font-400">{l}</span>
               {i<3 && <span className="text-[#ddd] mx-0.5">:</span>}
             </span>
@@ -224,7 +223,7 @@ export default function Header() {
         {/* CTA pill */}
         <span
           className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white font-sans font-700 text-[11px] tracking-[0.15em] uppercase group-hover:opacity-85 transition-opacity"
-          style={{ background: RED }}
+          style={{ background: BLACK }}
         >
           Pre-order <span className="group-hover:translate-x-0.5 transition-transform duration-200">→</span>
         </span>

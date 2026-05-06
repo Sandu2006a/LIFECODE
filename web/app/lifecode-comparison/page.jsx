@@ -149,16 +149,15 @@ export default function ComparisonPage() {
           style={{ background: 'linear-gradient(180deg, #F8F5FF 0%, #fff 80%)' }}>
           <div className="max-w-[1200px] mx-auto">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-5 h-[1.5px]" style={{ background: RED }} />
-              <span className="font-body text-[11px] tracking-[0.32em] uppercase"
-                style={{ color: RED }}>
+              <div className="w-5 h-[1.5px] bg-[#222]" />
+              <span className="font-body text-[11px] tracking-[0.32em] uppercase text-[#444]">
                 The Full Comparison
               </span>
             </div>
             <h1 className="font-sans font-700 text-[#111] leading-[0.92] tracking-tight mb-6"
               style={{ fontSize: 'clamp(2.8rem, 7vw, 6rem)' }}>
               LIFECODE<br />
-              <span style={{ color: PURPLE }}>
+              <span style={{ color: '#0a0a0a' }}>
                 Comparison
               </span>
             </h1>
@@ -301,14 +300,14 @@ export default function ComparisonPage() {
             <h2 className="font-sans font-700 text-[#111] tracking-tight leading-[0.92] mb-6"
               style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
               Ready to upgrade<br />
-              <span style={{ color: PURPLE }}>
+              <span style={{ color: '#0a0a0a' }}>
                 your protocol?
               </span>
             </h2>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/pricing"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-white font-sans font-700 text-[12px] tracking-widest uppercase hover:opacity-85 transition-opacity duration-300"
-                style={{ background: RED }}>
+                style={{ background: '#0a0a0a' }}>
                 Get Started
               </Link>
               <Link href="/"

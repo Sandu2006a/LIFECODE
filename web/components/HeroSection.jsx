@@ -5,8 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { gsap } from 'gsap';
 
-const RED    = '#C62828';
-const PURPLE = '#7C3AED';
+const BLACK  = '#0a0a0a';
 
 export default function HeroSection() {
   useEffect(() => {
@@ -23,16 +22,16 @@ export default function HeroSection() {
 
       {/* Background glows — left side only */}
       <div className="pointer-events-none absolute top-[10%] left-[-8%] w-[40vw] h-[60vh] opacity-[0.07]"
-        style={{ background: 'linear-gradient(135deg, #C62828, #7C3AED)', filter: 'blur(90px)', borderRadius: '50%' }} />
-      <div className="pointer-events-none absolute bottom-[0%] left-[5%] w-[25vw] h-[35vh] opacity-[0.05]"
-        style={{ background: 'linear-gradient(135deg, #FFD54F, #C62828)', filter: 'blur(70px)', borderRadius: '50%' }} />
+        style={{ background: BLACK, filter: 'blur(90px)', borderRadius: '50%' }} />
+      <div className="pointer-events-none absolute bottom-[0%] left-[5%] w-[25vw] h-[35vh] opacity-[0.04]"
+        style={{ background: BLACK, filter: 'blur(70px)', borderRadius: '50%' }} />
 
       <div className="relative z-10 max-w-[1440px] mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
 
         {/* Text */}
         <div className="flex flex-col gap-8">
           <div className="hs-tag flex items-center gap-3 opacity-0">
-            <div className="w-6 h-[1.5px]" style={{ background: RED }} />
+            <div className="w-6 h-[1.5px]" style={{ background: BLACK }} />
             <span className="font-body text-[14px] tracking-widest3 text-[#999] uppercase">Performance Nutrition System</span>
           </div>
 
@@ -42,7 +41,7 @@ export default function HeroSection() {
               Train harder.
             </h1>
             <h1 className="hs-h1 font-sans font-700 leading-[0.88] tracking-tight opacity-0"
-              style={{ fontSize: 'clamp(3.4rem, 7vw, 7.5rem)', color: RED }}>
+              style={{ fontSize: 'clamp(3.4rem, 7vw, 7.5rem)', color: BLACK }}>
               Recover faster.
             </h1>
             <h1 className="hs-h1 font-sans font-700 text-[#111] leading-[0.88] tracking-tight opacity-0"
@@ -59,7 +58,7 @@ export default function HeroSection() {
           <div className="hs-btm flex flex-wrap items-center gap-4 opacity-0">
             <Link href="/pricing"
               className="inline-flex items-center gap-3 px-7 py-3.5 rounded-full text-white font-sans font-600 text-[13px] tracking-widest uppercase group hover:opacity-88 transition-opacity duration-300"
-              style={{ background: RED }}>
+              style={{ background: BLACK }}>
               <span>Start your protocol</span>
               <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
                 <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
@@ -76,7 +75,7 @@ export default function HeroSection() {
             {[['2', 'Formulas'], ['21', 'Compounds'], ['0', 'Fillers']].map(([v, l], i) => (
               <div key={l}>
                 <p className="font-sans font-700 text-[2rem] leading-none"
-                  style={{ color: i % 2 === 0 ? RED : PURPLE }}>{v}</p>
+                  style={{ color: i % 2 === 0 ? BLACK : BLACK }}>{v}</p>
                 <p className="font-body text-[12px] tracking-widest text-[#ccc] uppercase mt-1">{l}</p>
               </div>
             ))}

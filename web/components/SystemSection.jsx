@@ -25,7 +25,7 @@ const BLOCKS = [
     tag: '24/7 · AI App',
     title: 'Biology tracked.',
     body: 'Log meals. Track micronutrients in real time. Get protocol advice built around your actual biology.',
-    color: RED,
+    color: '#0a0a0a',
   },
 ];
 
@@ -55,9 +55,9 @@ export default function SystemSection() {
 
         <div className="text-center mb-10">
           <div className="ss-text flex items-center justify-center gap-3 mb-6 opacity-0">
-            <div className="h-px w-5" style={{ background: RED }} />
+            <div className="h-px w-5 bg-[#222]" />
             <span className="font-body text-[9px] tracking-widest3 text-[#999] uppercase">The solution</span>
-            <div className="h-px w-5" style={{ background: PURPLE }} />
+            <div className="h-px w-5 bg-[#222]" />
           </div>
           <h2
             className="ss-text font-sans font-700 text-[#111] tracking-tight leading-[0.92] opacity-0"

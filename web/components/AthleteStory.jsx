@@ -5,8 +5,7 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const RED    = '#C62828';
-const PURPLE = '#7C3AED';
+const BLACK  = '#0a0a0a';
 
 export default function AthleteStory() {
   const sectionRef = useRef(null);
@@ -35,7 +34,7 @@ export default function AthleteStory() {
           {/* Left — Story */}
           <div>
             <div className="as-el flex items-center gap-3 mb-8 opacity-0">
-              <div className="w-5 h-[1.5px]" style={{ background: RED }} />
+              <div className="w-5 h-[1.5px]" style={{ background: BLACK }} />
               <span className="font-body text-[9px] tracking-widest3 text-[#999] uppercase">The story</span>
             </div>
 
@@ -44,7 +43,7 @@ export default function AthleteStory() {
               style={{ fontSize: 'clamp(2.2rem, 4.5vw, 4.8rem)' }}
             >
               Built by athletes.<br />
-              <span style={{ color: RED }}>
+              <span style={{ color: BLACK }}>
                 For athletes.
               </span>
             </h2>
@@ -67,7 +66,7 @@ export default function AthleteStory() {
             <Link
               href="/about"
               className="as-el opacity-0 inline-flex items-center gap-3 px-7 py-3.5 rounded-full text-white font-sans font-600 text-[11px] tracking-widest uppercase hover:opacity-88 transition-all duration-300 hover:scale-[1.02] group"
-              style={{ background: RED }}
+              style={{ background: BLACK }}
             >
               <span>Meet the team</span>
               <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
@@ -84,12 +83,12 @@ export default function AthleteStory() {
             {/* Pull quote */}
             <div
               className="as-el opacity-0 p-px"
-              style={{ borderRadius: '20px', background: RED }}
+              style={{ borderRadius: '20px', background: BLACK }}
             >
               <div className="bg-white p-8 md:p-10" style={{ borderRadius: '18.5px' }}>
                 <svg width="28" height="20" viewBox="0 0 28 20" fill="none" className="mb-5">
                   <path d="M0 20V12C0 8.667 0.833 5.833 2.5 3.5 4.167 1.167 6.5 0 9.5 0l1 2C8.833 2.667 7.5 3.833 6.5 5.5 5.5 7.167 5 9 5 11h4v9H0zm15 0V12c0-3.333.833-6.167 2.5-8.5C19.167 1.167 21.5 0 24.5 0l1 2c-1.667.667-3 1.833-4 3.5-1 1.667-1.5 3.5-1.5 5.5h4v9H15z"
-                    fill="#C62828"/>
+                    fill="#0a0a0a"/>
                 </svg>
                 <p className="font-sans font-600 text-[#222] text-base md:text-lg leading-relaxed tracking-tight mb-6">
                   &ldquo;Every product we tried was made for general health. We needed performance.
@@ -105,7 +104,7 @@ export default function AthleteStory() {
             <div className="as-el opacity-0 flex items-center gap-5">
               <div className="flex-shrink-0">
                 <p className="font-sans font-800 leading-none"
-                  style={{ fontSize: 'clamp(3rem, 6vw, 5rem)', color: RED }}>
+                  style={{ fontSize: 'clamp(3rem, 6vw, 5rem)', color: BLACK }}>
                   12+
                 </p>
               </div>

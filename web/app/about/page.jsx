@@ -30,9 +30,8 @@ function SolidText({ children, className = '', color }) {
 function Eyebrow({ children }) {
   return (
     <div className="inline-flex items-center gap-3 mb-6">
-      <span className="h-px w-8 flex-shrink-0" style={{ background: RED }} />
-      <span className="font-body text-[11px] tracking-[0.32em] uppercase"
-        style={{ color: RED }}>
+      <span className="h-px w-8 flex-shrink-0 bg-[#222]" />
+      <span className="font-body text-[11px] tracking-[0.32em] uppercase text-[#444]">
         {children}
       </span>
     </div>
@@ -118,11 +117,11 @@ export default function AboutPage() {
 
           <div data-h className="mt-20 flex items-center gap-3" style={{ color: `${INK2}60` }}>
             <span className="font-body text-[11px] tracking-[0.25em] uppercase">Scroll</span>
-            <span className="h-px w-16" style={{ background: RED }} />
+            <span className="h-px w-16 bg-[#444]" />
           </div>
         </section>
 
-        <div className="h-px" style={{ background: RED }} />
+        <div className="h-px bg-[#e8e8e8]" />
 
         {/* ─── THE PROBLEM ──────────────────────────────────────── */}
         <section className="py-16 px-8 md:px-16 max-w-[1200px] mx-auto">
@@ -198,7 +197,7 @@ export default function AboutPage() {
 
           <p data-s className="font-body text-[18px] max-w-2xl leading-relaxed" style={{ color: INK2 }}>
             The brands that don't lie cost €60–90 a product — and you still need four of them to run a real protocol.{' '}
-            <span className="font-700" style={{ color: RED }}>
+            <span className="font-700 text-[#0a0a0a]">
               So we stopped looking. We built it ourselves.
             </span>
           </p>
