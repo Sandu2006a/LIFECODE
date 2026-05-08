@@ -37,7 +37,7 @@ export default function Footer() {
               ['About',          '/about'],
               ['Privacy Policy', '/privacy'],
               ['Terms of Use',   '/terms'],
-              ['Contact',        '#'],
+              ['Contact',        '/contact'],
             ].map(([label, href]) => (
               <Link
                 key={label}

@@ -127,6 +127,7 @@ export default function Header() {
             ['Ingredients', '/ingredients'],
             ['Comparisons', '/lifecode-comparison'],
             ['About',       '/about'],
+            ['Contact',     '/contact'],
           ].map(([label, href]) => {
             const isActive = pathname === href;
             return (
