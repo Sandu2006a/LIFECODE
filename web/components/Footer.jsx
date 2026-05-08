@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import FooterDisclaimer from '@/components/legal/FooterDisclaimer';
 
 const BOX_G = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
 
@@ -30,11 +31,13 @@ export default function Footer() {
 
           <nav className="flex flex-wrap gap-x-10 gap-y-4">
             {[
-              ['Morning',     '/#morning'],
-              ['Recovery',    '/#recovery'],
-              ['Ingredients', '/ingredients'],
-              ['About',       '/about'],
-              ['Contact',     '#'],
+              ['Morning',        '/#morning'],
+              ['Recovery',       '/#recovery'],
+              ['Ingredients',    '/ingredients'],
+              ['About',          '/about'],
+              ['Privacy Policy', '/privacy'],
+              ['Terms of Use',   '/terms'],
+              ['Contact',        '#'],
             ].map(([label, href]) => (
               <Link
                 key={label}
@@ -52,6 +55,8 @@ export default function Footer() {
             &copy; {year} LIFECODE. All rights reserved.
           </p>
         </div>
+
+        <FooterDisclaimer />
 
       </div>
     </footer>

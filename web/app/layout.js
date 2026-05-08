@@ -1,5 +1,6 @@
 import { Space_Grotesk, DM_Sans } from 'next/font/google';
 import './globals.css';
+import CookieBanner from '@/components/legal/CookieBanner';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -31,6 +32,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${spaceGrotesk.variable} ${dmSans.variable}`}>
       <body className="bg-lc-white text-lc-maroon font-body antialiased">
         {children}
+        <CookieBanner />
       </body>
     </html>
   );

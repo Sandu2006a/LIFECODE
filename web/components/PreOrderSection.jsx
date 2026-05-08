@@ -212,8 +212,10 @@ export default function PreOrderSection() {
                 </button>
               </div>
               {status === 'error' && <p className="mt-3 font-body text-[13px]" style={{ color: '#E8445A' }}>{errorMsg}</p>}
-              <p className="mt-3 font-body text-[11px] text-[#aaa] tracking-wide">
-                Subscribe now to get your promo · No spam · One email when we launch
+              <p style={{ fontSize: '11px', color: '#8a8a8a', marginTop: '10px', textAlign: 'center', lineHeight: '1.5', maxWidth: '380px', margin: '10px auto 0' }}>
+                By joining, you agree to our{' '}
+                <a href="/privacy" style={{ color: '#8a8a8a', textDecoration: 'underline' }}>Privacy Policy</a>.
+                Your email is used only to notify you about the LIFECODE launch. No spam. Unsubscribe anytime. GDPR compliant.
               </p>
             </form>
           )}
