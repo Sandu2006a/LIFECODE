@@ -148,22 +148,26 @@ function PlanButton({ plan, gradient, label }) {
   }
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={status === 'loading'}
-      className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-white font-sans font-600 text-[14px] tracking-widest uppercase hover:opacity-88 transition-opacity mt-6 disabled:opacity-60"
-      style={{ background: gradient }}
-    >
-      <span>{status === 'loading' ? 'Sending...' : label}</span>
-      {status !== 'loading' && (
-        <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
-          <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-            <path d="M1.5 4h5M4 2L6 4l-2 2" stroke="white" strokeWidth="1.3" strokeLinecap="round"/>
-          </svg>
-        </span>
+    <div className="flex flex-col items-start gap-2 mt-6 w-full">
+      <button
+        onClick={handleClick}
+        disabled={status === 'loading'}
+        className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-white font-sans font-600 text-[14px] tracking-widest uppercase hover:opacity-88 transition-opacity disabled:opacity-60"
+        style={{ background: gradient }}
+      >
+        <span>{status === 'loading' ? 'Sending...' : label}</span>
+        {status !== 'loading' && (
+          <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+              <path d="M1.5 4h5M4 2L6 4l-2 2" stroke="white" strokeWidth="1.3" strokeLinecap="round"/>
+            </svg>
+          </span>
+        )}
+      </button>
+      {status === 'error' && (
+        <p className="font-body text-[13px] text-red-500 px-1">{errMsg || 'Something went wrong. Try again.'}</p>
       )}
-      {status === 'error' && <span className="text-red-200 text-[12px]">{errMsg || 'Error — try again'}</span>}
-    </button>
+    </div>
   );
 }
 

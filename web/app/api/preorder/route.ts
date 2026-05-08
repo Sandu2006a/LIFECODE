@@ -208,7 +208,7 @@ export async function POST(req: NextRequest) {
     // Send welcome email — capture error details so we can surface them
     let mailDebug: any = { sent: false };
     try {
-      const fromAddress = process.env.RESEND_FROM_EMAIL || 'LIFECODE <onboarding@resend.dev>';
+      const fromAddress = process.env.RESEND_FROM_EMAIL || 'LIFECODE <hello@lifecodenutrition.com>';
       const hasKey = !!process.env.RESEND_API_KEY;
       mailDebug.from = fromAddress;
       mailDebug.hasKey = hasKey;

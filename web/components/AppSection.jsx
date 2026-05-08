@@ -173,21 +173,23 @@ export default function AppSection() {
 
             {/* CTA under right features */}
             <div className="app-feat pt-4 opacity-0">
-              <Link
-                href="/pricing"
-                className="inline-flex items-center gap-4 px-8 py-3.5 rounded-full text-white font-sans font-600 text-[11px] tracking-widest uppercase hover:opacity-88 transition-opacity duration-300 group"
-                style={{ background: BOX_G }}
-              >
-                <span className="text-[14px]">Start your protocol</span>
-                <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
-                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
-                    <path d="M1.5 4.5h6M4.5 2L7 4.5 4.5 7" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
-                  </svg>
+              <div className="inline-flex items-center gap-3 px-6 py-3.5 rounded-full border-2"
+                style={{ borderColor: '#FF8A00', background: 'linear-gradient(135deg, #FFF9F5, #FAF7FF)' }}>
+                <span className="w-2 h-2 rounded-full animate-pulse flex-shrink-0" style={{ background: '#FF8A00' }} />
+                <span className="font-sans font-700 text-[13px] tracking-[0.18em] uppercase bg-clip-text text-transparent"
+                  style={{ backgroundImage: BOX_G }}>
+                  Coming Soon
                 </span>
-              </Link>
-              <p className="font-body text-[14px] text-[#ccc] tracking-widest uppercase mt-4">
-                Free to start · Available immediately after signup
+              </div>
+              <p className="font-body text-[13px] text-[#bbb] tracking-wide mt-4">
+                App launches with the product · iOS & Android
               </p>
+              <Link href="/#preorder"
+                className="inline-flex items-center gap-2 mt-3 font-body text-[12px] tracking-widest uppercase group"
+                style={{ color: '#FF8A00' }}>
+                Join the waitlist
+                <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
+              </Link>
             </div>
           </div>
 
