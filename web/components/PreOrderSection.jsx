@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #E53E3E 100%)';
-const HEAT_G = 'linear-gradient(90deg, #FF8A00, #E53E3E)';
+const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
+const HEAT_G = 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)';
 const PROMO  = 'LC70X';
 const LAUNCH = new Date('2026-08-03T00:00:00');
 const SPOTS  = 100;
@@ -140,13 +140,20 @@ export default function PreOrderSection() {
   const pct   = (taken / TOTAL) * 100;
 
   return (
-    <section ref={sectionRef} id="preorder" className="py-16 md:py-24 px-6 md:px-16"
-      style={{ background: 'linear-gradient(180deg, #FFF9F5 0%, #ffffff 55%, #F8F5FF 100%)' }}>
-      <div className="max-w-[920px] mx-auto text-center">
+    <section ref={sectionRef} id="preorder" className="relative py-16 md:py-24 px-6 md:px-16 overflow-hidden"
+      style={{ background: '#0a0a0a' }}>
+
+      {/* Background glows */}
+      <div className="pointer-events-none absolute top-[-10%] left-[-5%] w-[40vw] h-[50vh] opacity-[0.12]"
+        style={{ background: 'linear-gradient(135deg, #FF8A00, #C62828)', filter: 'blur(100px)', borderRadius: '50%' }} />
+      <div className="pointer-events-none absolute bottom-[-10%] right-[-5%] w-[35vw] h-[45vh] opacity-[0.10]"
+        style={{ background: 'linear-gradient(135deg, #7C3AED, #1D4ED8)', filter: 'blur(100px)', borderRadius: '50%' }} />
+
+      <div className="relative z-10 max-w-[920px] mx-auto text-center">
 
         <div className="po-rise inline-flex items-center gap-3 mb-6 opacity-0">
           <div className="w-5 h-px" style={{ background: HEAT_G }} />
-          <span className="font-body text-[10px] tracking-[0.32em] uppercase font-600" style={{ color: '#C62828' }}>
+          <span className="font-body text-[10px] tracking-[0.32em] uppercase font-600" style={{ color: '#FF8A00' }}>
             Founders list · Pre-order opens soon
           </span>
           <div className="w-5 h-px" style={{ background: HEAT_G }} />
@@ -163,7 +170,7 @@ export default function PreOrderSection() {
           <TimeUnit value={secs}  label="Sec" />
         </div>
 
-        <h2 className="po-rise font-sans font-700 text-[#0a0a0a] leading-[0.92] tracking-tight opacity-0 mx-auto"
+        <h2 className="po-rise font-sans font-700 text-white leading-[0.92] tracking-tight opacity-0 mx-auto"
           style={{ fontSize: 'clamp(2.6rem, 6vw, 5.6rem)' }}>
           The protocol drops soon.<br/>
           <span className="bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>
@@ -171,10 +178,10 @@ export default function PreOrderSection() {
           </span>
         </h2>
 
-        <p className="po-rise font-body font-300 text-[#666] text-base md:text-[17px] leading-relaxed max-w-[620px] mx-auto mt-7 opacity-0">
+        <p className="po-rise font-body font-300 text-[#999] text-base md:text-[17px] leading-relaxed max-w-[620px] mx-auto mt-7 opacity-0">
           Drop your email to join the founders list. You&apos;ll be the
-          <span className="font-700 text-[#0a0a0a]"> first to pre-order</span>,
-          lock in <span className="font-700" style={{ color: '#C62828' }}>founder pricing</span>,
+          <span className="font-700 text-white"> first to pre-order</span>,
+          lock in <span className="font-700" style={{ color: '#FF8A00' }}>founder pricing</span>,
           and ship before the public release.
         </p>
 
@@ -225,12 +232,12 @@ export default function PreOrderSection() {
             { tag: '1ST', label: 'Priority shipping', sub: 'before everyone else' },
             { tag: '$0',  label: 'No payment now',    sub: 'just your email' },
           ].map((p) => (
-            <div key={p.label} className="rounded-xl border border-[#efe9f5] bg-white px-4 py-4 text-left">
+            <div key={p.label} className="rounded-xl border border-white/10 bg-white/5 px-4 py-4 text-left">
               <span className="font-sans font-800 text-xl tabular-nums bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>
                 {p.tag}
               </span>
-              <p className="font-sans font-700 text-[#111] text-[13px] mt-0.5">{p.label}</p>
-              <p className="font-body font-300 text-[#999] text-[11px] tracking-wide mt-0.5">{p.sub}</p>
+              <p className="font-sans font-700 text-white text-[13px] mt-0.5">{p.label}</p>
+              <p className="font-body font-300 text-[#666] text-[11px] tracking-wide mt-0.5">{p.sub}</p>
             </div>
           ))}
         </div>
@@ -238,16 +245,16 @@ export default function PreOrderSection() {
         {/* Spot counter */}
         <div className="po-rise mt-8 max-w-[480px] mx-auto opacity-0">
           <div className="flex items-center justify-between mb-2">
-            <span className="font-body text-[12px] text-[#888]">
-              <span className="font-700 text-[#0a0a0a]">{SPOTS}</span> of {TOTAL} founder spots remaining
+            <span className="font-body text-[12px] text-[#666]">
+              <span className="font-700 text-white">{SPOTS}</span> of {TOTAL} founder spots remaining
             </span>
-            <span className="font-body text-[12px] font-700" style={{ color: '#C62828' }}>{taken} taken</span>
+            <span className="font-body text-[12px] font-700" style={{ color: '#FF8A00' }}>{taken} taken</span>
           </div>
-          <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
+          <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: '#222' }}>
             <div className="h-full rounded-full" style={{ width: `${pct}%`, background: HEAT_G }} />
           </div>
-          <p className="mt-2 font-body text-[11px] text-[#bbb] tracking-wide">
-            First 100 get <span className="font-700" style={{ color: '#C62828' }}>30% off</span> for the first month
+          <p className="mt-2 font-body text-[11px] text-[#555] tracking-wide">
+            First 100 get <span className="font-700" style={{ color: '#FF8A00' }}>30% off</span> for the first month
           </p>
         </div>
 
