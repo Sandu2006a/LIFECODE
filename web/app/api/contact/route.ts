@@ -3,8 +3,6 @@ import { Resend } from 'resend';
 
 export const dynamic = 'force-dynamic';
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
-
 export async function POST(req: NextRequest) {
   try {
     const { topic, name, email, message } = await req.json();
@@ -12,6 +10,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
     }
 
+    const resend = new Resend(process.env.RESEND_API_KEY!);
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'LIFECODE <onboarding@resend.dev>',
       to: 'hello@lifecodenutrition.com',
