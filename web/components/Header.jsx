@@ -123,7 +123,7 @@ export default function Header() {
           {[
             ['Morning',     '/products/morning'],
             ['Recovery',    '/products/recovery'],
-            ['Science',     '/science'],
+            ['The Science',  '/science'],
             ['Ingredients', '/ingredients'],
             ['Comparisons', '/lifecode-comparison'],
             ['About',       '/about'],

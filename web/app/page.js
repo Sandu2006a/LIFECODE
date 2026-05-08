@@ -2,6 +2,7 @@ import SmoothScroll      from '@/components/SmoothScroll';
 import Header            from '@/components/Header';
 import HeroSection       from '@/components/HeroSection';
 import PreOrderSection   from '@/components/PreOrderSection';
+import ScienceBanner     from '@/components/ScienceBanner';
 import MorningSection    from '@/components/MorningSection';
 import RecoverySection   from '@/components/RecoverySection';
 import AthleteStory      from '@/components/AthleteStory';
@@ -19,6 +20,7 @@ export default function Home() {
       <main>
         <HeroSection />
         <PreOrderSection />
+        <ScienceBanner />
         <VoicesSection />
         <AthleteStory />
         <SystemSection />
