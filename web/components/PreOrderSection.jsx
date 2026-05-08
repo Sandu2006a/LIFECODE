@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 30%, #1D4ED8 100%)';
-const HEAT_G = 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)';
+const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #E53E3E 100%)';
+const HEAT_G = 'linear-gradient(90deg, #FF8A00, #E53E3E)';
 const PROMO  = 'LC70X';
 const LAUNCH = new Date('2026-08-03T00:00:00');
 const SPOTS  = 100;
