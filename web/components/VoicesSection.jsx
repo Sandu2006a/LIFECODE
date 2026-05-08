@@ -117,7 +117,7 @@ export default function VoicesSection() {
 
                 {/* Photo */}
                 <div className="flex-shrink-0 rounded-2xl p-[2.5px]" style={{ background: BOX_G }}>
-                  <div className="relative w-24 h-24 rounded-[14px] overflow-hidden">
+                  <div className="relative w-16 h-16 sm:w-24 sm:h-24 rounded-[14px] overflow-hidden">
                     <Image
                       src={v.photo}
                       alt={v.name}
@@ -128,15 +128,11 @@ export default function VoicesSection() {
                   </div>
                 </div>
 
-                <div className="min-w-0">
-                  <p className="font-sans font-700 text-[17px] text-white tracking-tight leading-tight">{v.name}</p>
-                  <p className="font-body text-[13px] mt-1.5 leading-snug" style={{ color: '#6D28D9' }}>{v.role}</p>
-                </div>
-
-                {/* Tag pill */}
-                <div className="ml-auto flex-shrink-0">
+                <div className="min-w-0 flex-1">
+                  <p className="font-sans font-700 text-[15px] sm:text-[17px] text-white tracking-tight leading-tight">{v.name}</p>
+                  <p className="font-body text-[12px] sm:text-[13px] mt-1 leading-snug" style={{ color: '#6D28D9' }}>{v.role}</p>
                   <span
-                    className="font-body text-[10px] tracking-[0.2em] uppercase px-3 py-1 rounded-full"
+                    className="inline-block mt-2 font-body text-[9px] sm:text-[10px] tracking-[0.2em] uppercase px-3 py-1 rounded-full"
                     style={{
                       border: '1px solid rgba(124,58,237,0.3)',
                       background: 'rgba(124,58,237,0.1)',
