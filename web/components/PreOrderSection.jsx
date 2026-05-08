@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
-const HEAT_G = 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)';
+const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #E8445A 55%, #7C3AED 100%)';
+const HEAT_G = 'linear-gradient(90deg, #FF8A00, #E8445A, #7C3AED)';
 const PROMO  = 'LC70X';
 const LAUNCH = new Date('2026-08-03T00:00:00');
 const SPOTS  = 100;
@@ -33,14 +33,19 @@ function useCountdown(target) {
 
 function TimeUnit({ value, label }) {
   return (
-    <div className="flex flex-col items-center gap-1.5">
+    <div className="flex flex-col items-center gap-2">
       <div
-        className="w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center font-sans font-700 text-xl md:text-2xl text-white tabular-nums"
-        style={{ background: BOX_G }}
+        className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center tabular-nums shadow-sm"
+        style={{ background: '#0a0a0a' }}
       >
-        {String(value).padStart(2, '0')}
+        <span
+          className="font-sans font-700 text-2xl sm:text-3xl bg-clip-text text-transparent"
+          style={{ backgroundImage: BOX_G }}
+        >
+          {String(value).padStart(2, '0')}
+        </span>
       </div>
-      <span className="font-body text-[8px] md:text-[9px] tracking-[0.25em] uppercase text-[#aaa]">{label}</span>
+      <span className="font-body text-[9px] sm:text-[10px] tracking-[0.25em] uppercase text-[#aaa]">{label}</span>
     </div>
   );
 }
@@ -65,7 +70,7 @@ function SuccessCard({ email, already }) {
   return (
     <div ref={cardRef} className="relative rounded-2xl p-[1.5px] overflow-hidden"
       style={{ background: 'linear-gradient(135deg,#10b981,#059669,#047857)' }}>
-      <div className="bg-white rounded-[14.5px] px-6 py-7 md:px-8 md:py-8 text-center">
+      <div className="bg-white rounded-[14.5px] px-5 py-6 sm:px-8 sm:py-8 text-center">
         <div ref={checkRef} className="mx-auto w-14 h-14 rounded-full flex items-center justify-center mb-4"
           style={{ background: 'linear-gradient(135deg,#10b981,#059669)' }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
@@ -75,14 +80,14 @@ function SuccessCard({ email, already }) {
         <p className="font-body text-[10px] tracking-[0.32em] uppercase font-700 text-[#059669] mb-2">
           {already ? 'Already on the list' : "You're in"}
         </p>
-        <h3 className="font-sans font-700 text-[#0a0a0a] text-2xl md:text-3xl tracking-tight leading-tight">
+        <h3 className="font-sans font-700 text-[#0a0a0a] text-xl sm:text-3xl tracking-tight leading-tight">
           {already ? 'Your spot is safe.' : 'Welcome to the founders list.'}
         </h3>
-        <p className="font-body font-300 text-[#666] text-[14px] leading-relaxed mt-3 max-w-[440px] mx-auto">
+        <p className="font-body font-300 text-[#666] text-[13px] sm:text-[14px] leading-relaxed mt-3 max-w-[440px] mx-auto">
           We just sent a confirmation to <span className="font-700 text-[#0a0a0a]">{email}</span>.
         </p>
-        <div className="mt-5 inline-block" style={{ padding: '1.5px', borderRadius: '14px', background: BOX_G }}>
-          <div className="bg-white px-7 py-4 text-center" style={{ borderRadius: '12.5px' }}>
+        <div className="mt-5 inline-block w-full max-w-[280px]" style={{ padding: '1.5px', borderRadius: '14px', background: BOX_G }}>
+          <div className="bg-white px-5 py-4 text-center" style={{ borderRadius: '12.5px' }}>
             <p className="font-body text-[9px] tracking-[0.28em] uppercase text-[#888] mb-1.5">Your exclusive promo code</p>
             <p className="font-sans font-700 text-[26px] tracking-[0.22em] bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>
               {PROMO}
@@ -140,66 +145,59 @@ export default function PreOrderSection() {
   const pct   = (taken / TOTAL) * 100;
 
   return (
-    <section ref={sectionRef} id="preorder" className="relative py-16 md:py-24 px-6 md:px-16 overflow-hidden"
-      style={{ background: '#0a0a0a' }}>
-
-      {/* Background glows */}
-      <div className="pointer-events-none absolute top-[-10%] left-[-5%] w-[40vw] h-[50vh] opacity-[0.12]"
-        style={{ background: 'linear-gradient(135deg, #FF8A00, #C62828)', filter: 'blur(100px)', borderRadius: '50%' }} />
-      <div className="pointer-events-none absolute bottom-[-10%] right-[-5%] w-[35vw] h-[45vh] opacity-[0.10]"
-        style={{ background: 'linear-gradient(135deg, #7C3AED, #1D4ED8)', filter: 'blur(100px)', borderRadius: '50%' }} />
-
-      <div className="relative z-10 max-w-[920px] mx-auto text-center">
+    <section ref={sectionRef} id="preorder" className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 md:px-16"
+      style={{ background: 'linear-gradient(180deg, #ffffff 0%, #FFF8F5 50%, #FAF7FF 100%)' }}>
+      <div className="max-w-[920px] mx-auto text-center">
 
         <div className="po-rise inline-flex items-center gap-3 mb-6 opacity-0">
           <div className="w-5 h-px" style={{ background: HEAT_G }} />
-          <span className="font-body text-[10px] tracking-[0.32em] uppercase font-600" style={{ color: '#FF8A00' }}>
+          <span className="font-body text-[10px] tracking-[0.32em] uppercase font-600" style={{ color: '#E8445A' }}>
             Founders list · Pre-order opens soon
           </span>
           <div className="w-5 h-px" style={{ background: HEAT_G }} />
         </div>
 
         {/* Countdown timer */}
-        <div className="po-rise flex items-end justify-center gap-2 md:gap-4 mb-10 opacity-0">
+        <div className="po-rise flex items-end justify-center gap-3 sm:gap-5 mb-10 opacity-0">
           <TimeUnit value={days}  label="Days" />
-          <span className="font-sans font-700 text-[#ccc] text-2xl pb-6">:</span>
+          <span className="font-sans font-700 text-[#ccc] text-2xl sm:text-3xl pb-7">:</span>
           <TimeUnit value={hours} label="Hours" />
-          <span className="font-sans font-700 text-[#ccc] text-2xl pb-6">:</span>
+          <span className="font-sans font-700 text-[#ccc] text-2xl sm:text-3xl pb-7">:</span>
           <TimeUnit value={mins}  label="Min" />
-          <span className="font-sans font-700 text-[#ccc] text-2xl pb-6">:</span>
+          <span className="font-sans font-700 text-[#ccc] text-2xl sm:text-3xl pb-7">:</span>
           <TimeUnit value={secs}  label="Sec" />
         </div>
 
-        <h2 className="po-rise font-sans font-700 text-white leading-[0.92] tracking-tight opacity-0 mx-auto"
-          style={{ fontSize: 'clamp(2.6rem, 6vw, 5.6rem)' }}>
+        <h2 className="po-rise font-sans font-700 text-[#0a0a0a] leading-[0.92] tracking-tight opacity-0 mx-auto"
+          style={{ fontSize: 'clamp(2rem, 6vw, 5.6rem)' }}>
           The protocol drops soon.<br/>
           <span className="bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>
             Be the first to get it.
           </span>
         </h2>
 
-        <p className="po-rise font-body font-300 text-[#999] text-base md:text-[17px] leading-relaxed max-w-[620px] mx-auto mt-7 opacity-0">
+        <p className="po-rise font-body font-300 text-[#666] text-[15px] sm:text-base md:text-[17px] leading-relaxed max-w-[620px] mx-auto mt-6 opacity-0">
           Drop your email to join the founders list. You&apos;ll be the
-          <span className="font-700 text-white"> first to pre-order</span>,
-          lock in <span className="font-700" style={{ color: '#FF8A00' }}>founder pricing</span>,
+          <span className="font-700 text-[#0a0a0a]"> first to pre-order</span>,
+          lock in <span className="font-700" style={{ color: '#E8445A' }}>founder pricing</span>,
           and ship before the public release.
         </p>
 
-        <div className="po-rise mt-10 opacity-0 mx-auto w-full max-w-[560px]">
+        <div className="po-rise mt-8 opacity-0 mx-auto w-full max-w-[560px]">
           {status === 'success' || status === 'already' ? (
             <SuccessCard email={email} already={status === 'already'} />
           ) : (
             <form onSubmit={onSubmit}>
-              <div className="flex flex-col sm:flex-row gap-2 p-[1.5px] rounded-full" style={{ background: BOX_G }}>
+              <div className="flex flex-col sm:flex-row gap-2 p-[1.5px] rounded-2xl sm:rounded-full" style={{ background: BOX_G }}>
                 <input type="email" required inputMode="email" autoComplete="email"
                   disabled={status === 'loading'}
                   placeholder="your@email.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="flex-1 bg-white rounded-full px-6 py-4 font-body text-[15px] text-[#0a0a0a] placeholder:text-[#bbb] outline-none disabled:opacity-70 text-center sm:text-left"
+                  className="flex-1 bg-white rounded-xl sm:rounded-full px-5 sm:px-6 py-4 font-body text-[15px] text-[#0a0a0a] placeholder:text-[#bbb] outline-none disabled:opacity-70 text-center sm:text-left w-full"
                 />
                 <button type="submit" disabled={status === 'loading'}
-                  className="relative overflow-hidden rounded-full px-7 py-4 text-white font-sans font-700 text-[12px] tracking-[0.18em] uppercase transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_10px_30px_rgba(198,40,40,0.35)] disabled:opacity-80 whitespace-nowrap group"
+                  className="relative overflow-hidden rounded-xl sm:rounded-full px-6 sm:px-7 py-4 text-white font-sans font-700 text-[12px] tracking-[0.18em] uppercase transition-all duration-300 hover:opacity-90 hover:shadow-[0_10px_30px_rgba(232,68,90,0.35)] disabled:opacity-80 whitespace-nowrap group w-full sm:w-auto"
                   style={{ background: BOX_G }}>
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {status === 'loading' ? (
@@ -218,7 +216,7 @@ export default function PreOrderSection() {
                     style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)' }} />
                 </button>
               </div>
-              {status === 'error' && <p className="mt-3 font-body text-[13px]" style={{ color: '#C62828' }}>{errorMsg}</p>}
+              {status === 'error' && <p className="mt-3 font-body text-[13px]" style={{ color: '#E8445A' }}>{errorMsg}</p>}
               <p className="mt-3 font-body text-[11px] text-[#aaa] tracking-wide">
                 Subscribe now to get your promo · No spam · One email when we launch
               </p>
@@ -226,18 +224,18 @@ export default function PreOrderSection() {
           )}
         </div>
 
-        <div className="po-rise grid grid-cols-1 sm:grid-cols-3 gap-3 mt-12 opacity-0 max-w-[720px] mx-auto">
+        <div className="po-rise grid grid-cols-3 gap-2 sm:gap-3 mt-10 opacity-0 max-w-[720px] mx-auto">
           {[
             { tag: '30%', label: 'Off first month',  sub: 'first 100 founders only' },
             { tag: '1ST', label: 'Priority shipping', sub: 'before everyone else' },
             { tag: '$0',  label: 'No payment now',    sub: 'just your email' },
           ].map((p) => (
-            <div key={p.label} className="rounded-xl border border-white/10 bg-white/5 px-4 py-4 text-left">
-              <span className="font-sans font-800 text-xl tabular-nums bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>
+            <div key={p.label} className="rounded-xl border border-[#f0e8ff] bg-white px-3 sm:px-4 py-4 text-left shadow-sm">
+              <span className="font-sans font-800 text-lg sm:text-xl tabular-nums bg-clip-text text-transparent" style={{ backgroundImage: HEAT_G }}>
                 {p.tag}
               </span>
-              <p className="font-sans font-700 text-white text-[13px] mt-0.5">{p.label}</p>
-              <p className="font-body font-300 text-[#666] text-[11px] tracking-wide mt-0.5">{p.sub}</p>
+              <p className="font-sans font-700 text-[#111] text-[11px] sm:text-[13px] mt-0.5">{p.label}</p>
+              <p className="font-body font-300 text-[#999] text-[10px] sm:text-[11px] tracking-wide mt-0.5 hidden sm:block">{p.sub}</p>
             </div>
           ))}
         </div>
@@ -245,16 +243,16 @@ export default function PreOrderSection() {
         {/* Spot counter */}
         <div className="po-rise mt-8 max-w-[480px] mx-auto opacity-0">
           <div className="flex items-center justify-between mb-2">
-            <span className="font-body text-[12px] text-[#666]">
-              <span className="font-700 text-white">{SPOTS}</span> of {TOTAL} founder spots remaining
+            <span className="font-body text-[12px] text-[#888]">
+              <span className="font-700 text-[#0a0a0a]">{SPOTS}</span> of {TOTAL} founder spots remaining
             </span>
-            <span className="font-body text-[12px] font-700" style={{ color: '#FF8A00' }}>{taken} taken</span>
+            <span className="font-body text-[12px] font-700" style={{ color: '#E8445A' }}>{taken} taken</span>
           </div>
-          <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: '#222' }}>
+          <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: '#f0f0f0' }}>
             <div className="h-full rounded-full" style={{ width: `${pct}%`, background: HEAT_G }} />
           </div>
-          <p className="mt-2 font-body text-[11px] text-[#555] tracking-wide">
-            First 100 get <span className="font-700" style={{ color: '#FF8A00' }}>30% off</span> for the first month
+          <p className="mt-2 font-body text-[11px] text-[#bbb] tracking-wide">
+            First 100 get <span className="font-700" style={{ color: '#E8445A' }}>30% off</span> for the first month
           </p>
         </div>
 
