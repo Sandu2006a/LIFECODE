@@ -34,17 +34,12 @@ function useCountdown(target) {
 function TimeUnit({ value, label }) {
   return (
     <div className="flex flex-col items-center gap-2">
-      <div
-        className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center tabular-nums shadow-sm"
-        style={{ background: '#0a0a0a' }}
+      <span
+        className="font-sans font-700 text-4xl sm:text-5xl tabular-nums bg-clip-text text-transparent"
+        style={{ backgroundImage: BOX_G }}
       >
-        <span
-          className="font-sans font-700 text-2xl sm:text-3xl bg-clip-text text-transparent"
-          style={{ backgroundImage: BOX_G }}
-        >
-          {String(value).padStart(2, '0')}
-        </span>
-      </div>
+        {String(value).padStart(2, '0')}
+      </span>
       <span className="font-body text-[9px] sm:text-[10px] tracking-[0.25em] uppercase text-[#aaa]">{label}</span>
     </div>
   );
