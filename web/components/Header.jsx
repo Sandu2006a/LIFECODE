@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -114,10 +115,12 @@ export default function Header() {
                    paddingTop: navHidden ? 0 : undefined, paddingBottom: navHidden ? 0 : undefined }}
         >
           {/* Wordmark */}
-          <Link href="/"
-            className="font-sans font-700 tracking-[0.32em] uppercase select-none transition-opacity duration-300 hover:opacity-80 bg-clip-text text-transparent"
-            style={{ fontSize: '1.05rem', backgroundImage: BOX_G }}>
-            LIFECODE
+          <Link href="/" className="flex items-center gap-2 select-none transition-opacity duration-300 hover:opacity-80">
+            <Image src="/logo.png" alt="LIFECODE" width={28} height={28} className="w-7 h-7 object-contain" />
+            <span className="font-sans font-700 tracking-[0.32em] uppercase bg-clip-text text-transparent"
+              style={{ fontSize: '1.05rem', backgroundImage: BOX_G }}>
+              LIFECODE
+            </span>
           </Link>
 
           {/* Desktop nav */}
@@ -251,8 +254,11 @@ export default function Header() {
 
         {/* Header row */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#f5f5f5]">
-          <span className="font-sans font-700 tracking-[0.32em] uppercase text-[0.9rem] bg-clip-text text-transparent"
-            style={{ backgroundImage: BOX_G }}>LIFECODE</span>
+          <span className="flex items-center gap-2">
+            <Image src="/logo.png" alt="LIFECODE" width={24} height={24} className="w-6 h-6 object-contain" />
+            <span className="font-sans font-700 tracking-[0.32em] uppercase text-[0.9rem] bg-clip-text text-transparent"
+              style={{ backgroundImage: BOX_G }}>LIFECODE</span>
+          </span>
           <button onClick={() => setMobileOpen(false)}
             className="w-8 h-8 flex items-center justify-center rounded-full border border-[#eee]">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
