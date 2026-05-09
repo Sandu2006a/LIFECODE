@@ -289,12 +289,7 @@ export default function PricingPage() {
                     <span className="font-sans font-700 text-5xl text-[#ddd] tracking-tight">—</span>
                     <span className="font-body text-[13px] text-[#ddd] tracking-widest uppercase">Price coming soon</span>
                   </div>
-                  <div className="mt-6 inline-flex items-center gap-3 px-6 py-3.5 rounded-full border border-[#e0e0e0] bg-[#fafafa]">
-                    <span className="w-2 h-2 rounded-full flex-shrink-0 bg-[#ccc]" />
-                    <span className="font-sans font-600 text-[13px] tracking-[0.15em] uppercase text-[#aaa]">
-                      Currently not available
-                    </span>
-                  </div>
+                  <PlanButton plan="essentials" gradient={MG} label="Get Essentials" />
                   <p className="font-body text-[13px] text-[#ccc] tracking-widest uppercase mt-4">
                     Ships within 48h · 30-day guarantee
                   </p>
