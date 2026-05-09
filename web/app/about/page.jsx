@@ -58,10 +58,10 @@ const LIES = [
 ];
 
 const WHO = [
-  'Trains like a professional.',
-  "Doesn't get paid like one.",
-  'Reads the label.',
-  "Won't settle for a green powder with a celebrity on it.",
+  'Competes at professional or semi-professional level.',
+  'Knows that nutrition is part of the training.',
+  'Reads the label — and understands it.',
+  'Won\'t settle for a product not built for their level.',
   'Demands clinical doses. Every time.',
 ];
 
@@ -142,7 +142,7 @@ export default function AboutPage() {
 
             <div data-s className="space-y-6 pt-4 md:pt-20">
               {[
-                "We're athletes. We train hard, we recover hard, and for years we did what every serious amateur ends up doing — we built a daily supplement stack out of five, six, sometimes eight different products, just to cover what our bodies actually needed.",
+                "We're athletes. We train hard, we recover hard, and for years we did what every pro and semi-pro ends up doing — we built a daily supplement stack out of five, six, sometimes eight different products, just to cover what our bodies actually needed.",
                 "A multivitamin in the morning. A separate magnesium because the multi was underdosed. A pre-workout loaded with proprietary blends that wouldn't tell us what was actually in there. An EAA tub. A creatine bag. A recovery shake we couldn't pronounce.",
                 "Three hundred euros a month, a kitchen counter that looked like a pharmacy, and the constant suspicion that half of it wasn't doing what the label said.",
                 "So we did what athletes do when something isn't working — we went to the source.",
@@ -277,10 +277,10 @@ export default function AboutPage() {
             <div data-s>
               <Eyebrow>Who This Is Built For</Eyebrow>
               <h2 className="font-sans font-700 text-[40px] md:text-[56px] leading-[1.0] mb-8" style={{ color: INK }}>
-                The <GradientText>serious</GradientText><br />amateur.
+                The <GradientText>pro &</GradientText><br /><GradientText>semi-pro</GradientText><br />athlete.
               </h2>
               <p className="font-body text-[17px] leading-relaxed max-w-md mb-5" style={{ color: INK2 }}>
-                The lifter, the runner, the cyclist, the fighter, the early-morning lap swimmer with a real job and a real family. The high-performer who treats nutrition as part of the work.
+                The swimmer, the lifter, the cyclist, the fighter — competing at a level where nutrition isn't optional. The athlete who knows that what goes in determines what comes out.
               </p>
               <p className="font-body text-[17px] leading-relaxed max-w-md" style={{ color: INK2 }}>
                 If you're looking for a green powder with a celebrity on the label, you're in the wrong place.
