@@ -116,7 +116,7 @@ export default function Header() {
         >
           {/* Wordmark */}
           <Link href="/" className="flex items-center gap-2 select-none transition-opacity duration-300 hover:opacity-80">
-            <Image src="/logo.png" alt="LIFECODE" width={28} height={28} className="w-7 h-7 object-contain" />
+            <img src="/logo.png" alt="" width={28} height={28} style={{ width: 28, height: 28, objectFit: 'contain' }} />
             <span className="font-sans font-700 tracking-[0.32em] uppercase bg-clip-text text-transparent"
               style={{ fontSize: '1.05rem', backgroundImage: BOX_G }}>
               LIFECODE
@@ -255,7 +255,7 @@ export default function Header() {
         {/* Header row */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#f5f5f5]">
           <span className="flex items-center gap-2">
-            <Image src="/logo.png" alt="LIFECODE" width={24} height={24} className="w-6 h-6 object-contain" />
+            <img src="/logo.png" alt="" width={24} height={24} style={{ width: 24, height: 24, objectFit: 'contain' }} />
             <span className="font-sans font-700 tracking-[0.32em] uppercase text-[0.9rem] bg-clip-text text-transparent"
               style={{ backgroundImage: BOX_G }}>LIFECODE</span>
           </span>
