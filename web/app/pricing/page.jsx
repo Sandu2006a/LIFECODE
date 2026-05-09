@@ -289,7 +289,12 @@ export default function PricingPage() {
                     <span className="font-sans font-700 text-5xl text-[#ddd] tracking-tight">—</span>
                     <span className="font-body text-[13px] text-[#ddd] tracking-widest uppercase">Price coming soon</span>
                   </div>
-                  <PlanButton plan="essentials" gradient={MG} label="Get Essentials" />
+                  <div className="mt-6 inline-flex items-center gap-3 px-6 py-3.5 rounded-full border border-[#e0e0e0] bg-[#fafafa]">
+                    <span className="w-2 h-2 rounded-full flex-shrink-0 bg-[#ccc]" />
+                    <span className="font-sans font-600 text-[13px] tracking-[0.15em] uppercase text-[#aaa]">
+                      Currently not available
+                    </span>
+                  </div>
                   <p className="font-body text-[13px] text-[#ccc] tracking-widest uppercase mt-4">
                     Ships within 48h · 30-day guarantee
                   </p>
@@ -383,9 +388,16 @@ export default function PricingPage() {
                     <span className="font-sans font-700 text-5xl text-[#ddd] tracking-tight">—</span>
                     <span className="font-body text-[13px] text-[#ddd] tracking-widest uppercase">/ month · Price coming soon</span>
                   </div>
-                  <PlanButton plan="protocol" gradient={BOX_G} label="Start Protocol" />
+                  <div className="mt-6 inline-flex items-center gap-3 px-6 py-3.5 rounded-full border-2"
+                    style={{ borderColor: '#FF8A00', background: 'linear-gradient(135deg, #FFF9F5, #FAF7FF)' }}>
+                    <span className="w-2 h-2 rounded-full animate-pulse flex-shrink-0" style={{ background: '#FF8A00' }} />
+                    <span className="font-sans font-700 text-[13px] tracking-[0.15em] uppercase bg-clip-text text-transparent"
+                      style={{ backgroundImage: BOX_G }}>
+                      Coming with the product
+                    </span>
+                  </div>
                   <p className="font-body text-[13px] text-[#ccc] tracking-widest uppercase mt-4">
-                    Free to start · Cancel anytime · No credit card required now
+                    Available at launch · August 2026
                   </p>
                 </div>
               </div>
