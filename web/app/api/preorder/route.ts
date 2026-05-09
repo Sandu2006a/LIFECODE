@@ -158,7 +158,7 @@ function welcomeEmailHtml(email: string) {
       <tr><td style="border-top:1px solid #f0f0f0;padding-top:24px;text-align:center;">
         <p style="margin:0;font-size:11px;color:#bbb;line-height:2;">
           LIFECODE · Founders List · ${email}<br/>
-          <a href="mailto:hello@lifecode.app" style="color:#bbb;text-decoration:none;">hello@lifecode.app</a>
+          <a href="mailto:hello@lifecodenutrition.com" style="color:#bbb;text-decoration:none;">hello@lifecodenutrition.com</a>
         </p>
       </td></tr>
 

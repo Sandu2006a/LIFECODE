@@ -429,8 +429,8 @@ export default function PricingPage() {
           </p>
           <p className="font-body text-[15px] text-[#bbb]">
             Questions?{' '}
-            <a href="mailto:hello@lifecode.app" className="text-[#888] hover:text-[#444] transition-colors underline underline-offset-2">
-              hello@lifecode.app
+            <a href="mailto:hello@lifecodenutrition.com" className="text-[#888] hover:text-[#444] transition-colors underline underline-offset-2">
+              hello@lifecodenutrition.com
             </a>
           </p>
         </div>
