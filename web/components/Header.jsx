@@ -115,8 +115,8 @@ export default function Header() {
                    paddingTop: navHidden ? 0 : undefined, paddingBottom: navHidden ? 0 : undefined }}
         >
           {/* Wordmark */}
-          <Link href="/" className="flex items-center gap-2 select-none transition-opacity duration-300 hover:opacity-80">
-            <img src="/logo.png" alt="" style={{ width: 48, height: 48, objectFit: 'contain' }} />
+          <Link href="/" className="flex items-center gap-3 select-none transition-opacity duration-300 hover:opacity-80">
+            <img src="/logo.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
             <span className="font-sans font-700 tracking-[0.32em] uppercase bg-clip-text text-transparent"
               style={{ fontSize: '1.05rem', backgroundImage: BOX_G }}>
               LIFECODE

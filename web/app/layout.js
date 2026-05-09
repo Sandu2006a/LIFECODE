@@ -21,8 +21,13 @@ export const metadata = {
   description:
     'Ultra-premium sports nutrition engineered at the molecular level. Morning Mix, Training Gel, Recovery Salts.',
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: [
+      { url: '/logo.png', sizes: '512x512', type: 'image/png' },
+      { url: '/logo.png', sizes: '192x192', type: 'image/png' },
+      { url: '/logo.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: { url: '/logo.png', sizes: '180x180' },
+    shortcut: '/logo.png',
   },
   openGraph: {
     title: 'LIFECODE — Precision Nutrition',
