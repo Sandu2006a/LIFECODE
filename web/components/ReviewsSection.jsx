@@ -58,7 +58,7 @@ const REVIEWS = [
     role: 'Entrepreneur & Amateur Cyclist — Amsterdam, Netherlands',
     product: 'Morning Pak',
     rating: 5,
-    headline: 'The only morning supplement I've kept after 30 days',
+    headline: "The only morning supplement I've kept after 30 days",
     body: "I go through phases with supplements — I try something for a month and drop it because I can't feel the difference. The Morning Pak is the first one I've actually continued past 30 days without thinking about it. The mental clarity in the mornings is real, not placebo. As someone who trains before 6am before work, the sustained energy without the crash matters enormously. Simple, clean, effective.",
     lang: 'en',
   },
