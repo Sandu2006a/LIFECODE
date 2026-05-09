@@ -23,7 +23,7 @@ const REVIEWS = [
     product: 'Recovery Pack',
     rating: 5,
     headline: 'I was skeptical. Then I tried it.',
-    body: "A friend on my team kept pushing me to try this for two months before I finally ordered. I've tried every recovery product on the market and most of them taste like synthetic chemicals. The Recovery Pack actually tastes clean — you can feel the natural flavours immediately, no artificial aftertaste. After three weeks of high-volume training blocks my soreness recovery dropped noticeably. Now I won't train without it.",
+    body: "A friend on my team kept pushing me to try this for two months before I finally ordered. I tried every recovery product on the market and most taste like synthetic chemicals. The Recovery Pack actually tastes clean — natural flavours, no artificial aftertaste. After three weeks of high-volume training blocks my soreness recovery dropped noticeably. Now I train without it is unthinkable.",
     lang: 'en',
   },
   {
@@ -41,7 +41,7 @@ const REVIEWS = [
     product: 'Morning Pak',
     rating: 5,
     headline: 'Finally a morning formula that works for endurance',
-    body: "I've been running competitively for seven years and tried dozens of morning formulas. Most are built for gym-goers, not endurance athletes. The Morning Pak is different — the adaptogens and B-complex combination keeps my energy stable through long runs without the jitteriness I used to get from caffeine-heavy alternatives. I noticed a difference in sustained focus from week two. My coach asked what I changed.",
+    body: "Running competitively for seven years, I tried dozens of morning formulas. Most are built for gym-goers, not endurance athletes. The Morning Pak is different — the adaptogens and B-complex combination keeps my energy stable through long runs without jitteriness. I noticed a difference in sustained focus from week two. My coach asked what I changed.",
     lang: 'en',
   },
   {
@@ -58,8 +58,8 @@ const REVIEWS = [
     role: 'Entrepreneur & Amateur Cyclist — Amsterdam, Netherlands',
     product: 'Morning Pak',
     rating: 5,
-    headline: "The only morning supplement I've kept after 30 days",
-    body: "I go through phases with supplements — I try something for a month and drop it because I can't feel the difference. The Morning Pak is the first one I've actually continued past 30 days without thinking about it. The mental clarity in the mornings is real, not placebo. As someone who trains before 6am before work, the sustained energy without the crash matters enormously. Simple, clean, effective.",
+    headline: "The only morning supplement I kept past 30 days",
+    body: "I go through phases with supplements. I try something for a month and drop it. The Morning Pak is the first one I actually continued past 30 days without thinking about it. The mental clarity in the mornings is real. As someone who trains before 6am before work, the sustained energy without the crash matters enormously. Simple, clean, effective.",
     lang: 'en',
   },
   {
@@ -77,7 +77,7 @@ const REVIEWS = [
     product: 'Recovery Pack',
     rating: 5,
     headline: 'The taste convinced me to keep going. The results kept me.',
-    body: "I'll be honest — I started using Recovery Pack because someone in my training group said it tasted good, and I was tired of choking down bad-tasting recovery drinks. They were right. The natural flavour is something else — it actually tastes like real fruit, not artificial syrup. But what made me a loyal customer is what happened to my recovery times over six weeks of tri training. My legs were ready faster for the next session. That's what matters.",
+    body: "Honest truth — I started using Recovery Pack because someone in my training group said it tasted good. They were right. The natural flavour is something else — it actually tastes like real fruit, not artificial syrup. What made me a loyal customer is what happened to my recovery times over six weeks of tri training. My legs were ready faster for the next session. That is what matters.",
     lang: 'en',
   },
   {
@@ -95,7 +95,7 @@ const REVIEWS = [
     product: 'Morning Pak + Recovery Pack',
     rating: 5,
     headline: 'The taste alone is worth it — then the results hit',
-    body: "I'm not usually someone who writes reviews, but this product genuinely surprised me. The first thing I noticed was the taste — both products have this clean, natural flavour that makes you actually look forward to taking them. No artificial sweetener aftertaste, no chemical smell. After four weeks using both Morning Pak and Recovery Pack consistently, my energy in morning sessions improved and my recovery between heavy training days got noticeably better. I've already recommended it to three people at my gym.",
+    body: "Not someone who usually writes reviews, but this product genuinely surprised me. The first thing I noticed was the taste — both products have a clean, natural flavour that makes you look forward to taking them. No artificial sweetener aftertaste. After four weeks using both consistently, my energy in morning sessions improved and recovery between heavy training days got noticeably better. Already recommended it to three people at my gym.",
     lang: 'en',
   },
   {
@@ -122,7 +122,7 @@ const REVIEWS = [
     product: 'Morning Pak + Recovery Pack',
     rating: 5,
     headline: 'Two products that actually work together',
-    body: "What I appreciate most about Lifecode is that the two products are designed to complement each other — Morning Pak sets up the day, Recovery Pack closes it. I train twice a day during peak season and the combination has kept my energy levels more consistent than anything else I've tried. The Recovery Pack after hard evening sessions is noticeably different from lighter training days — my body responds faster. Transparent dosing, clean ingredients, real taste.",
+    body: "What I appreciate most about Lifecode is that the two products complement each other — Morning Pak sets up the day, Recovery Pack closes it. Training twice a day during peak season, this combination kept my energy levels more consistent than anything else I tested. The Recovery Pack after hard evening sessions is noticeably different from lighter training days. Transparent dosing, clean ingredients, real taste.",
     lang: 'en',
   },
   {
@@ -140,7 +140,7 @@ const REVIEWS = [
     product: 'Recovery Pack',
     rating: 5,
     headline: 'High-intensity recovery changed completely',
-    body: "I play football at semi-professional level and also work as a PT, so I push my body hard every single day. The Recovery Pack has been part of my post-training routine for two months now. The difference I feel after high-intensity double sessions compared to moderate training is remarkable — less accumulated fatigue, better quality sleep, faster muscle readiness. The natural flavour is genuinely good — my clients have been asking what I'm drinking after sessions.",
+    body: "Playing football at semi-professional level and working as a PT, my body gets pushed hard every day. The Recovery Pack has been part of my post-training routine for two months. The difference after high-intensity double sessions compared to moderate training is remarkable — less accumulated fatigue, better sleep, faster muscle readiness. The natural flavour is genuinely good — my clients keep asking what I drink after sessions.",
     lang: 'en',
   },
 ];
