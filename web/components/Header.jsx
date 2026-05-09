@@ -116,7 +116,7 @@ export default function Header() {
         >
           {/* Wordmark */}
           <Link href="/" className="flex items-center gap-2 select-none transition-opacity duration-300 hover:opacity-80">
-            <img src="/logo.png" alt="" width={28} height={28} style={{ width: 28, height: 28, objectFit: 'contain' }} />
+            <img src="/logo.png" alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} />
             <span className="font-sans font-700 tracking-[0.32em] uppercase bg-clip-text text-transparent"
               style={{ fontSize: '1.05rem', backgroundImage: BOX_G }}>
               LIFECODE
