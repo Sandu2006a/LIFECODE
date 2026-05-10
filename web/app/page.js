@@ -19,11 +19,11 @@ export default function Home() {
       <Header />
       <main>
         <HeroSection />
+        <ReviewsSection />
         <PreOrderSection />
         <ScienceBanner />
         <VoicesSection />
         <AthleteStory />
-        <ReviewsSection />
         <MorningSection />
         <RecoverySection />
         <AppSection />
