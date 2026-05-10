@@ -9,8 +9,8 @@ const HEAT_G = 'linear-gradient(90deg, #FF8A00, #E8445A, #7C3AED)';
 
 const REVIEWS = [
   {
-    name: 'Andrei Moldovan',
-    role: 'Semi-pro Swimmer — Cluj-Napoca, Romania',
+    name: 'James Whitfield',
+    role: 'Semi-pro Swimmer — Manchester, UK',
     product: 'Morning Pak + Recovery Pack',
     rating: 5,
     headline: 'Recovery Pack after hard sessions is on another level',
@@ -89,8 +89,8 @@ const REVIEWS = [
     body: 'What I appreciate most is that the two products complement each other — Morning Pak sets up the day, Recovery Pack closes it. Training twice a day during peak season, this combination kept my energy levels more consistent than anything else I tested. The Recovery Pack after hard evening sessions is noticeably different from lighter training days. Transparent dosing, clean ingredients.',
   },
   {
-    name: 'Ioana Constantin',
-    role: 'Fitness Coach — Constanta, Romania',
+    name: 'Sarah Mitchell',
+    role: 'Fitness Coach — Leeds, UK',
     product: 'Morning Pak + Recovery Pack',
     rating: 5,
     headline: 'Tested it personally before recommending to every client',
@@ -121,8 +121,8 @@ const REVIEWS = [
     body: 'MMA training means combining strength, conditioning and sparring in the same week. Recovery was always my weak point. After six weeks with both products my training partners noticed I was fresher in later rounds and my morning sessions were more productive. The Morning Pak energy is steady and clean, no crash before noon. Would give five stars if the Recovery Pack came unflavoured as an option.',
   },
   {
-    name: 'Piia Makinen',
-    role: 'Competitive Rower — Helsinki, Finland',
+    name: 'Oliver Bennett',
+    role: 'Competitive Rower — Oxford, UK',
     product: 'Morning Pak + Recovery Pack',
     rating: 5,
     headline: 'Solid system, results clear after three weeks',
