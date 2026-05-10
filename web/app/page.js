@@ -21,13 +21,13 @@ export default function Home() {
         <HeroSection />
         <ReviewsSection />
         <PreOrderSection />
+        <MorningSection />
+        <RecoverySection />
+        <ComparisonSection />
         <ScienceBanner />
         <VoicesSection />
         <AthleteStory />
-        <MorningSection />
-        <RecoverySection />
         <AppSection />
-        <ComparisonSection />
         <EcosystemSection />
       </main>
       <Footer />

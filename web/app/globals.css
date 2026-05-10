@@ -42,6 +42,16 @@ body {
   overflow-x: hidden;
   cursor: default;
   font-family: var(--font-dm), 'Inter', system-ui, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+p, span, li, a, label {
+  font-weight: 500;
+}
+
+.font-body {
+  font-weight: 500;
 }
 
 h1, h2, h3, h4 {

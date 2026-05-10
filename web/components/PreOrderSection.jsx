@@ -6,9 +6,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #E8445A 55%, #7C3AED 100%)';
 const HEAT_G = 'linear-gradient(90deg, #FF8A00, #E8445A, #7C3AED)';
-const PROMO  = 'LC70X';
+const PROMO  = 'FIRST100';
 const LAUNCH = new Date('2026-08-03T00:00:00');
-const SPOTS  = 100;
 const TOTAL  = 100;
 
 function useCountdown(target) {
@@ -107,6 +106,13 @@ export default function PreOrderSection() {
   const [email,    setEmail]    = useState('');
   const [status,   setStatus]   = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [taken,    setTaken]    = useState(0);
+
+  useEffect(() => {
+    fetch('/api/preorder').then(r => r.json()).then(d => {
+      if (d.taken !== undefined) setTaken(d.taken);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -129,6 +135,7 @@ export default function PreOrderSection() {
       const res  = await fetch('/api/preorder', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email }) });
       const data = await res.json();
       if (!res.ok) { setErrorMsg(data?.error || 'Something went wrong. Try again.'); setStatus('error'); return; }
+      if (data.taken !== undefined) setTaken(data.taken);
       setStatus(data.alreadyOnList ? 'already' : 'success');
     } catch {
       setErrorMsg('Connection failed.');
@@ -136,8 +143,8 @@ export default function PreOrderSection() {
     }
   }
 
-  const taken = TOTAL - SPOTS;
-  const pct   = (taken / TOTAL) * 100;
+  const spots = Math.max(0, TOTAL - taken);
+  const pct   = Math.min(100, (taken / TOTAL) * 100);
 
   return (
     <section ref={sectionRef} id="preorder" className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 md:px-16"
@@ -241,7 +248,7 @@ export default function PreOrderSection() {
         <div className="po-rise mt-8 max-w-[480px] mx-auto opacity-0">
           <div className="flex items-center justify-between mb-2">
             <span className="font-body text-[12px] text-[#888]">
-              <span className="font-700 text-[#0a0a0a]">{SPOTS}</span> of {TOTAL} founder spots remaining
+              <span className="font-700 text-[#0a0a0a]">{spots}</span> of {TOTAL} founder spots remaining
             </span>
             <span className="font-body text-[12px] font-700" style={{ color: '#E8445A' }}>{taken} taken</span>
           </div>
