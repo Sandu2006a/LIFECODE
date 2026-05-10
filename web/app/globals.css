@@ -41,6 +41,17 @@ body {
   background-color: #FFFFFF;
   overflow-x: hidden;
   cursor: default;
+  font-family: var(--font-dm), 'Inter', system-ui, sans-serif;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-space), 'Barlow Condensed', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+button, .cta, nav, input, textarea, select {
+  font-family: var(--font-dm), 'Inter', system-ui, sans-serif;
 }
 
 /* ─── Custom scrollbar ──────────────────────────────────────────── */
