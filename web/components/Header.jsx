@@ -129,8 +129,8 @@ export default function Header() {
               const isActive = pathname === href;
               return (
                 <Link key={label} href={href}
-                  className="relative font-sans font-600 text-[11px] tracking-[0.18em] uppercase transition-all duration-300 group"
-                  style={{ color: isActive ? BLACK : '#444' }}>
+                  className="relative font-sans font-700 text-[13px] tracking-[0.12em] uppercase transition-all duration-300 group"
+                  style={{ color: isActive ? BLACK : '#222' }}>
                   {label}
                   <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 group-hover:w-full transition-all duration-300 rounded-full"
                     style={{ background: BOX_G }} />
