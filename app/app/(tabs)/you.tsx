@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Line, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import GradientText from '../../src/components/GradientText';
 import Icon from '../../src/components/Icon';
+import WorkoutCalendar from '../../src/components/WorkoutCalendar';
 import { colors, fonts, radii, gradients } from '../../src/theme';
 import { supabase } from '../../src/lib/supabase';
 import { getCachedTokens } from '../../src/lib/auth-cache';
@@ -285,6 +286,9 @@ export default function YouScreen() {
               ))}
             </View>
           </View>
+
+          {/* Workout calendar */}
+          <WorkoutCalendar />
 
           {/* Stats row */}
           <View style={s.statsRow}>

@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-import { STRICT_INSTRUCTIONS, normalizeStrictNutrients } from '@/lib/nutrients';
+import { INGREDIENT_INSTRUCTIONS, normalizeStrictNutrients } from '@/lib/nutrients';
 
 const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
@@ -15,9 +15,9 @@ async function resolveUserId(req: NextRequest): Promise<string | null> {
   return data?.user?.id ?? null;
 }
 
-// Identify-only: image → strict nutrient JSON. Does NOT save anything.
-// Client confirms/edits, then calls /api/meal to log with the parsed
-// nutrients (so we don't run Gemini twice on labels we've already read).
+// Identify-only: image → list of ingredients (each with weight + nutrients).
+// Does NOT save anything. Client lets user edit per-ingredient weights, then
+// calls /api/meal to log the aggregated nutrients.
 export async function POST(req: NextRequest) {
   try {
     const userId = await resolveUserId(req);
@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',
       generationConfig: {
-        temperature: 0.1,
-        maxOutputTokens: 1500,
+        temperature: 0.2,
+        maxOutputTokens: 4096,
       },
     });
 
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       inlineData: { data: imageBase64, mimeType: mimeType || 'image/jpeg' },
     };
 
-    const result = await model.generateContent([STRICT_INSTRUCTIONS, imagePart]);
+    const result = await model.generateContent([INGREDIENT_INSTRUCTIONS, imagePart]);
     const text = result.response.text();
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) {
@@ -55,22 +55,26 @@ export async function POST(req: NextRequest) {
     try { parsed = JSON.parse(match[0]); }
     catch { return NextResponse.json({ error: 'invalid AI JSON', raw: text }, { status: 500 }); }
 
-    const nutrientsStrict = parsed.nutrients || {};
-    const labelNutrients = normalizeStrictNutrients(nutrientsStrict);
-    const description = String(parsed.description || parsed.item_identified || 'Scanned meal').slice(0, 200);
-    const quantity_g = Math.max(1, parseInt(String(parsed.quantity_g)) || 100);
     const isNutritionLabel = !!parsed.isNutritionLabel;
+    const description = String(parsed.description || 'Scanned meal').slice(0, 200);
+
+    const rawIngredients = Array.isArray(parsed.ingredients) ? parsed.ingredients : [];
+    const ingredients = rawIngredients.map((ing: any, idx: number) => {
+      const name = String(ing.name || `Ingredient ${idx + 1}`).slice(0, 100);
+      const quantity_g = Math.max(1, parseInt(String(ing.quantity_g)) || 100);
+      const nutrients = normalizeStrictNutrients(ing.nutrients || {});
+      return { name, quantity_g, nutrients };
+    });
+
+    // Total estimated portion across all ingredients
+    const totalGrams = ingredients.reduce((s: number, ing: any) => s + ing.quantity_g, 0);
 
     return NextResponse.json({
       ok: true,
       description,
-      quantity_g,
       isNutritionLabel,
-      // Always return parsed nutrients (works for both meal photos AND labels)
-      // The client can choose to pass them straight through to /api/meal
-      // skipping a second Gemini call.
-      labelNutrients,
-      itemIdentified: parsed.item_identified || description,
+      ingredients,
+      quantity_g: totalGrams || 100,
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || 'server error' }, { status: 500 });

@@ -72,6 +72,43 @@ export function normalizeStrictNutrients(input: Record<string, unknown>): Record
   return out;
 }
 
+// Multi-ingredient instructions for image scans. Asks Gemini to break down
+// a complex meal into its individual ingredients (chicken / rice / broccoli)
+// each with its OWN quantity and nutrient table. The mobile client renders
+// this as a MyFitnessPal-style editable ingredient list — user can adjust
+// each weight before logging.
+export const INGREDIENT_INSTRUCTIONS = `Ești un API expert în nutriție integrat într-o aplicație de tracking. Analizează imaginea și SPARGE masa în ingrediente individuale (de ex. piept de pui + orez + broccoli sunt 3 ingrediente separate, nu 1).
+
+REGULI STRICTE:
+1. Identifică FIECARE ingredient distinct vizibil în imagine. Dacă vezi o farfurie cu mai multe alimente, listează-le separat. Dacă imaginea conține un singur produs ambalat sau un singur fruct, returnează un singur ingredient.
+2. Pentru fiecare ingredient, estimează greutatea în grame din contextul imaginii (orez ~100-200g, piept de pui ~120-200g, ou ~50g, broccoli ~50-100g, salată ~50-100g, felie pâine ~30g).
+3. Calculează valorile nutritive pentru fiecare ingredient INDIVIDUAL la greutatea estimată, folosind USDA / EuroFIR. Folosește schema strictă: chei exact ca mai jos, valori numerice (fără unități în valori).
+4. Dacă un nutrient nu se găsește natural sau e sub 2% RDA în acel ingredient (ex: EAA în măr, B12 în plante, Creatina în orice non-carne), valoarea TREBUIE să fie 0. Nu inventa.
+5. Dacă inputul este o ETICHETĂ NUTRIȚIONALĂ, returnează un singur ingredient cu valorile DIRECT de pe etichetă (la mărimea porției specificată pe ea), și marchează isNutritionLabel: true.
+6. Răspunde EXCLUSIV în format JSON valid, fără markdown, fără text în afara JSON.
+
+SCHEMA OBLIGATORIE:
+{
+  "isNutritionLabel": <true dacă imaginea e o etichetă, altfel false>,
+  "description": "<descriere scurtă a întregii mese, 5-15 cuvinte, fără grame>",
+  "ingredients": [
+    {
+      "name": "<nume scurt al ingredientului, ex: Piept de pui la grătar>",
+      "quantity_g": <număr întreg, greutatea acestui ingredient în grame>,
+      "nutrients": {
+        "Vitamin_B12_mcg": 0, "Vitamin_B1_mg": 0, "Magnesium_mg": 0,
+        "Vitamin_A_mcg": 0, "Vitamin_K2_mcg": 0, "Zinc_mg": 0,
+        "Selenium_mcg": 0, "Vitamin_E_mg": 0, "Copper_mg": 0,
+        "Vitamin_C_mg": 0, "Vitamin_D3_mcg": 0, "Iodine_mcg": 0,
+        "Calcium_mg": 0, "Folate_mcg": 0, "CoQ10_mg": 0,
+        "Vitamin_B6_mg": 0, "Choline_mg": 0, "Omega_3_mg": 0,
+        "Potassium_mg": 0, "Iron_mg": 0, "Creatine_g": 0,
+        "EAA_g": 0, "L_Glutamine_g": 0, "Sodium_mg": 0
+      }
+    }
+  ]
+}`;
+
 // Strict instructions block — same wording across image and text prompts so
 // the model produces consistent, calibrated values. Include unit-in-key
 // schema and the < 2% RDA floor.

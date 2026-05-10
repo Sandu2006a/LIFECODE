@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="en"><head>
+
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LIFECODE App</title>
+<link rel="stylesheet" href="app.css?v=11">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="app-primitives.jsx" data-plugins="transform-react-jsx-source,om-src-id" data-filename="app-primitives.jsx"></script>
+<script type="text/babel" src="app-home.jsx" data-plugins="transform-react-jsx-source,om-src-id" data-filename="app-home.jsx"></script>
+<script type="text/babel" src="app-workouts.jsx" data-plugins="transform-react-jsx-source,om-src-id" data-filename="app-workouts.jsx"></script>
+<script type="text/babel" src="app-screens.jsx" data-plugins="transform-react-jsx-source,om-src-id" data-filename="app-screens.jsx"></script>
+
+<script type="text/babel" data-presets="env,react" data-plugins="transform-react-jsx-source,om-src-id" data-filename="inline-3">
+const App = () => {
+  const [view, setView] = React.useState("login");
+  const goTab = (t) => setView(t);
+
+  const isLock = view === "lock";
+  const isLogin = view === "login";
+
+  const renderScreen = () => {
+    switch (view) {
+      case "login": return <LoginScreen onLogin={()=>setView("home")}/>;
+      case "home":  return <HomeScreen goTo={goTab}/>;
+      case "track": return <TrackScreen/>;
+      case "chat":  return <ChatScreen/>;
+      case "you":   return <YouScreen/>;
+      case "notif": return <NotificationsScreen/>;
+      case "lock":  return <Lockscreen/>;
+      default: return <HomeScreen goTo={goTab}/>;
+    }
+  };
+
+  return (
+    <div className="stage">
+      <div className="stage__head"><b>LIFECODE</b> · APP</div>
+
+      <div className="tabbar">
+        <button className={view==="login"?"on":""} onClick={()=>setView("login")}>Login</button>
+        <button className={view==="home"?"on":""} onClick={()=>setView("home")}>Today</button>
+        <button className={view==="track"?"on":""} onClick={()=>setView("track")}>Track</button>
+        <button className={view==="chat"?"on":""} onClick={()=>setView("chat")}>Ask</button>
+        <button className={view==="you"?"on":""} onClick={()=>setView("you")}>You</button>
+        <button className={view==="notif"?"on":""} onClick={()=>setView("notif")}>Notifs</button>
+        <button className={view==="lock"?"on":""} onClick={()=>setView("lock")}>Lock</button>
+      </div>
+
+      <Phone
+        time={isLock ? "7:30" : "8:24"}
+        showTabs={!isLock && !isLogin}
+        activeTab={view}
+        setTab={goTab}
+        lockscreen={isLock}>
+        {renderScreen()}
+      </Phone>
+
+      <div className="foot">v2 · monochrome · click tabs to navigate</div>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+
+
+</body></html>

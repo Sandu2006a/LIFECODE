@@ -11,7 +11,7 @@ import MultiRing from '../../src/components/MultiRing';
 import GradientText from '../../src/components/GradientText';
 import { colors, fonts, radii, gradients } from '../../src/theme';
 import { lastNDays, shortDayLabel, localDateString } from '../../src/lib/dates';
-import { logIntake, getState, scanMeal, logMeal } from '../../src/lib/api';
+import { logIntake, getState, scanMeal, logMeal, type ScannedIngredient } from '../../src/lib/api';
 import {
   fetchProtocol, getCachedProtocol, setCachedProtocol,
   computeFallbackProtocol, profileFromState, applyLiveIntake, pakSummary,
@@ -55,12 +55,12 @@ export default function HomeScreen() {
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [scanError, setScanError] = useState('');
 
-  // Confirm modal state
+  // Confirm modal state — supports multi-ingredient (myfitnesspal style)
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmDesc, setConfirmDesc] = useState('');
-  const [confirmQty, setConfirmQty] = useState('');
-  const [confirmLabelNutrients, setConfirmLabelNutrients] = useState<Record<string, number> | null>(null);
   const [confirmIsLabel, setConfirmIsLabel] = useState(false);
+  const [confirmIngredients, setConfirmIngredients] = useState<(ScannedIngredient & { id: string; originalQty: number })[]>([]);
+  const [editMode, setEditMode] = useState(false);
 
   const today = new Date();
   const dateLabel = `${DAYS_SHORT[today.getDay()]} · ${MONTHS[today.getMonth()]} ${today.getDate()}`;
@@ -202,11 +202,22 @@ export default function HomeScreen() {
         setScanError(`Scan failed: ${resp.error}`);
         return;
       }
-      // Open confirm modal — let user edit description before nutrients are calculated
+      // Open confirm modal — multi-ingredient editor (myfitnesspal style)
+      const ings = (resp.ingredients || []).map((ing, i) => ({
+        ...ing,
+        id: `ing-${Date.now()}-${i}`,
+        originalQty: ing.quantity_g,
+      }));
+      setConfirmIngredients(ings.length > 0 ? ings : [{
+        id: `ing-${Date.now()}`,
+        name: resp.description || 'Scanned meal',
+        quantity_g: resp.quantity_g || 100,
+        originalQty: resp.quantity_g || 100,
+        nutrients: {},
+      }]);
       setConfirmDesc(resp.description || '');
-      setConfirmQty(String(resp.quantity_g || 100));
       setConfirmIsLabel(!!resp.isNutritionLabel);
-      setConfirmLabelNutrients(resp.labelNutrients || null);
+      setEditMode(false);
       setConfirmOpen(true);
     } catch (e: any) {
       setScanning(false);
@@ -215,14 +226,31 @@ export default function HomeScreen() {
   };
 
   const submitConfirm = async () => {
-    const desc = confirmDesc.trim();
-    if (!desc) { setScanError('Description cannot be empty.'); return; }
-    const qty = parseInt(confirmQty) || 100;
+    const desc = confirmDesc.trim() || 'Scanned meal';
+    if (confirmIngredients.length === 0) { setScanError('No ingredients.'); return; }
     setConfirming(true);
     setScanError('');
-    // If label and we already have nutrients parsed → pass them; otherwise let backend re-analyze the text
-    const nutrients = confirmIsLabel && confirmLabelNutrients ? confirmLabelNutrients : undefined;
-    const result = await logMeal(desc, qty, nutrients);
+
+    // Aggregate: for each ingredient, scale its nutrients by editedQty/originalQty,
+    // then sum across ingredients. This way edits to weight properly recompute.
+    const aggregated: Record<string, number> = {};
+    let totalGrams = 0;
+    for (const ing of confirmIngredients) {
+      const ratio = ing.originalQty > 0 ? ing.quantity_g / ing.originalQty : 1;
+      totalGrams += ing.quantity_g;
+      for (const [k, v] of Object.entries(ing.nutrients || {})) {
+        const scaled = (Number(v) || 0) * ratio;
+        if (scaled <= 0) continue;
+        aggregated[k] = (aggregated[k] || 0) + scaled;
+      }
+    }
+    // Round to sensible precision
+    for (const k of Object.keys(aggregated)) {
+      aggregated[k] = Math.round(aggregated[k] * 100) / 100;
+    }
+
+    const qty = totalGrams || 100;
+    const result = await logMeal(desc, qty, aggregated);
     setConfirming(false);
     if (!result.ok) {
       setScanError(`Save failed: ${result.error}`);
@@ -252,7 +280,7 @@ export default function HomeScreen() {
       potassium: 'mg', iodine: 'μg', sodium: 'mg', coq10: 'mg',
       choline: 'mg', eaa: 'mg', creatine: 'mg', glutamine: 'mg',
     };
-    const gainSource = result.nutrients || nutrients || {};
+    const gainSource = result.nutrients || aggregated;
     const top = Object.entries(gainSource)
       .map(([k, v]) => [k, Number(v) || 0] as [string, number])
       .filter(([, v]) => v > 0)
@@ -454,29 +482,74 @@ export default function HomeScreen() {
               />
             </View>
 
-            <View style={s.modalQtyRow}>
-              <Text style={s.modalQtyLabel}>Portion size</Text>
-              <View style={s.modalQtyInputBox}>
-                <TextInput
-                  style={s.modalQtyInput}
-                  value={confirmQty}
-                  onChangeText={setConfirmQty}
-                  keyboardType="numeric"
-                  maxLength={5}
-                  editable={!confirming}
-                />
-                <Text style={s.modalQtyUnit}>g</Text>
+            {/* Ingredients list — myfitnesspal style */}
+            {confirmIngredients.length > 0 && (
+              <View>
+                <View style={s.ingHeadRow}>
+                  <Text style={s.modalEyebrow}>
+                    {confirmIngredients.length === 1 ? 'Item' : `${confirmIngredients.length} ingredients detected`}
+                  </Text>
+                  {confirmIngredients.length > 1 && (
+                    <TouchableOpacity onPress={() => setEditMode(m => !m)}>
+                      <Text style={s.editToggle}>{editMode ? 'Done' : 'Edit each'}</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                <ScrollView style={{ maxHeight: 240 }} keyboardShouldPersistTaps="handled">
+                  {confirmIngredients.map((ing, idx) => (
+                    <View key={ing.id} style={s.ingItem}>
+                      {editMode ? (
+                        <TextInput
+                          style={s.ingNameInput}
+                          value={ing.name}
+                          onChangeText={txt => {
+                            setConfirmIngredients(prev => prev.map((x, i) => i === idx ? { ...x, name: txt } : x));
+                          }}
+                          editable={!confirming}
+                          placeholderTextColor={colors.ink3}
+                        />
+                      ) : (
+                        <Text style={s.ingName} numberOfLines={2}>{ing.name}</Text>
+                      )}
+                      <View style={s.ingQtyBox}>
+                        <TextInput
+                          style={s.ingQtyInput}
+                          value={String(ing.quantity_g)}
+                          onChangeText={txt => {
+                            const n = Math.max(0, parseInt(txt.replace(/[^0-9]/g, '')) || 0);
+                            setConfirmIngredients(prev => prev.map((x, i) => i === idx ? { ...x, quantity_g: n } : x));
+                          }}
+                          keyboardType="numeric"
+                          maxLength={5}
+                          editable={!confirming}
+                        />
+                        <Text style={s.ingQtyUnit}>g</Text>
+                      </View>
+                      {editMode && confirmIngredients.length > 1 && (
+                        <TouchableOpacity
+                          onPress={() => setConfirmIngredients(prev => prev.filter((_, i) => i !== idx))}
+                          style={s.ingDelBtn}
+                        >
+                          <Text style={s.ingDelText}>×</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  ))}
+                </ScrollView>
               </View>
-            </View>
+            )}
 
             <TouchableOpacity
               style={[s.modalBtn, { backgroundColor: confirming ? colors.ink4 : colors.ink }]}
               onPress={submitConfirm}
-              disabled={confirming || !confirmDesc.trim()}
+              disabled={confirming || confirmIngredients.length === 0}
             >
               {confirming
                 ? <ActivityIndicator color="#fff" />
-                : <Text style={s.modalBtnText}>Continue · Calculate nutrients</Text>}
+                : <Text style={s.modalBtnText}>
+                    Continue · Log {confirmIngredients.reduce((s, i) => s + i.quantity_g, 0)}g
+                  </Text>}
             </TouchableOpacity>
             <TouchableOpacity onPress={() => !confirming && setConfirmOpen(false)} style={{ paddingVertical: 8 }}>
               <Text style={s.modalCancel}>Cancel</Text>
@@ -571,4 +644,15 @@ const s = StyleSheet.create({
   modalBtn: { paddingVertical: 14, borderRadius: radii.pill, alignItems: 'center', marginTop: 6 },
   modalBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: '#fff', letterSpacing: 0.4 },
   modalCancel: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.ink3, textAlign: 'center' },
+
+  ingHeadRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, marginBottom: 6 },
+  editToggle: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.morning, letterSpacing: 0.4 },
+  ingItem: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(13,13,15,0.06)' },
+  ingName: { flex: 1, fontFamily: fonts.sansMedium, fontSize: 14, color: colors.ink },
+  ingNameInput: { flex: 1, fontFamily: fonts.sansMedium, fontSize: 14, color: colors.ink, backgroundColor: 'rgba(13,13,15,0.04)', paddingHorizontal: 8, paddingVertical: 6, borderRadius: 8 },
+  ingQtyBox: { flexDirection: 'row', alignItems: 'baseline', backgroundColor: 'rgba(13,13,15,0.06)', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
+  ingQtyInput: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.ink, minWidth: 40, textAlign: 'right' },
+  ingQtyUnit: { fontFamily: fonts.sans, fontSize: 12, color: colors.ink3, marginLeft: 3 },
+  ingDelBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(229,85,85,0.12)', alignItems: 'center', justifyContent: 'center' },
+  ingDelText: { fontFamily: fonts.sansBold, fontSize: 18, color: '#e55', lineHeight: 18, marginTop: -2 },
 });
