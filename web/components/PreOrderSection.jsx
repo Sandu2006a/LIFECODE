@@ -181,21 +181,6 @@ export default function PreOrderSection() {
           )}
         </div>
 
-        {/* Spots bar */}
-        <div className="po-rise opacity-0 mt-8 pt-6 border-t border-[#f0f0f0]">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-body text-[12px] text-[#888]">
-              <span className="font-700 text-[#0a0a0a]">{spots}</span> of {TOTAL} founder spots remaining
-            </span>
-            <span className="font-body text-[12px] font-700" style={{ color: '#E8445A' }}>{taken} claimed</span>
-          </div>
-          <div className="h-2 w-full rounded-full overflow-hidden bg-[#f0f0f0]">
-            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct || 2}%`, background: HEAT_G }} />
-          </div>
-          <p className="mt-2 font-body text-[11px] text-[#bbb] text-center">
-            First 100 founders get <span className="font-700" style={{ color: '#E8445A' }}>30% off</span> for life with code <span className="font-700 text-[#0a0a0a]">{PROMO}</span>
-          </p>
-        </div>
 
       </div>
     </section>
