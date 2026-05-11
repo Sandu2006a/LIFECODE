@@ -89,7 +89,7 @@ export default function EcosystemSection() {
                 className="inline-flex items-center gap-4 px-8 py-4 rounded-full text-white font-sans font-600 text-sm tracking-widest uppercase hover:opacity-88 transition-opacity duration-300 group"
                 style={{ background: BOX_G }}
               >
-                <span>Start your protocol</span>
+                <span>Get the product</span>
                 <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                     <path d="M2 5h6M5.5 2.5L8 5l-2.5 2.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>

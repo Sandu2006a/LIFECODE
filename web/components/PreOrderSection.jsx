@@ -93,7 +93,7 @@ export default function PreOrderSection() {
         <div className="po-rise opacity-0 text-center mb-8">
           <h2 className="font-sans font-700 text-[#0a0a0a] leading-none tracking-tight mb-4"
             style={{ fontSize: 'clamp(2.4rem, 5vw, 4.5rem)' }}>
-            Launches in
+            The product drops soon.
           </h2>
 
           {/* Timer */}

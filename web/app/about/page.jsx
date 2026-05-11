@@ -318,7 +318,7 @@ export default function AboutPage() {
               <div>
                 <Eyebrow>Ready to start?</Eyebrow>
                 <h3 className="font-sans font-700 text-[30px] md:text-[38px] leading-tight" style={{ color: INK }}>
-                  Build your protocol.
+                  Get the product.
                 </h3>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">

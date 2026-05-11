@@ -92,7 +92,7 @@ export default function AppSection() {
           </h2>
 
           <p className="app-head font-body font-300 text-[#888] text-base md:text-lg leading-loose max-w-xl opacity-0">
-            Not just tracking. Intelligence. The app connects your protocol, your food, your training
+            Not just tracking. Intelligence. The app connects your product, your food, your training
             and your biology — and tells you exactly what&apos;s happening inside your body.
           </p>
         </div>

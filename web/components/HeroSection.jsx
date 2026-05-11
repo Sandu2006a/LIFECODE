@@ -59,7 +59,7 @@ export default function HeroSection() {
             <Link href="/pricing"
               className="inline-flex items-center gap-3 px-7 py-3.5 rounded-full text-white font-sans font-600 text-[13px] tracking-widest uppercase group hover:opacity-88 transition-opacity duration-300"
               style={{ background: BOX_G }}>
-              <span>Start your protocol</span>
+              <span>Get the product</span>
               <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
                 <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
                   <path d="M1.5 4.5h6M4.5 2L7 4.5 4.5 7" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>

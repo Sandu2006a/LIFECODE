@@ -6,7 +6,7 @@ const ITEMS = [
   'Clinical Dosing',
   'Zero Fillers',
   'Circadian Aligned',
-  '3-Phase Protocol',
+  '3-Phase Product',
   'Third-Party Verified',
   'Elite Performance',
 ];
