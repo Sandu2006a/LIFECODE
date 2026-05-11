@@ -44,7 +44,7 @@ export default function LockedScreen({ status }: Props) {
           {isPastDue ? (
             <TouchableOpacity
               style={s.ghostBtn}
-              onPress={() => Linking.openURL('https://web-zeta-lyart-53.vercel.app/pricing')}
+              onPress={() => Linking.openURL('https://lifecodenutrition.com/pricing')}
             >
               <Text style={s.ghostText}>Update billing</Text>
             </TouchableOpacity>

@@ -1,6 +1,6 @@
 import { ensureSession } from './session';
 
-export const API_URL = 'https://web-zeta-lyart-53.vercel.app';
+export const API_URL = 'https://lifecodenutrition.com';
 
 async function authFetch(path: string, init?: RequestInit) {
   const { accessToken } = await ensureSession();

@@ -10,7 +10,7 @@ import { supabase } from '../src/lib/supabase';
 import { getCachedUserId, getCachedTokens } from '../src/lib/auth-cache';
 import { fonts, radii } from '../src/theme';
 
-const API_URL = 'https://web-zeta-lyart-53.vercel.app';
+const API_URL = 'https://lifecodenutrition.com';
 
 const C = {
   bg: '#ffffff', text: '#111111', muted: '#666666', dim: '#999999',

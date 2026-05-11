@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-const API = 'https://web-zeta-lyart-53.vercel.app/api';
+const API = 'https://lifecodenutrition.com/api';
 
 export type SubscriptionData = {
   plan: string | null;
