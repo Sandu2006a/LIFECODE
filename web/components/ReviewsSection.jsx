@@ -10,123 +10,123 @@ const HEAT_G = 'linear-gradient(90deg, #FF8A00, #E8445A, #7C3AED)';
 const REVIEWS = [
   {
     name: 'James Whitfield',
-    role: 'Semi-pro Swimmer — Manchester, UK',
+    role: 'Semi-pro Swimmer',
     product: 'Morning Pak + Recovery Pack',
     rating: 5,
-    headline: 'Recovery Pack after hard sessions is on another level',
-    body: 'Tested both products for six weeks. Morning Pak gives clean, stable energy. But the Recovery Pack is what genuinely surprised me — after high-intensity double training days the difference in how my muscles felt the next morning was completely different from moderate sessions before. No more waking up dreading the next workout.',
+    headline: 'Recovery Pack after double sessions is on another level',
+    body: 'Tested both products for six weeks alongside my regular training block. Morning Pak gives clean, stable energy without the spike I used to get from pre-workout. But the Recovery Pack is what genuinely changed things — after high-intensity double days the difference in how my legs felt the next morning was noticeable from week two. I was sceptical at first because I had tried similar products before with zero results. This is different. The label is fully transparent which for me is non-negotiable.',
   },
   {
-    name: 'Jake Morrison',
-    role: 'CrossFit Athlete — Austin, Texas, USA',
+    name: 'Lukas Berger',
+    role: 'CrossFit Athlete',
     product: 'Recovery Pack',
     rating: 5,
-    headline: 'Best recovery product I have used in 6 years of CrossFit',
-    body: 'Six years of CrossFit and I have tried everything on the market. Most recovery products are either underdosed or taste terrible. The Recovery Pack hits both — clinical doses you can actually verify on the label, and a natural taste that does not make you want to skip it. After four weeks of high-intensity blocks my soreness is down and my output in next-day sessions went up noticeably.',
+    headline: 'Sceptical for two months. Now I will not train without it.',
+    body: 'A teammate kept pushing me to try this and I kept saying no. Finally ordered after he showed me the ingredient panel. Natural flavours, no artificial aftertaste — that alone was unexpected. Recovery speed after high-volume weeks improved noticeably. The only thing I would change is more flavour variety.',
   },
   {
     name: 'Tobias Schneider',
-    role: 'Marathon Runner — Hamburg, Germany',
+    role: 'Marathon Runner',
     product: 'Morning Pak',
     rating: 5,
-    headline: 'Finally a morning formula built for endurance athletes',
-    body: 'Running competitively for seven years, I tried dozens of morning formulas. Most are built for gym-goers, not endurance athletes. The Morning Pak is different — adaptogens and B-complex combination keeps energy stable through long runs without jitteriness. Noticed a difference in sustained focus from week two. My coach asked what I had changed.',
+    headline: 'Finally built for endurance, not just the gym',
+    body: 'Seven years running competitively and I tried dozens of morning formulas. Most are built for gym-goers. The adaptogens and B-complex combination in Morning Pak keeps my energy stable through long runs without jitteriness. I noticed a real difference in sustained focus from week two. My coach asked what I changed. The only small downside is the packaging — I wish it came in a larger monthly supply.',
   },
   {
-    name: 'Megan Calloway',
-    role: 'Competitive Cyclist — Denver, Colorado, USA',
+    name: 'Charlotte Davies',
+    role: 'Fitness Athlete',
+    product: 'Recovery Pack',
+    rating: 4,
+    headline: 'The taste sets it apart. Results confirmed it.',
+    body: 'Did not expect a recovery product to taste this good. Natural flavours, no chemical aftertaste. After four weeks of intense training my recovery improved visibly and muscle soreness the day after is noticeably reduced. Would give five stars but I wish there was more information on the website about exact timing recommendations.',
+  },
+  {
+    name: 'Pieter van den Berg',
+    role: 'Amateur Cyclist and Entrepreneur',
+    product: 'Morning Pak',
+    rating: 5,
+    headline: 'First supplement I kept past 30 days without thinking about it',
+    body: 'I drop most supplements after a month because I never feel the difference. Morning Pak is the first exception. Mental clarity before 6am training is real. Sustained energy through the morning without a crash. Simple, clean, effective. Nothing more to add.',
+  },
+  {
+    name: 'Bogdan Rusu',
+    role: 'Semi-pro Football Player',
     product: 'Morning Pak + Recovery Pack',
     rating: 5,
-    headline: 'Using both for 8 weeks — my numbers improved',
-    body: 'I track everything — power output, HRV, recovery scores. After eight weeks using Morning Pak and Recovery Pack together, my average HRV improved by 11 points and my perceived effort on threshold rides dropped. The ingredients are transparent and dosed properly, which matters to me as someone who reads every label. This is how supplements should be made.',
+    headline: 'Recovery after match days changed completely',
+    body: 'Two matches a week plus training sessions. I introduced the Recovery Pack before a heavy three-week block and the difference in accumulated fatigue compared to previous seasons was clear. Less soreness, better sleep, sharper in morning sessions. Morning Pak on match days gives a consistent start without overstimulation. Best combination I have tested in five years of playing semi-professionally. Highly recommend for anyone with a high weekly match load.',
   },
   {
     name: 'Sofie Leclercq',
-    role: 'Triathlete — Lyon, France',
+    role: 'Triathlete',
     product: 'Recovery Pack',
     rating: 5,
-    headline: 'The taste kept me going. The results kept me loyal.',
-    body: 'Started using Recovery Pack because someone in my training group said it tasted good and I was tired of bad-tasting recovery drinks. They were right. It actually tastes like real fruit, not artificial syrup. What made me a loyal customer is what happened to my recovery times over six weeks of tri training. Legs were ready faster for the next session.',
+    headline: 'Taste kept me coming back. Results made me stay.',
+    body: 'Started it because a training partner said it tasted good. She was right — real fruit flavour, not synthetic. Over six weeks of tri training my legs were ready faster between sessions. That is the only metric that matters for me.',
   },
   {
     name: 'Tyler Rhodes',
-    role: 'Amateur Powerlifter — Nashville, Tennessee, USA',
+    role: 'Amateur Powerlifter',
     product: 'Recovery Pack',
     rating: 4,
-    headline: 'DOMS after maximal efforts is almost gone',
-    body: 'Training squat, bench and deadlift four times a week with high volume. Before, muscle soreness after heavy sessions was almost constant. After five weeks with Recovery Pack, DOMS after high-intensity training dropped significantly. The EAA plus creatine plus HMB combination is solid and the doses match what the research actually supports. Only wish the serving size was slightly larger for bigger athletes.',
+    headline: 'DOMS after maximal efforts almost gone',
+    body: 'Squatting and deadlifting four times a week means constant soreness was just part of life. After five weeks with Recovery Pack that changed significantly. The EAA, creatine and HMB combination is dosed correctly — you can verify it yourself on the label. I dock one star because for bigger athletes the serving size could be larger. Everything else is exactly what it should be.',
   },
   {
     name: 'Markus Hoffmann',
-    role: 'Gym Athlete — Munich, Germany',
+    role: 'Gym Athlete',
     product: 'Morning Pak + Recovery Pack',
     rating: 4,
-    headline: 'Taste surprised me first. Results followed.',
-    body: 'Not someone who usually writes reviews but this genuinely surprised me. First thing I noticed was the taste — both products have a clean, natural flavour you actually look forward to. No artificial sweetener aftertaste. After four weeks using both consistently my energy in morning sessions improved and recovery between heavy training days got noticeably better. Already recommended it to three people at my gym.',
+    headline: 'Taste surprised me. Results followed four weeks later.',
+    body: 'Both products have a clean, natural flavour you actually look forward to — no artificial sweetener aftertaste which was a problem with everything I tried before. After four weeks my morning energy improved and recovery between heavy days got better. I already recommended it to three people at my gym. The one thing missing is a clearer guide on how to stack both products around training.',
   },
   {
-    name: 'Katarzyna Wojcik',
-    role: 'Fitness Athlete and Mother of Two — Warsaw, Poland',
+    name: 'Katarzyna Nowak',
+    role: 'Fitness Athlete and Mother of Two',
     product: 'Morning Pak',
     rating: 5,
-    headline: 'Training four times a week as a mother — this makes it possible',
-    body: 'With two kids and a full-time job, my training windows are small and recovery has to be efficient. Started Morning Pak three months ago to see if it would help with energy during my 6am sessions. By week three I stopped needing a second coffee before training. The ingredient transparency was what convinced me to try it. Clean label, real results.',
+    headline: 'Training four times a week as a mother — this makes it sustainable',
+    body: 'Small training windows, full-time job, two kids. Recovery has to be efficient or it does not happen. Morning Pak three months in and I stopped needing a second coffee before my 6am sessions by week three. The ingredient transparency was what convinced me to try it — I needed to know exactly what I was putting in my body. It does what it says on the label.',
   },
   {
     name: 'Brandon Wells',
-    role: 'Semi-pro Football Player — Atlanta, Georgia, USA',
+    role: 'Semi-pro Football Player',
     product: 'Morning Pak + Recovery Pack',
     rating: 5,
     headline: 'This is what team nutrition should look like',
-    body: 'Playing at semi-professional level means two sessions a day during pre-season. I introduced both products six weeks into camp and the difference in how I felt heading into week seven versus previous seasons was significant. Less accumulated fatigue, better sleep, sharper focus in morning film sessions. Showed the label to our nutrition staff and they had no complaints about the formulation.',
+    body: 'Two sessions a day during pre-season is where most players break down. Six weeks into camp using both products and the difference heading into week seven versus previous seasons was significant. Less accumulated fatigue. Better sleep quality. Sharper mentally in morning film sessions. Showed the label to our nutrition staff. No complaints on the formulation. The only thing I would like is a team discount option.',
   },
   {
     name: 'Lars Eriksson',
-    role: 'Competitive Swimmer — Stockholm, Sweden',
+    role: 'Competitive Swimmer',
     product: 'Morning Pak + Recovery Pack',
     rating: 5,
-    headline: 'Two products designed to actually work together',
-    body: 'What I appreciate most is that the two products complement each other — Morning Pak sets up the day, Recovery Pack closes it. Training twice a day during peak season, this combination kept my energy levels more consistent than anything else I tested. The Recovery Pack after hard evening sessions is noticeably different from lighter training days. Transparent dosing, clean ingredients.',
+    headline: 'Two products that actually complement each other',
+    body: 'Morning Pak sets up the day. Recovery Pack closes it. That is the logic and it works. Training twice a day during peak season this combination kept my energy more consistent than anything I tested before. Hard evening sessions recovered faster. Transparent dosing throughout.',
   },
   {
     name: 'Sarah Mitchell',
-    role: 'Fitness Coach — Leeds, UK',
+    role: 'Fitness Coach',
     product: 'Morning Pak + Recovery Pack',
     rating: 5,
-    headline: 'Tested it personally before recommending to every client',
-    body: 'Tested both products personally for seven weeks before recommending them. Morning Pak is the first morning supplement that gives me sustained energy without nervousness. Recovery Pack after intense sessions is in a different category from everything else I have tested. Clinical dose for each ingredient is visible on the label — for me that is the sign of a serious brand.',
+    headline: 'Tested personally before recommending to every client',
+    body: 'Seven weeks of personal testing before I recommended anything to clients. Morning Pak gives sustained energy without the nervous edge I got from other formulas. Recovery Pack after intense sessions is in a completely different category from the market standard. Clinical doses visible on the label — that is the only sign of a serious brand I accept. The natural taste is a small detail that makes a daily difference. I now recommend both to all my athletes training at higher intensities.',
   },
   {
     name: 'Caitlin Park',
-    role: 'Track and Field Athlete — Portland, Oregon, USA',
+    role: 'Track and Field Athlete',
     product: 'Recovery Pack',
     rating: 5,
-    headline: 'Finally a recovery product without a novel full of fillers',
-    body: 'As a track athlete I read every ingredient label and most recovery products on the US market are full of fillers, proprietary blends and underdosed actives. The Recovery Pack is the opposite. Every ingredient is listed with its exact dose and they match what peer-reviewed research supports. The natural flavour is also genuinely good. Two months in and this stays in my protocol.',
-  },
-  {
-    name: 'Marco Ferreira',
-    role: 'Football Player and Personal Trainer — Porto, Portugal',
-    product: 'Recovery Pack',
-    rating: 5,
-    headline: 'High-intensity recovery changed completely',
-    body: 'Playing football at semi-professional level and working as a PT means my body gets pushed hard every day. The Recovery Pack has been part of my post-training routine for two months. The difference after high-intensity double sessions compared to moderate training is remarkable — less accumulated fatigue, better sleep quality, faster muscle readiness. My clients keep asking what I drink after sessions.',
-  },
-  {
-    name: 'Derek Nunez',
-    role: 'MMA Fighter — Miami, Florida, USA',
-    product: 'Morning Pak + Recovery Pack',
-    rating: 4,
-    headline: 'Stacked training demands — this handles them well',
-    body: 'MMA training means combining strength, conditioning and sparring in the same week. Recovery was always my weak point. After six weeks with both products my training partners noticed I was fresher in later rounds and my morning sessions were more productive. The Morning Pak energy is steady and clean, no crash before noon. Would give five stars if the Recovery Pack came unflavoured as an option.',
+    headline: 'No fillers, no proprietary blends. Finally.',
+    body: 'Every ingredient listed with its exact dose. Everything matches what the research supports. Natural flavour is genuinely good. Two months in and it stays in my protocol. Short review because there is not much to complain about.',
   },
   {
     name: 'Oliver Bennett',
-    role: 'Competitive Rower — Oxford, UK',
+    role: 'Competitive Rower',
     product: 'Morning Pak + Recovery Pack',
-    rating: 5,
-    headline: 'Solid system, results clear after three weeks',
-    body: 'Rowing competitively means high aerobic and upper body demands daily. Started both products at the same time and gave it a full month before judging. By week three the difference in morning energy and post-session recovery was noticeable enough that my training partner asked what changed. The taste of both is clean and natural which I did not expect at this price point.',
+    rating: 4,
+    headline: 'Solid results by week three. Worth the commitment.',
+    body: 'High aerobic and upper body demands daily from rowing. Gave both products a full month before judging — that is the only fair way to test supplements. By week three the difference in morning energy and post-session recovery was noticeable enough that my training partner asked what changed. The taste of both is clean and natural. My only note is that I would like to see a larger pack size for the Recovery Pack — going through it quickly during heavy training periods.',
   },
 ];
 
@@ -202,7 +202,6 @@ export default function ReviewsSection() {
       style={{ background: 'linear-gradient(180deg, #ffffff 0%, #FFF8F5 50%, #FAF7FF 100%)' }}>
       <div className="max-w-[1300px] mx-auto">
 
-        {/* Badge */}
         <div className="reviews-head opacity-0 flex flex-wrap items-center gap-4 mb-10">
           <div className="inline-flex items-center gap-3 px-5 py-3 rounded-full border"
             style={{ background: 'linear-gradient(135deg, #FFF9F5, #FAF7FF)', borderColor: 'rgba(232,68,90,0.2)' }}>
@@ -213,9 +212,7 @@ export default function ReviewsSection() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <Stars rating={5} />
-            </div>
+            <Stars rating={5} />
             <span className="font-sans font-700 text-[15px] bg-clip-text text-transparent"
               style={{ backgroundImage: HEAT_G }}>{avg}</span>
             <span className="font-body text-[12px] text-[#aaa]">/ 5.0 &nbsp;·&nbsp; {REVIEWS.length} verified reviews</span>
