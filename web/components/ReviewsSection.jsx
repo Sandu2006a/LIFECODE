@@ -107,28 +107,31 @@ function Stars({ rating }) {
 
 function ReviewCard({ review }) {
   return (
-    <div className="review-card opacity-0 flex flex-col gap-4 rounded-2xl p-6 bg-white border border-[#f0e8ff] hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
-      <div className="flex items-start justify-between gap-2 flex-wrap">
+    <div className="review-card opacity-0 flex flex-col gap-3 rounded-xl p-5 bg-white border border-[#f0e8ff] hover:shadow-md hover:border-[#e8d5ff] transition-all duration-300 hover:-translate-y-0.5">
+      <div className="flex items-center justify-between gap-2">
         <Stars rating={review.rating} />
-        <span className="font-body text-[10px] tracking-[0.18em] uppercase px-2.5 py-1 rounded-full flex-shrink-0"
-          style={{ background: 'linear-gradient(135deg, #FFF3EC, #FAF0FF)', color: '#E8445A', border: '1px solid rgba(232,68,90,0.12)' }}>
+        <span className="font-body text-[9px] tracking-[0.15em] uppercase px-2 py-0.5 rounded-full flex-shrink-0 font-600"
+          style={{ background: 'linear-gradient(135deg, #FFF3EC, #FAF0FF)', color: '#E8445A' }}>
           {review.product}
         </span>
       </div>
-      <h3 className="font-sans font-700 text-[#0a0a0a] text-[15px] leading-snug">
+
+      <p className="font-sans font-700 text-[#0a0a0a] text-[13px] leading-snug">
         &ldquo;{review.headline}&rdquo;
-      </h3>
-      <p className="font-body font-300 text-[#666] text-[13px] leading-relaxed flex-1">
+      </p>
+
+      <p className="font-body text-[12px] text-[#777] leading-relaxed flex-1 line-clamp-4">
         {review.body}
       </p>
-      <div className="flex items-center gap-3 pt-3 border-t border-[#f5f5f5]">
-        <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-sans font-700 text-[13px] flex-shrink-0"
+
+      <div className="flex items-center gap-2.5 pt-2.5 border-t border-[#f5f5f5]">
+        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white font-sans font-700 text-[11px] flex-shrink-0"
           style={{ background: BOX_G }}>
           {review.name.charAt(0)}
         </div>
         <div>
-          <p className="font-sans font-700 text-[#0a0a0a] text-[13px]">{review.name}</p>
-          <p className="font-body text-[11px] text-[#aaa] mt-0.5">{review.role}</p>
+          <p className="font-sans font-700 text-[#0a0a0a] text-[12px] leading-none">{review.name}</p>
+          <p className="font-body text-[10px] text-[#bbb] mt-0.5">{review.role}</p>
         </div>
       </div>
     </div>
@@ -192,7 +195,7 @@ export default function ReviewsSection() {
           </p>
         </div>
 
-        <div className="reviews-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="reviews-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {REVIEWS.map((r) => (
             <ReviewCard key={r.name} review={r} />
           ))}
