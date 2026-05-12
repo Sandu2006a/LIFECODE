@@ -212,9 +212,7 @@ export default function Header() {
           <span className="hidden sm:block w-px h-3.5" style={{ background: 'rgba(198,40,40,0.2)' }} />
           <span className="font-body text-[11px] sm:text-[12px] text-[#555]">
             <strong className="font-800 bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>30% OFF</strong>
-            {' '}on the first month — first{' '}
-            <strong className="font-800 bg-clip-text text-transparent" style={{ backgroundImage: BOX_G }}>100</strong>
-            {' '}founders only
+            {' '}on your first month
           </span>
           <span className="hidden sm:block w-px h-3.5" style={{ background: 'rgba(198,40,40,0.2)' }} />
           <span className="flex items-center gap-1.5 font-sans font-700 text-[12px] tabular-nums">
