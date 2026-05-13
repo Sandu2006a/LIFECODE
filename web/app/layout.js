@@ -40,6 +40,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${barlowCondensed.variable} ${inter.variable}`}>
+      <head>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-GCG0P5WJVP" />
+        <script dangerouslySetInnerHTML={{ __html: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-GCG0P5WJVP');
+        `}} />
+      </head>
       <body className="bg-lc-white text-lc-maroon font-body antialiased">
         {children}
         <CookieBanner />
