@@ -6,6 +6,32 @@ export const dynamic = 'force-dynamic';
 
 const TOTAL_SPOTS = 157;
 
+// Blocked disposable/spam domains
+const BLOCKED_DOMAINS = new Set([
+  'mailrez.com','rezult.org','linksandmail.com','clientcaf.info','webmai.co',
+  'banlamail.com','ourtimesupport.com','wirethings.net','zebyinbox.com',
+  'mailinator.com','guerrillamail.com','10minutemail.com','tempmail.com',
+  'throwaway.email','yopmail.com','sharklasers.com','guerrillamailblock.com',
+  'grr.la','guerrillamail.info','guerrillamail.biz','guerrillamail.de',
+  'spam4.me','trashmail.com','trashmail.me','dispostable.com','mailnull.com',
+  'spamgourmet.com','mailnesia.com','maildrop.cc','discard.email',
+]);
+
+// Simple in-memory rate limiter (per IP, max 3 per 10 min)
+const rateLimitMap = new Map<string, { count: number; reset: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.reset) {
+    rateLimitMap.set(ip, { count: 1, reset: now + 10 * 60 * 1000 });
+    return false;
+  }
+  if (entry.count >= 3) return true;
+  entry.count++;
+  return false;
+}
+
 function admin() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -177,11 +203,30 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = await req.json() as { email?: string };
+    // Rate limiting
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    if (isRateLimited(ip)) {
+      return NextResponse.json({ error: 'Too many requests. Try again later.' }, { status: 429 });
+    }
+
+    const body = await req.json() as { email?: string; _hp?: string };
+
+    // Honeypot — bots fill hidden fields, humans don't
+    if (body._hp) {
+      return NextResponse.json({ success: true }); // silently ignore bots
+    }
+
+    const { email } = body;
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
     }
     const normal = email.toLowerCase().trim();
+
+    // Block disposable/spam domains
+    const domain = normal.split('@')[1];
+    if (BLOCKED_DOMAINS.has(domain)) {
+      return NextResponse.json({ error: 'Please use a valid email address.' }, { status: 400 });
+    }
 
     const taken = await countTaken();
     if (taken >= TOTAL_SPOTS) {

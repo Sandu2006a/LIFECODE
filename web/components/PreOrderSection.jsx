@@ -34,6 +34,7 @@ export default function PreOrderSection() {
   const sectionRef = useRef(null);
   const { days, hours, mins, secs } = useCountdown(LAUNCH);
   const [email,    setEmail]    = useState('');
+  const [hp,       setHp]       = useState('');
   const [status,   setStatus]   = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [taken,    setTaken]    = useState(0);
@@ -62,7 +63,7 @@ export default function PreOrderSection() {
     setStatus('loading');
     setErrorMsg('');
     try {
-      const res  = await fetch('/api/preorder', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email }) });
+      const res  = await fetch('/api/preorder', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email, _hp: hp }) });
       const data = await res.json();
       if (!res.ok) { setErrorMsg(data?.error || 'Something went wrong.'); setStatus('error'); return; }
       if (data.taken !== undefined) setTaken(data.taken);
@@ -157,6 +158,9 @@ export default function PreOrderSection() {
             </div>
           ) : (
             <form onSubmit={onSubmit} className="space-y-3">
+              {/* Honeypot — hidden from humans, filled by bots */}
+              <input type="text" name="website" value={hp} onChange={e => setHp(e.target.value)}
+                style={{ position: 'absolute', left: '-9999px', opacity: 0 }} tabIndex={-1} autoComplete="off" />
               <input
                 type="email" required inputMode="email" autoComplete="email"
                 disabled={status === 'loading'}
