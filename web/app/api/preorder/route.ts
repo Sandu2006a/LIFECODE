@@ -71,46 +71,88 @@ function welcomeEmailHtml(email: string) {
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Welcome to Lifecode</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 </head>
-<body style="margin:0;padding:0;background:#ffffff;font-family:Georgia,serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;padding:60px 16px;">
+<body style="margin:0;padding:0;background:#fafafa;font-family:'Inter',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa;padding:48px 16px;">
     <tr><td align="center">
-    <table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;">
+    <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.04);">
 
-      <tr><td style="padding-bottom:48px;">
-        <p style="margin:0;font-size:11px;letter-spacing:5px;text-transform:uppercase;color:#bbb;font-family:Arial,sans-serif;">LIFECODE</p>
+      <!-- Gradient top bar -->
+      <tr><td style="height:4px;background:linear-gradient(90deg,#FF8A00 0%,#C62828 40%,#7C3AED 70%,#1D4ED8 100%);"></td></tr>
+
+      <!-- Logo -->
+      <tr><td style="padding:48px 48px 0;">
+        <p style="margin:0;font-size:11px;letter-spacing:6px;text-transform:uppercase;color:#bbb;font-weight:700;font-family:'Inter',Arial,sans-serif;">LIFECODE</p>
       </td></tr>
 
-      <tr><td style="padding-bottom:32px;">
-        <p style="margin:0;font-size:18px;color:#0a0a0a;line-height:1.8;">Hey ${firstName},</p>
+      <!-- Greeting -->
+      <tr><td style="padding:32px 48px 0;">
+        <p style="margin:0;font-size:18px;color:#0a0a0a;font-family:'Playfair Display',Georgia,serif;font-style:italic;">Hey ${firstName},</p>
       </td></tr>
 
-      <tr><td style="padding-bottom:32px;">
-        <p style="margin:0 0 20px;font-size:18px;color:#0a0a0a;line-height:1.8;font-weight:700;">
-          Welcome to Lifecode. 🧬
-        </p>
-        <p style="margin:0 0 20px;font-size:16px;color:#333;line-height:1.8;">
-          Really glad you are here.
-        </p>
-        <p style="margin:0 0 20px;font-size:16px;color:#333;line-height:1.8;">
-          Quick question — what made you sign up?
-        </p>
-        <p style="margin:0;font-size:16px;color:#333;line-height:1.8;">
-          Hit reply and tell us. We read every message.
+      <!-- Main message -->
+      <tr><td style="padding:24px 48px 0;">
+        <h1 style="margin:0 0 8px;font-size:34px;line-height:1.15;color:#0a0a0a;font-family:'Playfair Display',Georgia,serif;font-weight:700;letter-spacing:-0.5px;">
+          Welcome to Lifecode.
+        </h1>
+        <p style="margin:16px 0 0;font-size:16px;color:#555;line-height:1.7;font-family:'Inter',Arial,sans-serif;">
+          Really glad you are here. 🧬
         </p>
       </td></tr>
 
-      <tr><td style="padding:32px 0;border-top:1px solid #f0f0f0;border-bottom:1px solid #f0f0f0;">
-        <p style="margin:0;font-size:15px;color:#666;line-height:1.8;">
+      <!-- Quote / Motivational message -->
+      <tr><td style="padding:36px 48px 0;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-left:3px solid transparent;border-image:linear-gradient(180deg,#FF8A00,#C62828,#7C3AED) 1;background:linear-gradient(90deg,rgba(255,138,0,0.04),rgba(124,58,237,0.04));">
+          <tr><td style="padding:20px 24px;">
+            <p style="margin:0;font-size:18px;line-height:1.5;color:#0a0a0a;font-family:'Playfair Display',Georgia,serif;font-style:italic;font-weight:400;">
+              "The work you do when no one is watching is what determines what you become."
+            </p>
+            <p style="margin:12px 0 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#999;font-family:'Inter',Arial,sans-serif;">
+              Why we built this
+            </p>
+          </td></tr>
+        </table>
+      </td></tr>
+
+      <!-- Story / Mission -->
+      <tr><td style="padding:32px 48px 0;">
+        <p style="margin:0 0 16px;font-size:15px;color:#444;line-height:1.8;font-family:'Inter',Arial,sans-serif;">
+          You signed up because something about this resonated. Maybe it was the science. Maybe the transparency. Maybe just the feeling that finally, someone built it the way it should have been built from the start.
+        </p>
+        <p style="margin:0;font-size:15px;color:#444;line-height:1.8;font-family:'Inter',Arial,sans-serif;">
+          We want to know which one it was.
+        </p>
+      </td></tr>
+
+      <!-- Ask -->
+      <tr><td style="padding:32px 48px 0;">
+        <div style="background:linear-gradient(135deg,#FFF8F5,#FAF7FF);border-radius:12px;padding:24px;">
+          <p style="margin:0 0 8px;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#C62828;font-weight:700;font-family:'Inter',Arial,sans-serif;">
+            One quick question
+          </p>
+          <p style="margin:0 0 12px;font-size:20px;color:#0a0a0a;font-family:'Playfair Display',Georgia,serif;font-weight:600;line-height:1.4;">
+            What made you sign up?
+          </p>
+          <p style="margin:0;font-size:14px;color:#666;line-height:1.7;font-family:'Inter',Arial,sans-serif;">
+            Hit reply and tell us. We read every single message — and the answers shape what we build next.
+          </p>
+        </div>
+      </td></tr>
+
+      <!-- Signature -->
+      <tr><td style="padding:40px 48px 32px;">
+        <p style="margin:0;font-size:15px;color:#666;line-height:1.6;font-family:'Playfair Display',Georgia,serif;font-style:italic;">
           — The Lifecode Team 🧬
         </p>
       </td></tr>
 
-      <tr><td style="padding-top:32px;text-align:center;">
-        <p style="margin:0;font-size:11px;color:#ccc;font-family:Arial,sans-serif;">
-          <a href="https://lifecodenutrition.com" style="color:#ccc;text-decoration:none;">lifecodenutrition.com</a>
+      <!-- Footer -->
+      <tr><td style="padding:24px 48px 32px;border-top:1px solid #f0f0f0;">
+        <p style="margin:0;font-size:11px;color:#bbb;line-height:1.8;text-align:center;font-family:'Inter',Arial,sans-serif;letter-spacing:0.3px;">
+          <a href="https://lifecodenutrition.com" style="color:#999;text-decoration:none;font-weight:500;">lifecodenutrition.com</a>
           &nbsp;·&nbsp;
-          <a href="mailto:hello@lifecodenutrition.com" style="color:#ccc;text-decoration:none;">hello@lifecodenutrition.com</a>
+          <a href="mailto:hello@lifecodenutrition.com" style="color:#999;text-decoration:none;font-weight:500;">hello@lifecodenutrition.com</a>
         </p>
       </td></tr>
 
