@@ -100,8 +100,7 @@ function UserNav() {
 
 function PlanButton({ plan, gradient, label }) {
   const router  = useRouter();
-  const [status, setStatus] = useState('idle'); // idle | loading | done | error
-
+  const [status, setStatus] = useState('idle');
   const [errMsg, setErrMsg] = useState('');
 
   const handleClick = async () => {
@@ -116,20 +115,16 @@ function PlanButton({ plan, gradient, label }) {
     setStatus('loading');
     setErrMsg('');
     try {
-      const res = await fetch('/api/register', {
+      const res = await fetch('/api/preorder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: session.user.email,
-          name: session.user.user_metadata?.full_name || session.user.user_metadata?.display_name || '',
-          plan,
-        }),
+        body: JSON.stringify({ email: session.user.email }),
       });
       if (res.ok) {
         setStatus('done');
       } else {
         const d = await res.json().catch(() => ({}));
-        setErrMsg(d.error || 'Unknown error');
+        setErrMsg(d.error || 'Something went wrong.');
         setStatus('error');
       }
     } catch (e) {
@@ -140,9 +135,9 @@ function PlanButton({ plan, gradient, label }) {
 
   if (status === 'done') {
     return (
-      <div className="mt-6 bg-green-50 border border-green-200 rounded-2xl px-6 py-4">
-        <p className="font-sans font-600 text-[15px] text-green-700">Activation code sent!</p>
-        <p className="font-body text-[13px] text-green-600 mt-1">Check your inbox — your activation code is on its way.</p>
+      <div className="mt-6 rounded-2xl border border-[#d1fae5] bg-[#f0fdf4] px-6 py-5">
+        <p className="font-sans font-700 text-[15px] text-[#059669]">You are on the waiting list.</p>
+        <p className="font-body text-[13px] text-[#666] mt-1">We sent a confirmation to your inbox. We will notify you the moment the product is available.</p>
       </div>
     );
   }
