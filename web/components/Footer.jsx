@@ -72,6 +72,13 @@ export default function Footer() {
                 <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/>
               </svg>
             </a>
+            <a href="https://www.tiktok.com/@lifecode.nutrition" target="_blank" rel="noopener noreferrer"
+              aria-label="TikTok"
+              className="w-10 h-10 rounded-full border border-[#e8e0ff] bg-white flex items-center justify-center text-[#999] hover:text-white hover:border-transparent transition-all duration-300 social-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.84-0z"/>
+              </svg>
+            </a>
           </div>
         </div>
 
