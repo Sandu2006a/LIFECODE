@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { verifyTurnstile, getClientIp } from '@/lib/bot-protection';
 
 export const dynamic = 'force-dynamic';
 
@@ -200,11 +201,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many requests. Try again later.' }, { status: 429 });
     }
 
-    const body = await req.json() as { email?: string; _hp?: string };
+    const body = await req.json() as { email?: string; _hp?: string; turnstileToken?: string };
 
     // Honeypot — bots fill hidden fields, humans don't
     if (body._hp) {
       return NextResponse.json({ success: true }); // silently ignore bots
+    }
+
+    // Turnstile verification
+    const turnstileOk = await verifyTurnstile(body.turnstileToken, getClientIp(req));
+    if (!turnstileOk) {
+      return NextResponse.json({ error: 'Verification failed. Please try again.' }, { status: 400 });
     }
 
     const { email } = body;

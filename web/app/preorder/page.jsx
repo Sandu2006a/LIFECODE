@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { gsap } from 'gsap';
+import Turnstile from '@/components/Turnstile';
 
 const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #E8445A 55%, #7C3AED 100%)';
 const HEAT_G = 'linear-gradient(90deg, #FF8A00, #E8445A, #7C3AED)';
@@ -34,6 +35,7 @@ export default function PreorderPage() {
   const { days, hours, mins, secs } = useCountdown(LAUNCH);
   const [email,    setEmail]    = useState('');
   const [hp,       setHp]       = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [status,   setStatus]   = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const ref = useRef(null);
@@ -55,7 +57,7 @@ export default function PreorderPage() {
       const res  = await fetch('/api/preorder', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, _hp: hp }),
+        body: JSON.stringify({ email, _hp: hp, turnstileToken }),
       });
       const data = await res.json();
       if (!res.ok) { setErrorMsg(data?.error || 'Something went wrong.'); setStatus('error'); return; }
@@ -167,7 +169,10 @@ export default function PreorderPage() {
                   onChange={e => setEmail(e.target.value)}
                   className="w-full px-5 py-4 rounded-xl border-2 border-[#e8e8e8] font-body text-[15px] text-[#0a0a0a] placeholder:text-[#bbb] outline-none focus:border-[#E8445A] transition-colors duration-200 bg-white text-center sm:text-left"
                 />
-                <button type="submit" disabled={status === 'loading'}
+                <div className="my-3">
+                  <Turnstile onVerify={setTurnstileToken} />
+                </div>
+                <button type="submit" disabled={status === 'loading' || !turnstileToken}
                   className="w-full py-4 rounded-xl text-white font-sans font-700 text-[14px] tracking-[0.15em] uppercase transition-opacity duration-200 hover:opacity-90 disabled:opacity-60"
                   style={{ background: BOX_G }}>
                   {status === 'loading' ? 'Joining...' : 'Pre-Order Now — Free'}
