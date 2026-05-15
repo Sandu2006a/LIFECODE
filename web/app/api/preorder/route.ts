@@ -83,7 +83,14 @@ function welcomeEmailHtml(email: string) {
 
       <!-- Logo -->
       <tr><td style="padding:48px 48px 0;">
-        <p style="margin:0;font-size:11px;letter-spacing:6px;text-transform:uppercase;color:#bbb;font-weight:700;font-family:'Inter',Arial,sans-serif;">LIFECODE</p>
+        <table cellpadding="0" cellspacing="0"><tr>
+          <td style="padding-right:10px;vertical-align:middle;">
+            <img src="https://lifecodenutrition.com/logo.png" width="32" height="32" alt="" style="display:block;width:32px;height:32px;"/>
+          </td>
+          <td style="vertical-align:middle;">
+            <span style="font-size:14px;letter-spacing:6px;text-transform:uppercase;font-weight:800;font-family:'Barlow Condensed','Inter',Arial,sans-serif;background:linear-gradient(135deg,#FF8A00 0%,#C62828 40%,#7C3AED 70%,#1D4ED8 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#C62828;">LIFECODE</span>
+          </td>
+        </tr></table>
       </td></tr>
 
       <!-- Greeting -->
