@@ -71,7 +71,7 @@ function welcomeEmailHtml(email: string) {
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Welcome to Lifecode</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
 <body style="margin:0;padding:0;background:#fafafa;font-family:'Inter',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa;padding:48px 16px;">
@@ -88,28 +88,29 @@ function welcomeEmailHtml(email: string) {
 
       <!-- Greeting -->
       <tr><td style="padding:32px 48px 0;">
-        <p style="margin:0;font-size:18px;color:#0a0a0a;font-family:'Playfair Display',Georgia,serif;font-style:italic;">Hey ${firstName},</p>
+        <p style="margin:0;font-size:16px;color:#666;font-family:'Inter',Arial,sans-serif;font-weight:400;">Hey ${firstName},</p>
       </td></tr>
 
       <!-- Main message -->
-      <tr><td style="padding:24px 48px 0;">
-        <h1 style="margin:0 0 8px;font-size:34px;line-height:1.15;color:#0a0a0a;font-family:'Playfair Display',Georgia,serif;font-weight:700;letter-spacing:-0.5px;">
-          Welcome to Lifecode.
+      <tr><td style="padding:16px 48px 0;">
+        <h1 style="margin:0;font-size:42px;line-height:1.05;color:#0a0a0a;font-family:'Barlow Condensed','Inter',Arial,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">
+          Welcome to<br/>
+          <span style="background:linear-gradient(135deg,#FF8A00 0%,#C62828 40%,#7C3AED 70%,#1D4ED8 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#C62828;">Lifecode.</span>
         </h1>
-        <p style="margin:16px 0 0;font-size:16px;color:#555;line-height:1.7;font-family:'Inter',Arial,sans-serif;">
+        <p style="margin:20px 0 0;font-size:15px;color:#555;line-height:1.7;font-family:'Inter',Arial,sans-serif;font-weight:400;">
           Really glad you are here. 🧬
         </p>
       </td></tr>
 
       <!-- Quote / Motivational message -->
       <tr><td style="padding:36px 48px 0;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="border-left:3px solid transparent;border-image:linear-gradient(180deg,#FF8A00,#C62828,#7C3AED) 1;background:linear-gradient(90deg,rgba(255,138,0,0.04),rgba(124,58,237,0.04));">
-          <tr><td style="padding:20px 24px;">
-            <p style="margin:0;font-size:18px;line-height:1.5;color:#0a0a0a;font-family:'Playfair Display',Georgia,serif;font-style:italic;font-weight:400;">
-              "The work you do when no one is watching is what determines what you become."
-            </p>
-            <p style="margin:12px 0 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#999;font-family:'Inter',Arial,sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;border-radius:14px;">
+          <tr><td style="padding:28px;">
+            <p style="margin:0 0 14px;font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:800;font-family:'Barlow Condensed','Inter',Arial,sans-serif;background:linear-gradient(90deg,#FF8A00,#E8445A,#7C3AED);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#FF8A00;">
               Why we built this
+            </p>
+            <p style="margin:0;font-size:20px;line-height:1.4;color:#ffffff;font-family:'Barlow Condensed','Inter',Arial,sans-serif;font-weight:600;letter-spacing:0.3px;">
+              "The work you do when no one is watching is what determines what you become."
             </p>
           </td></tr>
         </table>
@@ -127,22 +128,24 @@ function welcomeEmailHtml(email: string) {
 
       <!-- Ask -->
       <tr><td style="padding:32px 48px 0;">
-        <div style="background:linear-gradient(135deg,#FFF8F5,#FAF7FF);border-radius:12px;padding:24px;">
-          <p style="margin:0 0 8px;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#C62828;font-weight:700;font-family:'Inter',Arial,sans-serif;">
-            One quick question
-          </p>
-          <p style="margin:0 0 12px;font-size:20px;color:#0a0a0a;font-family:'Playfair Display',Georgia,serif;font-weight:600;line-height:1.4;">
-            What made you sign up?
-          </p>
-          <p style="margin:0;font-size:14px;color:#666;line-height:1.7;font-family:'Inter',Arial,sans-serif;">
-            Hit reply and tell us. We read every single message — and the answers shape what we build next.
-          </p>
-        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-radius:14px;background:linear-gradient(135deg,#FFF9F5 0%,#FFF3EC 40%,#F8F5FF 100%);border:1px solid rgba(232,68,90,0.15);">
+          <tr><td style="padding:28px;">
+            <p style="margin:0 0 10px;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:800;font-family:'Barlow Condensed','Inter',Arial,sans-serif;background:linear-gradient(90deg,#FF8A00,#E8445A,#7C3AED);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#E8445A;">
+              One quick question
+            </p>
+            <p style="margin:0 0 14px;font-size:26px;color:#0a0a0a;font-family:'Barlow Condensed','Inter',Arial,sans-serif;font-weight:700;line-height:1.1;text-transform:uppercase;letter-spacing:0.5px;">
+              What made you<br/>sign up?
+            </p>
+            <p style="margin:0;font-size:14px;color:#555;line-height:1.7;font-family:'Inter',Arial,sans-serif;font-weight:400;">
+              Hit reply and tell us. We read every single message — and the answers shape what we build next.
+            </p>
+          </td></tr>
+        </table>
       </td></tr>
 
       <!-- Signature -->
       <tr><td style="padding:40px 48px 32px;">
-        <p style="margin:0;font-size:15px;color:#666;line-height:1.6;font-family:'Playfair Display',Georgia,serif;font-style:italic;">
+        <p style="margin:0;font-size:13px;color:#666;line-height:1.6;font-family:'Inter',Arial,sans-serif;font-weight:500;letter-spacing:0.3px;">
           — The Lifecode Team 🧬
         </p>
       </td></tr>
