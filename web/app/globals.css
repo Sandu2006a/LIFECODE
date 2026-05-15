@@ -54,6 +54,11 @@ p, span, li, a, label {
   font-weight: 500;
 }
 
+.social-icon:hover {
+  background: linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%) !important;
+  border-color: transparent !important;
+}
+
 h1, h2, h3, h4 {
   font-family: var(--font-space), 'Barlow Condensed', system-ui, sans-serif;
   font-weight: 700;

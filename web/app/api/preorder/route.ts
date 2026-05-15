@@ -157,9 +157,19 @@ function welcomeEmailHtml(email: string) {
         </p>
       </td></tr>
 
-      <!-- Footer -->
-      <tr><td style="padding:24px 48px 32px;border-top:1px solid #f0f0f0;">
-        <p style="margin:0;font-size:11px;color:#bbb;line-height:1.8;text-align:center;font-family:'Inter',Arial,sans-serif;letter-spacing:0.3px;">
+      <!-- Social + Footer -->
+      <tr><td style="padding:24px 48px 32px;border-top:1px solid #f0f0f0;text-align:center;">
+        <table cellpadding="0" cellspacing="0" align="center" style="margin:0 auto 16px;">
+          <tr>
+            <td style="padding:0 6px;">
+              <a href="https://www.instagram.com/lifecodenutrition" style="display:inline-block;width:36px;height:36px;line-height:36px;text-align:center;border-radius:50%;background:linear-gradient(135deg,#FF8A00,#C62828,#7C3AED);color:#fff;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;">IG</a>
+            </td>
+            <td style="padding:0 6px;">
+              <a href="https://www.facebook.com/lifecodenutrition" style="display:inline-block;width:36px;height:36px;line-height:36px;text-align:center;border-radius:50%;background:linear-gradient(135deg,#FF8A00,#C62828,#7C3AED);color:#fff;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;">FB</a>
+            </td>
+          </tr>
+        </table>
+        <p style="margin:0;font-size:11px;color:#bbb;line-height:1.8;font-family:'Inter',Arial,sans-serif;letter-spacing:0.3px;">
           <a href="https://lifecodenutrition.com" style="color:#999;text-decoration:none;font-weight:500;">lifecodenutrition.com</a>
           &nbsp;·&nbsp;
           <a href="mailto:hello@lifecodenutrition.com" style="color:#999;text-decoration:none;font-weight:500;">hello@lifecodenutrition.com</a>
