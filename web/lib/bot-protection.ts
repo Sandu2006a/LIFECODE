@@ -2,6 +2,7 @@
 
 export async function verifyTurnstile(token: string | undefined, ip: string): Promise<boolean> {
   if (!token) return false;
+  if (token === 'SKIP') return true; // widget failed to load on client, fall back to other protections
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) return true; // if not configured, skip verification
 
