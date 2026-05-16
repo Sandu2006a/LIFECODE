@@ -133,105 +133,86 @@ export default function ProductDetailPage() {
         </span>
       </nav>
 
-      {/* Hero */}
-      <div className="pt-24 overflow-hidden" style={{ background: theme.light }}>
-        <div className="max-w-[1440px] mx-auto px-6 md:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-20 items-end pt-14 md:pt-20">
+      {/* Compact hero + ingredients on one page */}
+      <div className="pt-20" style={{ background: theme.light }}>
+        <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-10 md:py-14">
 
-            {/* Text */}
-            <div className="pb-14 md:pb-20 flex flex-col gap-7">
-              <div className="pd-el opacity-0">
-                <span
-                  className="inline-block font-body text-[9px] tracking-widest3 uppercase px-3 py-1 rounded-full text-white mb-6"
-                  style={{ background: theme.gradient }}
-                >
-                  {theme.label} · {product.title}
-                </span>
-                <h1
-                  className="font-sans font-700 leading-[0.88] tracking-tight bg-clip-text text-transparent"
-                  style={{ fontSize: 'clamp(3rem, 7vw, 7.5rem)', backgroundImage: theme.gradient }}
-                >
-                  {product.title.replace(' ', '\n').split('\n').map((w, i) => (
-                    <span key={i}>{w}{i === 0 ? <br/> : ''}</span>
-                  ))}
-                </h1>
-              </div>
+          {/* Top: image + title side by side */}
+          <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8 md:gap-12 items-center mb-10">
 
-              <div className="pd-el opacity-0">
-                <p
-                  className="font-sans font-600 text-2xl md:text-3xl tracking-tight mb-4 bg-clip-text text-transparent"
-                  style={{ backgroundImage: theme.gradient, opacity: 0.5 }}
-                >
-                  {product.tagline}
-                </p>
-                <p className="font-body font-300 text-[#888] text-sm md:text-base leading-loose max-w-md">
-                  {product.longDesc}
-                </p>
-              </div>
-
-              <div className="pd-el flex flex-wrap items-center gap-6 opacity-0">
-                {[
-                  [String(product.ingredients.length), 'Active Ingredients'],
-                  ['0', 'Fillers'],
-                  ['100%', 'Declared'],
-                ].map(([v, l]) => (
-                  <div key={l} className="text-center">
-                    <p className="font-sans font-700 text-3xl leading-none bg-clip-text text-transparent"
-                      style={{ backgroundImage: theme.gradient }}>{v}</p>
-                    <p className="font-body text-[9px] tracking-widest text-[#bbb] uppercase mt-1">{l}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Image with gradient border */}
-            <div className="pd-img opacity-0 flex items-end justify-center pb-0">
-              <div className="relative w-full max-w-[400px] mx-auto">
-                <div className="absolute inset-0 blur-3xl opacity-20 scale-95 pointer-events-none rounded-[28px]"
+            {/* Small image */}
+            <div className="pd-img opacity-0 mx-auto md:mx-0">
+              <div className="relative w-full max-w-[260px]">
+                <div className="absolute inset-0 blur-2xl opacity-20 scale-90 pointer-events-none rounded-[20px]"
                   style={{ background: theme.gradient }} />
-                <div style={{ padding: '3px', borderRadius: '28px', background: theme.gradient }}>
-                  <div className="bg-white overflow-hidden" style={{ borderRadius: '25px' }}>
+                <div style={{ padding: '2px', borderRadius: '20px', background: theme.gradient }}>
+                  <div className="bg-white overflow-hidden" style={{ borderRadius: '18px' }}>
                     <Image
                       src={theme.image}
                       alt={product.title}
-                      width={800}
-                      height={960}
-                      className="w-full h-auto object-contain p-6 md:p-10"
+                      width={520}
+                      height={620}
+                      className="w-full h-auto object-contain p-4"
                       priority
                     />
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Ingredients */}
-      <div className="max-w-[1440px] mx-auto px-6 md:px-16 py-20 md:py-28">
-        <div className="flex items-end justify-between flex-wrap gap-6 mb-12">
-          <div>
+            {/* Title + description */}
+            <div className="flex flex-col gap-4">
+              <div className="pd-el opacity-0">
+                <span
+                  className="inline-block font-body text-[9px] tracking-widest3 uppercase px-3 py-1 rounded-full text-white mb-3"
+                  style={{ background: theme.gradient }}
+                >
+                  {theme.label} · {product.title}
+                </span>
+                <h1
+                  className="font-sans font-700 leading-[0.95] tracking-tight bg-clip-text text-transparent"
+                  style={{ fontSize: 'clamp(1.8rem, 4.5vw, 3.6rem)', backgroundImage: theme.gradient }}
+                >
+                  {product.title}
+                </h1>
+              </div>
+              <div className="pd-el opacity-0">
+                <p className="font-body font-300 text-[#666] text-[13px] md:text-[14px] leading-relaxed max-w-xl">
+                  {product.longDesc}
+                </p>
+              </div>
+              <div className="pd-el flex flex-wrap items-center gap-5 opacity-0 pt-2">
+                {[
+                  [String(product.ingredients.length), 'Ingredients'],
+                  ['0', 'Fillers'],
+                  ['100%', 'Declared'],
+                ].map(([v, l]) => (
+                  <div key={l}>
+                    <p className="font-sans font-700 text-2xl leading-none bg-clip-text text-transparent"
+                      style={{ backgroundImage: theme.gradient }}>{v}</p>
+                    <p className="font-body text-[9px] tracking-widest text-[#999] uppercase mt-1">{l}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Ingredients table */}
+          <div className="pd-el opacity-0">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-5 h-[1.5px]" style={{ background: theme.gradient }} />
-              <span className="font-body text-[9px] tracking-widest3 uppercase bg-clip-text text-transparent"
+              <span className="font-body text-[10px] tracking-widest3 uppercase font-700 bg-clip-text text-transparent"
                 style={{ backgroundImage: theme.gradient }}>
-                Full Formula
+                Full Formula · {product.ingredients.length} ingredients
               </span>
             </div>
-            <h2 className="font-sans font-700 text-[#111] tracking-tight"
-              style={{ fontSize: 'clamp(1.8rem, 4vw, 3.5rem)' }}>
-              Every ingredient.<br />Every reason.
-            </h2>
+            <div className="ingredients-grid grid grid-cols-1 lg:grid-cols-2 gap-2">
+              {product.ingredients.map((ing, i) => (
+                <IngredientCard key={ing.name} ingredient={ing} gradient={theme.gradient} index={i} />
+              ))}
+            </div>
           </div>
-          <p className="font-body font-300 text-[#aaa] text-sm leading-loose max-w-xs self-end pb-1">
-            Tap any compound to reveal the clinical rationale.
-          </p>
-        </div>
 
-        <div className="ingredients-grid grid grid-cols-1 lg:grid-cols-2 gap-2.5">
-          {product.ingredients.map((ing, i) => (
-            <IngredientCard key={ing.name} ingredient={ing} gradient={theme.gradient} index={i} />
-          ))}
         </div>
       </div>
 
