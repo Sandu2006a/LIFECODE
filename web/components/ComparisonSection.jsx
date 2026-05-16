@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
@@ -293,7 +293,7 @@ export default function ComparisonSection() {
 
           <div className="flex flex-col gap-4">
             <AdvantageBlock
-              title="Morning Pack — 13 reasons it outperforms"
+              title="Daily Morning Essentials — 13 reasons it outperforms"
               items={MORNING_ADVANTAGE}
               sectionClass="adv-row"
               gradientFrom="#FF8A00"

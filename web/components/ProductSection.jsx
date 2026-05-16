@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { gsap }          from 'gsap';
@@ -184,7 +184,7 @@ const ACTIVE = [
   {
     slug: 'morning',
     phase: '01',
-    title: 'Morning Pack',
+    title: 'Daily Morning Essentials',
     tagline: 'Activate.',
     accentColor: '#8B0015',
     image: '/Morning_deschis.png',
@@ -206,7 +206,7 @@ const ACTIVE = [
   {
     slug: 'recovery',
     phase: '04',
-    title: 'Recovery Pack',
+    title: 'Daily After Training Repair',
     tagline: 'Rebuild.',
     accentColor: '#E8631A',
     image: '/Recov_deschis.png',

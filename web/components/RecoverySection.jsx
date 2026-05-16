@@ -53,9 +53,9 @@ export default function RecoverySection() {
               </div>
               <h2
                 className="font-sans font-700 leading-[0.88] tracking-tight"
-                style={{ fontSize: 'clamp(3rem, 6vw, 6.5rem)', color: PURPLE }}
+                style={{ fontSize: 'clamp(2.2rem, 4.5vw, 4.6rem)', color: PURPLE }}
               >
-                Recovery<br />Pack
+                Daily After<br />Training Repair
               </h2>
             </div>
 

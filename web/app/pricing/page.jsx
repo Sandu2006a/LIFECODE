@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
@@ -264,8 +264,8 @@ export default function PricingPage() {
 
                   <Label text="What you get" />
                   <BulletList gradient={MG} items={[
-                    'Morning Pack — 30 servings',
-                    'Recovery Pack — 30 servings',
+                    'Daily Morning Essentials — 30 servings',
+                    'Daily After Training Repair — 30 servings',
                     'Personalized protocol on signup',
                     'AI Dashboard access — 30 days',
                   ]} />
@@ -336,8 +336,8 @@ export default function PricingPage() {
                     <div>
                       <Label text="What you get" />
                       <BulletList gradient={BOX_G} items={[
-                        'Morning Pack — 30 servings / month',
-                        'Recovery Pack — 30 servings / month',
+                        'Daily Morning Essentials — 30 servings / month',
+                        'Daily After Training Repair — 30 servings / month',
                         'Full AI App — permanent access',
                         'Monthly protocol recalibration',
                         'Long-term AI memory coach',

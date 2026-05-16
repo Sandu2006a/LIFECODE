@@ -69,9 +69,9 @@ export default function MorningSection() {
               </div>
               <h2
                 className="font-sans font-700 leading-[0.88] tracking-tight"
-                style={{ fontSize: 'clamp(3rem, 6vw, 6.5rem)', color: RED }}
+                style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)', color: RED }}
               >
-                Morning<br />Pack
+                Daily Morning<br />Essentials
               </h2>
             </div>
 
