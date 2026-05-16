@@ -248,7 +248,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Send welcome email — capture error details so we can surface them
+    // Send welcome email to user
     let mailDebug: any = { sent: false };
     try {
       const fromAddress = process.env.RESEND_FROM_EMAIL || 'Lifecode <hello@lifecodenutrition.com>';
@@ -266,6 +266,33 @@ export async function POST(req: NextRequest) {
     } catch (mailErr: any) {
       console.error('preorder email error:', mailErr);
       mailDebug.exception = mailErr?.message || String(mailErr);
+    }
+
+    // Send notification to admin (only for new signups)
+    if (!alreadyOnList) {
+      try {
+        const totalCount = taken + 1;
+        await getResend().emails.send({
+          from: process.env.RESEND_FROM_EMAIL || 'Lifecode <hello@lifecodenutrition.com>',
+          to: 'hello@lifecodenutrition.com',
+          replyTo: normal,
+          subject: `🧬 New pre-order signup: ${normal}`,
+          html: `
+            <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;">
+              <p style="font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#999;margin:0 0 24px;">LIFECODE · New Signup</p>
+              <h2 style="font-size:22px;font-weight:800;color:#0a0a0a;margin:0 0 16px;">${normal}</h2>
+              <p style="font-size:14px;color:#666;line-height:1.8;margin:0;">
+                <strong>Source:</strong> home page<br/>
+                <strong>Timestamp:</strong> ${new Date().toISOString()}<br/>
+                <strong>Total signups:</strong> ${totalCount}
+              </p>
+              <p style="margin:24px 0 0;font-size:13px;color:#888;">Hit reply to send them a message.</p>
+            </div>
+          `,
+        });
+      } catch (notifErr) {
+        console.error('admin notification error:', notifErr);
+      }
     }
 
     const remaining = Math.max(0, TOTAL_SPOTS - (alreadyOnList ? taken : taken + 1));
