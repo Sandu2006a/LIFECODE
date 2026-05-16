@@ -32,98 +32,41 @@ const ArrowLeftIcon = () => (
 );
 
 function IngredientCard({ ingredient, gradient, index }) {
-  const [open, setOpen] = useState(false);
-  const bodyRef  = useRef(null);
-  const innerRef = useRef(null);
-
-  const toggle = () => {
-    if (!bodyRef.current || !innerRef.current) return;
-    if (!open) {
-      gsap.fromTo(bodyRef.current,
-        { height: 0, opacity: 0 },
-        { height: innerRef.current.offsetHeight, opacity: 1, duration: 0.45, ease: 'power3.inOut' }
-      );
-    } else {
-      gsap.to(bodyRef.current, { height: 0, opacity: 0, duration: 0.35, ease: 'power3.inOut' });
-    }
-    setOpen(v => !v);
-  };
-
   return (
-    <div
-      className="ingredient-card opacity-0 transition-shadow duration-300 hover:shadow-md"
-      style={{
-        padding: open ? '1.5px' : '1px',
-        borderRadius: '16px',
-        background: open ? gradient : '#f0f0f0',
-        transition: 'background 0.3s, padding 0.3s',
-      }}
-    >
-      <div className="bg-white" style={{ borderRadius: open ? '14.5px' : '15px' }}>
-        <button
-          onClick={toggle}
-          className="w-full flex items-start justify-between gap-4 p-5 md:p-6 text-left"
-        >
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1.5">
-              <span
-                className="font-body text-[8px] tracking-widest3 uppercase bg-clip-text text-transparent"
-                style={{ backgroundImage: gradient }}
-              >
-                {String(index + 1).padStart(2, '0')}
-              </span>
-            </div>
-            <h3 className="font-sans font-600 text-[#222] text-base tracking-tight">{ingredient.name}</h3>
-            <p className="font-body text-[10px] tracking-wide text-[#aaa] mt-0.5">{ingredient.form} · {ingredient.dose}</p>
-          </div>
-          <div className="flex items-center gap-3 shrink-0 pt-1">
-            <span className="hidden sm:block font-sans font-600 text-sm bg-clip-text text-transparent tabular-nums"
-              style={{ backgroundImage: gradient }}>
-              {ingredient.dose}
-            </span>
-            <div
-              className="w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300"
-              style={{
-                background: open ? gradient : '#f5f5f5',
-              }}
-            >
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="none"
-                style={{ transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.3s' }}>
-                <path d="M1 3.5l3 3 3-3" stroke={open ? '#fff' : '#aaa'} strokeWidth="1.2" strokeLinecap="round"/>
-              </svg>
-            </div>
-          </div>
-        </button>
-
-        <div ref={bodyRef} style={{ height: 0, opacity: 0, overflow: 'hidden' }}>
-          <div ref={innerRef} className="px-5 md:px-6 pb-5 md:pb-6">
-            <div className="border-t border-[#f5f5f5] pt-4">
-              <div className="flex gap-4 md:gap-5">
-                {ingredient.image && (
-                  <div className="flex-shrink-0 self-start">
-                    <div style={{ padding: '2px', borderRadius: '16px', background: gradient }}>
-                      <div className="bg-white overflow-hidden flex items-center justify-center"
-                        style={{ borderRadius: '14px', width: 80, height: 80 }}>
-                        <img
-                          src={ingredient.image}
-                          alt={ingredient.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-sans font-600 text-[11px] tracking-widest uppercase mb-3 bg-clip-text text-transparent"
-                    style={{ backgroundImage: gradient }}>
-                    {ingredient.what}
-                  </p>
-                  <p className="font-body font-300 text-[#777] text-sm leading-loose">{ingredient.why}</p>
-                </div>
-              </div>
+    <div className="ingredient-card opacity-0 flex items-center gap-4 px-4 md:px-5 py-4 bg-white border border-[#f0f0f0] rounded-xl hover:border-[#e0d8f0] hover:shadow-sm transition-all duration-200">
+      {/* Icon */}
+      {ingredient.image ? (
+        <div className="flex-shrink-0">
+          <div style={{ padding: '2px', borderRadius: '14px', background: gradient }}>
+            <div className="bg-white overflow-hidden flex items-center justify-center"
+              style={{ borderRadius: '12px', width: 48, height: 48 }}>
+              <img src={ingredient.image} alt="" className="w-full h-full object-cover" />
             </div>
           </div>
         </div>
+      ) : (
+        <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-sans font-700 text-white text-[15px]"
+          style={{ background: gradient }}>
+          {String(index + 1).padStart(2, '0')}
+        </div>
+      )}
+
+      {/* Name + Purpose */}
+      <div className="flex-1 min-w-0">
+        <h3 className="font-sans font-700 text-[#0a0a0a] text-[14px] md:text-[15px] tracking-tight leading-tight truncate">
+          {ingredient.name}
+        </h3>
+        <p className="font-body text-[11px] md:text-[12px] text-[#888] leading-snug mt-0.5 line-clamp-1">
+          {ingredient.what}
+        </p>
+      </div>
+
+      {/* Dose */}
+      <div className="flex-shrink-0 text-right">
+        <p className="font-sans font-700 text-[15px] md:text-[17px] tabular-nums bg-clip-text text-transparent"
+          style={{ backgroundImage: gradient }}>
+          {ingredient.dose}
+        </p>
       </div>
     </div>
   );
@@ -285,7 +228,7 @@ export default function ProductDetailPage() {
           </p>
         </div>
 
-        <div className="ingredients-grid grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="ingredients-grid grid grid-cols-1 lg:grid-cols-2 gap-2.5">
           {product.ingredients.map((ing, i) => (
             <IngredientCard key={ing.name} ingredient={ing} gradient={theme.gradient} index={i} />
           ))}
