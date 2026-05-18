@@ -11,7 +11,7 @@ const REVIEWS = [
   {
     name: 'James Whitfield',
     role: 'Semi-pro Swimmer',
-    product: 'Daily Morning Essentials + Daily After Training Repair',
+    product: 'Morning + Recovery',
     rating: 5,
     headline: 'Double sessions finally feel sustainable',
     body: 'Two years of trying everything for double-day recovery. This is the first thing that actually worked. Three weeks in my evening sessions stopped feeling like a struggle. Honestly did not expect much when I started.',
@@ -19,7 +19,7 @@ const REVIEWS = [
   {
     name: 'Tyler Rhodes',
     role: 'Amateur Powerlifter',
-    product: 'Daily After Training Repair',
+    product: 'Recovery',
     rating: 4,
     headline: 'DOMS dropped fast',
     body: 'Soreness after heavy deadlifts cut in half. Serving size could be bigger though.',
@@ -27,7 +27,7 @@ const REVIEWS = [
   {
     name: 'Tobias Schneider',
     role: 'Marathon Runner',
-    product: 'Daily Morning Essentials',
+    product: 'Morning',
     rating: 5,
     headline: 'No more wall at km 25',
     body: 'Three weeks on this and my mid-run crash just disappeared. My coach noticed before I told him.',
@@ -35,7 +35,7 @@ const REVIEWS = [
   {
     name: 'Brandon Wells',
     role: 'Semi-pro Football Player',
-    product: 'Daily Morning Essentials + Daily After Training Repair',
+    product: 'Morning + Recovery',
     rating: 5,
     headline: 'Best pre-season I have had',
     body: 'Six weeks into camp and I felt fresher than ever in week seven. That has never happened before. Showed the label to our team nutritionist — no complaints. Wish there was team pricing.',
@@ -43,7 +43,7 @@ const REVIEWS = [
   {
     name: 'Sofie Leclercq',
     role: 'Triathlete',
-    product: 'Daily After Training Repair',
+    product: 'Recovery',
     rating: 5,
     headline: 'Legs ready faster',
     body: 'Works. Tastes good. Not much else to say.',
@@ -51,7 +51,7 @@ const REVIEWS = [
   {
     name: 'Charlotte Davies',
     role: 'Fitness Athlete',
-    product: 'Daily After Training Repair',
+    product: 'Recovery',
     rating: 4,
     headline: 'Genuinely surprised',
     body: 'Tastes natural for once. Soreness is down noticeably after a month. Website could use clearer timing info.',
@@ -59,7 +59,7 @@ const REVIEWS = [
   {
     name: 'Caitlin Park',
     role: 'Track and Field Athlete',
-    product: 'Daily After Training Repair',
+    product: 'Recovery',
     rating: 5,
     headline: 'No proprietary blends',
     body: 'Every dose listed. Matches the research. Two months in and it stays.',
@@ -67,7 +67,7 @@ const REVIEWS = [
   {
     name: 'Lars Eriksson',
     role: 'Competitive Swimmer',
-    product: 'Daily Morning Essentials + Daily After Training Repair',
+    product: 'Morning + Recovery',
     rating: 5,
     headline: 'Evening sessions match my mornings now',
     body: 'For years my afternoon sessions were a drop-off from morning. Tried everything. This combination fixed it within a month — both sessions hit the same quality now. The label is what convinced me to try it. Sticking with it.',
@@ -75,7 +75,7 @@ const REVIEWS = [
   {
     name: 'Marcus Allen',
     role: 'CrossFit Athlete',
-    product: 'Daily After Training Repair',
+    product: 'Recovery',
     rating: 5,
     headline: 'Week-three breakdown is gone',
     body: 'I always fell apart in week three of a training block. Sleep, motivation, output — all crashed. Four months on Daily After Training Repair and that pattern broke. Whole gym is asking about it now.',
@@ -83,7 +83,7 @@ const REVIEWS = [
   {
     name: 'Oliver Bennett',
     role: 'Competitive Rower',
-    product: 'Daily Morning Essentials + Daily After Training Repair',
+    product: 'Morning + Recovery',
     rating: 4,
     headline: 'Real difference by week three',
     body: 'Training partner asked what changed. Energy and recovery both better. Need a bigger pack though, going through it fast.',
