@@ -85,7 +85,7 @@ export default function HeroSection() {
         {/* Box image — seamless, no border */}
         <div className="hs-img opacity-0 flex items-center justify-center">
           <Image
-            src="/Cutie_deschisa.png"
+            src="/lifecode-products.jpeg"
             alt="LIFECODE"
             width={1200}
             height={1200}
