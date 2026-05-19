@@ -44,8 +44,8 @@ export default function MorningSection() {
               <div style={{ padding: '3px', borderRadius: '28px', background: RED }}>
                 <div className="bg-white overflow-hidden" style={{ borderRadius: '25px' }}>
                   <Image
-                    src="/Morning_deschis.png"
-                    alt="Morning Pack"
+                    src="/code-charge.jpeg"
+                    alt="code.charge"
                     width={900}
                     height={1100}
                     className="w-full h-auto object-contain p-6 md:p-10"

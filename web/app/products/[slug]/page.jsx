@@ -13,14 +13,14 @@ const THEMES = {
     gradient: 'linear-gradient(135deg, #FFD54F 0%, #FF8A00 45%, #C62828 100%)',
     light:    'linear-gradient(180deg, #FFF8E8 0%, #ffffff 100%)',
     bgLight:  '#FFF8E8',
-    image:    '/Morning_deschis.png',
+    image:    '/code-charge.jpeg',
     label:    'AM',
   },
   recovery: {
     gradient: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 50%, #1D4ED8 100%)',
     light:    'linear-gradient(180deg, #F3EEFF 0%, #ffffff 100%)',
     bgLight:  '#F3EEFF',
-    image:    '/Recov_deschis.png',
+    image:    '/code-rebuild.jpeg',
     label:    'PM',
   },
 };

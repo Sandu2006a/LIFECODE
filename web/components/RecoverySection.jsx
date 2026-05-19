@@ -106,8 +106,8 @@ export default function RecoverySection() {
               <div style={{ padding: '3px', borderRadius: '28px', background: PURPLE }}>
                 <div className="bg-white overflow-hidden" style={{ borderRadius: '25px' }}>
                   <Image
-                    src="/Recov_deschis.png"
-                    alt="Recovery Pack"
+                    src="/code-rebuild.jpeg"
+                    alt="code.build"
                     width={900}
                     height={1100}
                     className="w-full h-auto object-contain p-6 md:p-10"
