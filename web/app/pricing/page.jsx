@@ -229,8 +229,8 @@ export default function PricingPage() {
               <div className="flex items-center justify-center bg-white p-10 md:p-14 lg:min-h-[540px]">
                 <div className="w-full max-w-[480px]">
                   <Image
-                    src="/Cutie_deschisa.png"
-                    alt="LIFECODE Essentials"
+                    src="/lifecode-products.jpeg"
+                    alt="Lifecode Products"
                     width={960}
                     height={780}
                     className="w-full h-auto object-contain"
@@ -250,8 +250,8 @@ export default function PricingPage() {
                   </div>
 
                   <h2 className="font-sans font-700 text-[#111] tracking-tight leading-none mb-2"
-                    style={{ fontSize: 'clamp(2.6rem, 4vw, 4rem)' }}>
-                    Essentials
+                    style={{ fontSize: 'clamp(2.2rem, 3.6vw, 3.6rem)' }}>
+                    Lifecode Products
                   </h2>
                   <p className="font-body text-[13px] tracking-widest uppercase bg-clip-text text-transparent mb-6" style={{ backgroundImage: MG }}>
                     The full system. No commitment.
@@ -284,7 +284,7 @@ export default function PricingPage() {
                     <span className="font-sans font-700 text-5xl text-[#ddd] tracking-tight">—</span>
                     <span className="font-body text-[13px] text-[#ddd] tracking-widest uppercase">Price coming soon</span>
                   </div>
-                  <PlanButton plan="essentials" gradient={MG} label="Get Essentials" />
+                  <PlanButton plan="essentials" gradient={MG} label="Get Lifecode Products" />
                   <p className="font-body text-[13px] text-[#ccc] tracking-widest uppercase mt-4">
                     Ships within 48h · 30-day guarantee
                   </p>
