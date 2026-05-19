@@ -1,8 +1,8 @@
-export const PRODUCTS_DATA = {
+﻿export const PRODUCTS_DATA = {
   morning: {
     slug: 'morning',
     phase: '01',
-    title: 'Daily Morning Essentials',
+    title: 'code.charge',
     tagline: 'Activate.',
     accentColor: '#8B0015',
     accentLight: '#FFF0F0',
@@ -104,7 +104,7 @@ export const PRODUCTS_DATA = {
   recovery: {
     slug: 'recovery',
     phase: '04',
-    title: 'Daily After Training Repair',
+    title: 'code.build',
     tagline: 'Rebuild.',
     accentColor: '#E8631A',
     accentLight: '#FFF3EC',

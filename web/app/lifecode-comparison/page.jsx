@@ -178,7 +178,7 @@ export default function ComparisonPage() {
             {/* Tab switcher */}
             <div className="flex gap-1.5 mb-12 p-1 rounded-full border border-[#eee] w-fit bg-[#fafafa]">
               {[
-                { key: 'morning',  label: 'Daily Morning Essentials' },
+                { key: 'morning',  label: 'code.charge' },
                 { key: 'recovery', label: 'Anabolic Recovery' },
               ].map(({ key, label }) => (
                 <button key={key} onClick={() => setTab(key)}
@@ -189,11 +189,11 @@ export default function ComparisonPage() {
               ))}
             </div>
 
-            {/* Daily Morning Essentials */}
+            {/* code.charge */}
             {tab === 'morning' && (
               <div>
                 <h2 className="font-sans font-700 text-[#111] text-xl md:text-2xl tracking-tight mb-1">
-                  Daily Morning Essentials — Category Comparison
+                  code.charge — Category Comparison
                 </h2>
                 <p className="font-body text-[#bbb] text-sm mb-8">
                   vs. Typical Greens Powders · Typical Multivitamin Capsules
@@ -214,7 +214,7 @@ export default function ComparisonPage() {
                           <div style={{ padding: '1.5px', borderRadius: '12px', background: RED }}>
                             <div className="bg-white py-3 px-3 text-center" style={{ borderRadius: '10.5px' }}>
                               <p className="font-sans font-700 text-sm" style={{ color: RED }}>Life Code</p>
-                              <p className="font-body text-[11px] text-[#999] tracking-wide uppercase mt-0.5">Daily Morning Essentials</p>
+                              <p className="font-body text-[11px] text-[#999] tracking-wide uppercase mt-0.5">code.charge</p>
                             </div>
                           </div>
                         </th>
@@ -328,8 +328,8 @@ export default function ComparisonPage() {
             </Link>
             <nav className="flex flex-wrap items-center justify-center gap-6">
               {[
-                ['Daily Morning Essentials',      '/products/morning'],
-                ['Daily After Training Repair',     '/products/recovery'],
+                ['code.charge',      '/products/morning'],
+                ['code.build',     '/products/recovery'],
                 ['Ingredients',       '/ingredients'],
                 ['Comparisons',       '/lifecode-comparison'],
                 ['Ecosystem',         '/#ecosystem'],

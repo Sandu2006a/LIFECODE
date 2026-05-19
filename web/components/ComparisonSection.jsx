@@ -293,7 +293,7 @@ export default function ComparisonSection() {
 
           <div className="flex flex-col gap-4">
             <AdvantageBlock
-              title="Daily Morning Essentials — 13 reasons it outperforms"
+              title="code.charge — 13 reasons it outperforms"
               items={MORNING_ADVANTAGE}
               sectionClass="adv-row"
               gradientFrom="#FF8A00"

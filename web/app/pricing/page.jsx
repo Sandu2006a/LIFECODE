@@ -264,8 +264,8 @@ export default function PricingPage() {
 
                   <Label text="What you get" />
                   <BulletList gradient={MG} items={[
-                    'Daily Morning Essentials — 30 servings',
-                    'Daily After Training Repair — 30 servings',
+                    'code.charge — 30 servings',
+                    'code.build — 30 servings',
                     'Personalized protocol on signup',
                     'AI Dashboard access — 30 days',
                   ]} />
@@ -336,8 +336,8 @@ export default function PricingPage() {
                     <div>
                       <Label text="What you get" />
                       <BulletList gradient={BOX_G} items={[
-                        'Daily Morning Essentials — 30 servings / month',
-                        'Daily After Training Repair — 30 servings / month',
+                        'code.charge — 30 servings / month',
+                        'code.build — 30 servings / month',
                         'Full AI App — permanent access',
                         'Monthly protocol recalibration',
                         'Long-term AI memory coach',

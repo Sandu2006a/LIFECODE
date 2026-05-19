@@ -184,7 +184,7 @@ const ACTIVE = [
   {
     slug: 'morning',
     phase: '01',
-    title: 'Daily Morning Essentials',
+    title: 'code.charge',
     tagline: 'Activate.',
     accentColor: '#8B0015',
     image: '/Morning_deschis.png',
@@ -206,7 +206,7 @@ const ACTIVE = [
   {
     slug: 'recovery',
     phase: '04',
-    title: 'Daily After Training Repair',
+    title: 'code.build',
     tagline: 'Rebuild.',
     accentColor: '#E8631A',
     image: '/Recov_deschis.png',

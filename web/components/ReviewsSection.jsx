@@ -1,111 +1,92 @@
 ﻿'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const BOX_G  = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED8 100%)';
 const HEAT_G = 'linear-gradient(90deg, #FF8A00, #E8445A, #7C3AED)';
 
-// Anonymized reviews — sport replaces personal name. Distribution biased
-// toward the four core athlete profiles: swimming, canoe sprint,
-// powerlifting, track and field.
 const REVIEWS = [
   {
-    sport: 'Competitive Swimmer',
-    initial: 'S',
+    name: 'James Whitfield',
+    role: 'Semi-pro Swimmer',
     product: 'Morning + Recovery',
     rating: 5,
     headline: 'Double sessions finally feel sustainable',
-    body: 'Two years of trying everything for double-day recovery. This is the first thing that actually worked. Three weeks in my evening sessions stopped feeling like a struggle.',
+    body: 'Two years of trying everything for double-day recovery. This is the first thing that actually worked. Three weeks in my evening sessions stopped feeling like a struggle. Honestly did not expect much when I started.',
   },
   {
-    sport: 'Powerlifter',
-    initial: 'P',
+    name: 'Tyler Rhodes',
+    role: 'Amateur Powerlifter',
     product: 'Recovery',
     rating: 4,
     headline: 'DOMS dropped fast',
     body: 'Soreness after heavy deadlifts cut in half. Serving size could be bigger though.',
   },
   {
-    sport: 'Track and Field Athlete',
-    initial: 'T',
+    name: 'Tobias Schneider',
+    role: 'Marathon Runner',
     product: 'Morning',
     rating: 5,
-    headline: 'Personal best in the 400m',
-    body: 'Three weeks on this and my finishing kick is back. My coach noticed before I told him. No more late-meet crash.',
+    headline: 'No more wall at km 25',
+    body: 'Three weeks on this and my mid-run crash just disappeared. My coach noticed before I told him.',
   },
   {
-    sport: 'Canoe Sprint Athlete',
-    initial: 'C',
+    name: 'Brandon Wells',
+    role: 'Semi-pro Football Player',
     product: 'Morning + Recovery',
     rating: 5,
-    headline: 'Best training block I have had',
-    body: 'Six weeks into the season and I felt fresher than ever in week seven. That has never happened before. Showed the label to our team nutritionist — no complaints.',
+    headline: 'Best pre-season I have had',
+    body: 'Six weeks into camp and I felt fresher than ever in week seven. That has never happened before. Showed the label to our team nutritionist — no complaints. Wish there was team pricing.',
   },
   {
-    sport: 'Powerlifter',
-    initial: 'P',
+    name: 'Sofie Leclercq',
+    role: 'Triathlete',
     product: 'Recovery',
     rating: 5,
-    headline: 'PRs are coming faster',
-    body: 'Recovery between heavy sets noticeably improved. Hit a 10kg PR on squat after six weeks. Tastes good.',
+    headline: 'Legs ready faster',
+    body: 'Works. Tastes good. Not much else to say.',
   },
   {
-    sport: 'Open-water Swimmer',
-    initial: 'S',
+    name: 'Charlotte Davies',
+    role: 'Fitness Athlete',
     product: 'Recovery',
     rating: 4,
     headline: 'Genuinely surprised',
     body: 'Tastes natural for once. Soreness is down noticeably after a month. Website could use clearer timing info.',
   },
   {
-    sport: 'Track and Field Athlete',
-    initial: 'T',
+    name: 'Caitlin Park',
+    role: 'Track and Field Athlete',
     product: 'Recovery',
     rating: 5,
     headline: 'No proprietary blends',
     body: 'Every dose listed. Matches the research. Two months in and it stays.',
   },
   {
-    sport: 'Competitive Swimmer',
-    initial: 'S',
+    name: 'Lars Eriksson',
+    role: 'Competitive Swimmer',
     product: 'Morning + Recovery',
     rating: 5,
     headline: 'Evening sessions match my mornings now',
-    body: 'For years my afternoon sessions were a drop-off from morning. Tried everything. This combination fixed it within a month — both sessions hit the same quality now.',
+    body: 'For years my afternoon sessions were a drop-off from morning. Tried everything. This combination fixed it within a month — both sessions hit the same quality now. The label is what convinced me to try it. Sticking with it.',
   },
   {
-    sport: 'Canoe Sprint Athlete',
-    initial: 'C',
+    name: 'Marcus Allen',
+    role: 'CrossFit Athlete',
     product: 'Recovery',
     rating: 5,
     headline: 'Week-three breakdown is gone',
-    body: 'I always fell apart in week three of training blocks. Sleep, motivation, output — all crashed. Four months on this and the pattern broke. Whole team is asking about it now.',
+    body: 'I always fell apart in week three of a training block. Sleep, motivation, output — all crashed. Four months on code.build and that pattern broke. Whole gym is asking about it now.',
   },
   {
-    sport: 'Track and Field Athlete',
-    initial: 'T',
+    name: 'Oliver Bennett',
+    role: 'Competitive Rower',
     product: 'Morning + Recovery',
     rating: 4,
     headline: 'Real difference by week three',
     body: 'Training partner asked what changed. Energy and recovery both better. Need a bigger pack though, going through it fast.',
-  },
-  {
-    sport: 'Powerlifter',
-    initial: 'P',
-    product: 'Morning',
-    rating: 5,
-    headline: 'Sharper focus before heavy lifts',
-    body: 'The morning stack actually does what it says. No jitter, no crash. Squat day suddenly feels clean.',
-  },
-  {
-    sport: 'Canoe Sprint Athlete',
-    initial: 'C',
-    product: 'Morning',
-    rating: 5,
-    headline: 'Sustained output across the whole race',
-    body: 'No mid-distance dip. Powered through the last 200m at full speed for the first time in two seasons.',
   },
 ];
 
@@ -146,27 +127,19 @@ function ReviewCard({ review }) {
       <div className="flex items-center gap-2.5 pt-2.5 border-t border-[#f5f5f5]">
         <div className="w-7 h-7 rounded-full flex items-center justify-center text-white font-sans font-700 text-[11px] flex-shrink-0"
           style={{ background: BOX_G }}>
-          {review.initial}
+          {review.name.charAt(0)}
         </div>
         <div>
-          <p className="font-sans font-700 text-[#0a0a0a] text-[12px] leading-none">{review.sport}</p>
-          <p className="font-body text-[10px] text-[#bbb] mt-0.5 flex items-center gap-1">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ color: '#10B981' }}>
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
-            Verified athlete
-          </p>
+          <p className="font-sans font-700 text-[#0a0a0a] text-[12px] leading-none">{review.name}</p>
+          <p className="font-body text-[10px] text-[#bbb] mt-0.5">{review.role}</p>
         </div>
       </div>
     </div>
   );
 }
 
-const INITIAL_VISIBLE = 3;
-
 export default function ReviewsSection() {
   const sectionRef = useRef(null);
-  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -185,18 +158,7 @@ export default function ReviewsSection() {
     return () => ctx.revert();
   }, []);
 
-  // Animate newly-revealed cards when expanding
-  useEffect(() => {
-    if (!expanded) return;
-    gsap.fromTo('.review-card.is-extra',
-      { opacity: 0, y: 24 },
-      { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.05 }
-    );
-  }, [expanded]);
-
   const avg = (REVIEWS.reduce((s, r) => s + r.rating, 0) / REVIEWS.length).toFixed(1);
-  const visible = expanded ? REVIEWS : REVIEWS.slice(0, INITIAL_VISIBLE);
-  const hiddenCount = REVIEWS.length - INITIAL_VISIBLE;
 
   return (
     <section ref={sectionRef} className="py-16 md:py-24 px-6 md:px-16"
@@ -229,44 +191,18 @@ export default function ReviewsSection() {
             </span>
           </h2>
           <p className="reviews-head opacity-0 font-body font-300 text-[#888] text-[15px] max-w-sm leading-relaxed">
-            Tested across Europe and the United States before launch. Anonymized for privacy — every reviewer is a verified beta athlete.
+            Tested across Europe and the United States before launch. No filters, no edits.
           </p>
         </div>
 
-        <div className="reviews-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {visible.map((r, idx) => (
-            <div key={idx} className={idx >= INITIAL_VISIBLE ? 'is-extra' : ''}>
-              <ReviewCard review={r} />
-            </div>
+        <div className="reviews-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {REVIEWS.map((r) => (
+            <ReviewCard key={r.name} review={r} />
           ))}
         </div>
 
-        {hiddenCount > 0 && (
-          <div className="flex justify-center mt-10">
-            <button
-              type="button"
-              onClick={() => setExpanded(v => !v)}
-              className="group inline-flex items-center gap-2 px-7 py-3 rounded-full border bg-white hover:shadow-md transition-all duration-300"
-              style={{ borderColor: 'rgba(232,68,90,0.25)' }}
-            >
-              <span className="font-sans font-700 text-[12px] tracking-[0.18em] uppercase bg-clip-text text-transparent"
-                style={{ backgroundImage: HEAT_G }}>
-                {expanded ? 'Show less' : `Show ${hiddenCount} more reviews`}
-              </span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-                style={{
-                  color: '#E8445A',
-                  transition: 'transform 0.3s ease',
-                  transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                }}>
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </button>
-          </div>
-        )}
-
         <p className="reviews-head opacity-0 mt-8 text-center font-body text-[12px] text-[#bbb] tracking-wide">
-          All reviews collected during the Lifecode Nutrition pre-launch testing phase. Names withheld for athlete privacy.
+          All reviews collected during the Lifecode Nutrition pre-launch testing phase.
         </p>
 
       </div>

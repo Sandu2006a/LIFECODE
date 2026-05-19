@@ -25,7 +25,7 @@ export const metadata = {
     template: '%s · LIFECODE Nutrition',
   },
   description:
-    'LIFECODE is precision sports nutrition built by athletes for athletes. Daily Morning Essentials, Daily After Training Repair and AI-tracked micronutrients calibrated to your sport, weight and training load. Engineered at the molecular level.',
+    'LIFECODE is precision sports nutrition built by athletes for athletes. code.charge, code.build and AI-tracked micronutrients calibrated to your sport, weight and training load. Engineered at the molecular level.',
   keywords: [
     'LIFECODE',
     'LIFECODE Nutrition',
@@ -33,8 +33,8 @@ export const metadata = {
     'precision nutrition',
     'sports nutrition',
     'athlete supplements',
-    'Daily Morning Essentials',
-    'Daily After Training Repair',
+    'code.charge',
+    'code.build',
     'micronutrient tracking',
     'training nutrition',
     'AI nutrition',
@@ -74,7 +74,7 @@ export const metadata = {
   openGraph: {
     title: 'LIFECODE — Precision Nutrition for Athletes',
     description:
-      'Sports nutrition engineered at the molecular level. Daily Morning Essentials + Daily After Training Repair + AI tracking.',
+      'Sports nutrition engineered at the molecular level. code.charge + code.build + AI tracking.',
     type: 'website',
     url: SITE,
     siteName: 'LIFECODE Nutrition',
@@ -109,7 +109,7 @@ const ORG_JSON_LD = {
   url: SITE,
   logo: `${SITE}/logo.png`,
   description:
-    'LIFECODE is precision sports nutrition: Daily Morning Essentials, Daily After Training Repair and AI-tracked micronutrients calibrated to your sport, weight and training load.',
+    'LIFECODE is precision sports nutrition: code.charge, code.build and AI-tracked micronutrients calibrated to your sport, weight and training load.',
   sameAs: [],
   founders: [{ '@type': 'Person', name: 'LIFECODE Founders' }],
 };
