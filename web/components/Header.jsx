@@ -28,8 +28,8 @@ const HEAT_G = 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)';
 const BLACK  = '#0F172A';
 
 const NAV_LINKS = [
-  ['Morning',      '/products/morning'],
-  ['Recovery',     '/products/recovery'],
+  ['code.charge',  '/products/morning'],
+  ['code.build',   '/products/recovery'],
   ['The Science',  '/science'],
   ['Ingredients',  '/ingredients'],
   ['Comparisons',  '/lifecode-comparison'],
@@ -129,8 +129,8 @@ export default function Header() {
               const isActive = pathname === href;
               return (
                 <Link key={label} href={href}
-                  className="relative font-sans font-700 text-[13px] tracking-[0.12em] uppercase transition-all duration-300 group"
-                  style={{ color: isActive ? BLACK : '#222' }}>
+                  className="relative font-body font-500 text-[13px] tracking-[0.08em] normal-case transition-all duration-300 group"
+                  style={{ color: isActive ? BLACK : '#444', textTransform: 'none' }}>
                   {label}
                   <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 group-hover:w-full transition-all duration-300 rounded-full"
                     style={{ background: BOX_G }} />
