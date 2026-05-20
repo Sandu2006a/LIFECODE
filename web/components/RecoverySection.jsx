@@ -52,8 +52,8 @@ export default function RecoverySection() {
                 </span>
               </div>
               <h2
-                className="font-sans font-700 leading-[0.88] tracking-tight"
-                style={{ fontSize: 'clamp(2.2rem, 4.5vw, 4.6rem)', color: PURPLE }}
+                className="font-sans font-700 leading-[0.88] tracking-tight uppercase"
+                style={{ fontSize: 'clamp(2.2rem, 4.5vw, 4.6rem)', color: PURPLE, letterSpacing: '0.02em' }}
               >
                 code·build
               </h2>

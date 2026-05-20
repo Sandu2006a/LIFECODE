@@ -68,8 +68,8 @@ export default function MorningSection() {
                 </span>
               </div>
               <h2
-                className="font-sans font-700 leading-[0.88] tracking-tight"
-                style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)', color: RED }}
+                className="font-sans font-700 leading-[0.88] tracking-tight uppercase"
+                style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)', color: RED, letterSpacing: '0.02em' }}
               >
                 code·charge
               </h2>
