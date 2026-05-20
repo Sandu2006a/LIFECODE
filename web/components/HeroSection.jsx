@@ -82,15 +82,45 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Box image — seamless, no border */}
-        <div className="hs-img opacity-0 flex items-center justify-center">
+        {/* Product image — integrated into the page with soft radial glow
+            and edge-fade mask. The image sits IN the page, not ON it. */}
+        <div className="hs-img opacity-0 relative flex items-center justify-center">
+
+          {/* Soft radial backdrop — looks like the page is "lit from within"
+              behind the product, not a hard rectangle */}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(60% 55% at 50% 50%, rgba(255,138,0,0.18) 0%, rgba(232,68,90,0.10) 35%, rgba(124,58,237,0.05) 65%, transparent 80%)',
+              filter: 'blur(40px)',
+              transform: 'scale(1.1)',
+            }} />
+
+          {/* Subtle warm halo right behind product, tighter than the backdrop */}
+          <div className="absolute pointer-events-none"
+            style={{
+              width: '70%', height: '70%', left: '15%', top: '15%',
+              background: 'radial-gradient(circle, rgba(255,213,79,0.22) 0%, transparent 65%)',
+              filter: 'blur(60px)',
+            }} />
+
           <Image
             src="/lifecode-products.jpeg"
             alt="LIFECODE"
             width={1200}
             height={1200}
-            className="w-full h-auto object-contain"
+            className="relative w-full h-auto object-contain"
             priority
+            style={{
+              // Soft fade at the edges so the image dissolves into the page
+              WebkitMaskImage:
+                'radial-gradient(ellipse 90% 88% at 50% 50%, black 60%, transparent 100%)',
+              maskImage:
+                'radial-gradient(ellipse 90% 88% at 50% 50%, black 60%, transparent 100%)',
+              // Drop shadow that feels like lighting, not a sticker
+              filter:
+                'drop-shadow(0 30px 40px rgba(124,58,237,0.18)) drop-shadow(0 60px 80px rgba(255,138,0,0.12))',
+            }}
           />
         </div>
 
