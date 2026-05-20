@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
@@ -11,13 +11,13 @@ const AG = 'linear-gradient(135deg, #FF8A00 0%, #C62828 40%, #7C3AED 70%, #1D4ED
 
 const BLOCKS = [
   {
-    tag: 'AM · code.charge',
+    tag: 'AM · code·charge',
     title: 'Daily activation.',
     body: '11 precision compounds. Vitamins, adaptogens, CoQ10. Everything your body needs to start at full capacity.',
     gradient: MG,
   },
   {
-    tag: 'PM · code.build',
+    tag: 'PM · code·build',
     title: 'Post-effort repair.',
     body: '10 targeted compounds. EAA, creatine, magnesium. Cellular rebuild starts within the 45-minute window.',
     gradient: RG,

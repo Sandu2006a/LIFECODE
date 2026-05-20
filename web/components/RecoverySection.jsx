@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
@@ -107,7 +107,7 @@ export default function RecoverySection() {
                 <div className="bg-white overflow-hidden" style={{ borderRadius: '25px' }}>
                   <Image
                     src="/code-rebuild.jpeg"
-                    alt="code.build"
+                    alt="code·build"
                     width={900}
                     height={1100}
                     className="w-full h-auto object-contain p-6 md:p-10"

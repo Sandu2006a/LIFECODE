@@ -2,7 +2,7 @@
   morning: {
     slug: 'morning',
     phase: '01',
-    title: 'code.charge',
+    title: 'code·charge',
     tagline: 'Activate.',
     accentColor: '#8B0015',
     accentLight: '#FFF0F0',
@@ -104,7 +104,7 @@
   recovery: {
     slug: 'recovery',
     phase: '04',
-    title: 'code.build',
+    title: 'code·build',
     tagline: 'Rebuild.',
     accentColor: '#E8631A',
     accentLight: '#FFF3EC',

@@ -28,8 +28,8 @@ const HEAT_G = 'linear-gradient(90deg, #FF8A00, #C62828, #7C3AED)';
 const BLACK  = '#0F172A';
 
 const NAV_LINKS = [
-  ['code.charge',  '/products/morning'],
-  ['code.build',   '/products/recovery'],
+  ['code·charge',  '/products/morning'],
+  ['code·build',   '/products/recovery'],
   ['The Science',  '/science'],
   ['Ingredients',  '/ingredients'],
   ['Comparisons',  '/lifecode-comparison'],

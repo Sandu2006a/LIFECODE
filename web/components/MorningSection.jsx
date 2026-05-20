@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
@@ -45,7 +45,7 @@ export default function MorningSection() {
                 <div className="bg-white overflow-hidden" style={{ borderRadius: '25px' }}>
                   <Image
                     src="/code-charge.jpeg"
-                    alt="code.charge"
+                    alt="code·charge"
                     width={900}
                     height={1100}
                     className="w-full h-auto object-contain p-6 md:p-10"
