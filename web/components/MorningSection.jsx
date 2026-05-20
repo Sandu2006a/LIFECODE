@@ -44,7 +44,7 @@ export default function MorningSection() {
               <div style={{ padding: '3px', borderRadius: '28px', background: RED }}>
                 <div className="bg-white overflow-hidden" style={{ borderRadius: '25px' }}>
                   <Image
-                    src="/code-charge.jpeg"
+                    src="/code-charge-sachet.png"
                     alt="code·charge"
                     width={900}
                     height={1100}
@@ -71,7 +71,7 @@ export default function MorningSection() {
                 className="font-sans font-700 leading-[0.88] tracking-tight"
                 style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)', color: RED }}
               >
-                Daily Morning<br />Essentials
+                code·charge
               </h2>
             </div>
 

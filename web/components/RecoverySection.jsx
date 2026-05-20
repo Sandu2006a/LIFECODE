@@ -55,7 +55,7 @@ export default function RecoverySection() {
                 className="font-sans font-700 leading-[0.88] tracking-tight"
                 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 4.6rem)', color: PURPLE }}
               >
-                Daily After<br />Training Repair
+                code·build
               </h2>
             </div>
 
@@ -106,7 +106,7 @@ export default function RecoverySection() {
               <div style={{ padding: '3px', borderRadius: '28px', background: PURPLE }}>
                 <div className="bg-white overflow-hidden" style={{ borderRadius: '25px' }}>
                   <Image
-                    src="/code-rebuild.jpeg"
+                    src="/code-rebuild-sachet.png"
                     alt="code·build"
                     width={900}
                     height={1100}
