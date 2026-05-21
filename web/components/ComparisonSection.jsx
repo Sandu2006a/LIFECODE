@@ -208,11 +208,11 @@ export default function ComparisonSection() {
           Why a system beats<br />a stack.
         </h2>
 
-        {/* Products image */}
-        <div className="cs-img relative rounded-2xl overflow-hidden aspect-[16/7] mb-10 opacity-0 bg-[#f8f8f8]">
+        {/* Products image — white background, blends into the page */}
+        <div className="cs-img relative rounded-2xl overflow-hidden aspect-[16/7] mb-10 opacity-0 bg-white">
           <Image
-            src="/lifecode-products.jpeg"
-            alt="Lifecode Products"
+            src="/produse_noi.png"
+            alt="LIFECODE — code·rebuild and code·charge"
             fill
             className="object-contain p-6 md:p-10"
             sizes="100vw"

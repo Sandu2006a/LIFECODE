@@ -105,21 +105,23 @@ export default function HeroSection() {
             }} />
 
           <Image
-            src="/lifecode-products.jpeg"
-            alt="LIFECODE"
-            width={1200}
-            height={1200}
+            src="/produse_noi.png"
+            alt="LIFECODE — code·rebuild and code·charge"
+            width={1600}
+            height={1000}
             className="relative w-full h-auto object-contain"
             priority
             style={{
-              // Soft fade at the edges so the image dissolves into the page
+              // The image already has a clean white background — same as the
+              // page — so it blends seamlessly. The radial mask softens the
+              // rectangular edges so it never reads as a pasted-in photo.
               WebkitMaskImage:
-                'radial-gradient(ellipse 90% 88% at 50% 50%, black 60%, transparent 100%)',
+                'radial-gradient(ellipse 96% 92% at 50% 50%, black 72%, transparent 100%)',
               maskImage:
-                'radial-gradient(ellipse 90% 88% at 50% 50%, black 60%, transparent 100%)',
-              // Drop shadow that feels like lighting, not a sticker
+                'radial-gradient(ellipse 96% 92% at 50% 50%, black 72%, transparent 100%)',
+              // Soft brand-tinted shadow for depth
               filter:
-                'drop-shadow(0 30px 40px rgba(124,58,237,0.18)) drop-shadow(0 60px 80px rgba(255,138,0,0.12))',
+                'drop-shadow(0 24px 36px rgba(124,58,237,0.14)) drop-shadow(0 48px 70px rgba(255,138,0,0.10))',
             }}
           />
         </div>

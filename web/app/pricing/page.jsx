@@ -229,10 +229,10 @@ export default function PricingPage() {
               <div className="flex items-center justify-center bg-white p-10 md:p-14 lg:min-h-[540px]">
                 <div className="w-full max-w-[480px]">
                   <Image
-                    src="/lifecode-products.jpeg"
-                    alt="Lifecode Products"
-                    width={960}
-                    height={780}
+                    src="/produse_noi.png"
+                    alt="LIFECODE — code·rebuild and code·charge"
+                    width={1600}
+                    height={1000}
                     className="w-full h-auto object-contain"
                     priority
                   />
