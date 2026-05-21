@@ -35,25 +35,41 @@ export default function MorningSection() {
       <div className="max-w-[1440px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-14 items-center">
 
-          {/* Image with solid border */}
-          <div className="ms-img opacity-0">
-            {/* Soft glow behind the border */}
-            <div className="relative">
-              <div className="absolute inset-0 blur-3xl opacity-20 scale-95 pointer-events-none rounded-[28px]"
-                style={{ background: RED }} />
-              <div style={{ padding: '3px', borderRadius: '28px', background: RED }}>
-                <div className="bg-white overflow-hidden" style={{ borderRadius: '25px' }}>
-                  <Image
-                    src="/code-charge-sachet.png"
-                    alt="code·charge"
-                    width={900}
-                    height={1100}
-                    className="w-full h-auto object-contain p-6 md:p-10"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                  />
-                </div>
-              </div>
-            </div>
+          {/* Product image — integrated into the page (no hard frame) */}
+          <div className="ms-img opacity-0 relative flex items-center justify-center">
+            {/* Soft radial backdrop — page looks lit from behind the product */}
+            <div className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  'radial-gradient(58% 55% at 50% 50%, rgba(198,40,40,0.16) 0%, rgba(255,138,0,0.10) 38%, transparent 75%)',
+                filter: 'blur(45px)',
+                transform: 'scale(1.08)',
+              }} />
+            {/* Tighter warm halo right behind the sachet */}
+            <div className="absolute pointer-events-none"
+              style={{
+                width: '64%', height: '64%', left: '18%', top: '18%',
+                background: 'radial-gradient(circle, rgba(255,180,80,0.22) 0%, transparent 65%)',
+                filter: 'blur(55px)',
+              }} />
+            <Image
+              src="/code-charge-sachet.png"
+              alt="code·charge"
+              width={900}
+              height={1100}
+              className="relative w-full h-auto object-contain"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              style={{
+                // Edges dissolve into the page instead of a hard rectangle
+                WebkitMaskImage:
+                  'radial-gradient(ellipse 92% 90% at 50% 50%, black 62%, transparent 100%)',
+                maskImage:
+                  'radial-gradient(ellipse 92% 90% at 50% 50%, black 62%, transparent 100%)',
+                // Brand-tinted shadow = ambient light, not a sticker
+                filter:
+                  'drop-shadow(0 26px 36px rgba(198,40,40,0.20)) drop-shadow(0 50px 70px rgba(255,138,0,0.12))',
+              }}
+            />
           </div>
 
           {/* Text */}

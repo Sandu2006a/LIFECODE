@@ -98,24 +98,39 @@ export default function RecoverySection() {
             </div>
           </div>
 
-          {/* Image with solid border */}
-          <div className="rs-img order-1 lg:order-2 opacity-0">
-            <div className="relative">
-              <div className="absolute inset-0 blur-3xl opacity-20 scale-95 pointer-events-none rounded-[28px]"
-                style={{ background: PURPLE }} />
-              <div style={{ padding: '3px', borderRadius: '28px', background: PURPLE }}>
-                <div className="bg-white overflow-hidden" style={{ borderRadius: '25px' }}>
-                  <Image
-                    src="/code-rebuild-sachet.png"
-                    alt="code·build"
-                    width={900}
-                    height={1100}
-                    className="w-full h-auto object-contain p-6 md:p-10"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                  />
-                </div>
-              </div>
-            </div>
+          {/* Product image — integrated into the page (no hard frame) */}
+          <div className="rs-img order-1 lg:order-2 opacity-0 relative flex items-center justify-center">
+            {/* Soft radial backdrop */}
+            <div className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  'radial-gradient(58% 55% at 50% 50%, rgba(124,58,237,0.16) 0%, rgba(29,78,216,0.10) 38%, transparent 75%)',
+                filter: 'blur(45px)',
+                transform: 'scale(1.08)',
+              }} />
+            {/* Tighter cool halo behind the sachet */}
+            <div className="absolute pointer-events-none"
+              style={{
+                width: '64%', height: '64%', left: '18%', top: '18%',
+                background: 'radial-gradient(circle, rgba(150,120,255,0.22) 0%, transparent 65%)',
+                filter: 'blur(55px)',
+              }} />
+            <Image
+              src="/code-rebuild-sachet.png"
+              alt="code·build"
+              width={900}
+              height={1100}
+              className="relative w-full h-auto object-contain"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              style={{
+                WebkitMaskImage:
+                  'radial-gradient(ellipse 92% 90% at 50% 50%, black 62%, transparent 100%)',
+                maskImage:
+                  'radial-gradient(ellipse 92% 90% at 50% 50%, black 62%, transparent 100%)',
+                filter:
+                  'drop-shadow(0 26px 36px rgba(124,58,237,0.20)) drop-shadow(0 50px 70px rgba(29,78,216,0.12))',
+              }}
+            />
           </div>
 
         </div>
