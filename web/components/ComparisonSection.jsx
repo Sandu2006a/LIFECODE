@@ -211,8 +211,8 @@ export default function ComparisonSection() {
         {/* Products image */}
         <div className="cs-img relative rounded-2xl overflow-hidden aspect-[16/7] mb-10 opacity-0 bg-[#f8f8f8]">
           <Image
-            src="/Cutii.png"
-            alt="LIFECODE Products"
+            src="/lifecode-products.jpeg"
+            alt="Lifecode Products"
             fill
             className="object-contain p-6 md:p-10"
             sizes="100vw"
