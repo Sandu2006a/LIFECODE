@@ -34,8 +34,7 @@ export default function RecoverySection() {
     <section
       ref={sectionRef}
       id="recovery"
-      className="py-14 md:py-20 px-6 md:px-16 overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #FAFAFE 0%, #F8F5FF 100%)' }}
+      className="py-14 md:py-20 px-6 md:px-16 overflow-hidden bg-white"
     >
       <div className="max-w-[1440px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-14 items-center">
