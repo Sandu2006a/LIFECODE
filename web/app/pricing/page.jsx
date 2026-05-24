@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
 import { createSupabaseBrowser } from '@/lib/supabase';
+import { useCheckout } from '@/lib/useCheckout';
 
 const BOX_G_NAV = 'linear-gradient(90deg, #FF8A00, #C62828)';
 
@@ -102,6 +103,13 @@ function PlanButton({ plan, gradient, label }) {
   const router  = useRouter();
   const [status, setStatus] = useState('idle');
   const [errMsg, setErrMsg] = useState('');
+  const { go: goCheckout, shopifyEnabled } = useCheckout();
+
+  // Map pricing-page plans → checkout plans.
+  //   'essentials' (one-time both packs) → Shopify 'bundle'
+  //   'protocol'   (monthly subscription) → stays on waitlist until Stripe sub is wired
+  const shopifyPlan = plan === 'essentials' ? 'bundle' : null;
+  const canCheckout = shopifyEnabled && shopifyPlan !== null;
 
   const handleClick = async () => {
     const supabase = createSupabaseBrowser();
@@ -112,6 +120,21 @@ function PlanButton({ plan, gradient, label }) {
       return;
     }
 
+    // Path A: real Shopify checkout (when env vars are set on Vercel)
+    if (canCheckout) {
+      setStatus('loading');
+      setErrMsg('');
+      try {
+        await goCheckout(shopifyPlan, session.user.email);
+        // goCheckout does window.location.href = url on success
+      } catch (e) {
+        setErrMsg(e?.message || 'Checkout failed');
+        setStatus('error');
+      }
+      return;
+    }
+
+    // Path B: waitlist fallback (no Shopify env vars yet, or 'protocol' subscription)
     setStatus('loading');
     setErrMsg('');
     try {
