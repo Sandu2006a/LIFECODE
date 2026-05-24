@@ -83,17 +83,28 @@ export default function ActivateScreen() {
 
       // Activation succeeded = user owns a valid LIFECODE account.
       // Mark this device as "known". From now on, NEVER show onboarding here.
-      const fullName = (data.name || '').toString().trim() || 'Athlete';
+      //
+      // Name resolution: prefer server response, but fall back to the previously
+      // cached name (the user may have edited it in profile.tsx). Never overwrite
+      // a real cached name with the generic 'Athlete'.
+      const serverName = (data.name || '').toString().trim();
+      let cachedName = '';
+      try { cachedName = (await AsyncStorage.getItem('lifecode.user_name')) || ''; } catch {}
+      const goodCached = cachedName && cachedName !== 'Athlete' ? cachedName : '';
+      const fullName = serverName || goodCached || 'Athlete';
       try {
         await AsyncStorage.setItem('lifecode.activated_once', '1');
         await AsyncStorage.setItem('lifecode.onboarding_done', '1');
         await AsyncStorage.setItem('lifecode.last_uid', uid);
-        await AsyncStorage.setItem('lifecode.user_name', fullName);
+        // Only overwrite cache with a *real* name — never downgrade to 'Athlete'
+        if (fullName !== 'Athlete') {
+          await AsyncStorage.setItem('lifecode.user_name', fullName);
+        }
         console.log('[activate] flags set, name persisted:', fullName);
       } catch (e: any) { console.log('[activate] flag save failed:', e?.message); }
 
       setUserId(uid);
-      setUserName((data.name || 'Athlete').split(' ')[0]);
+      setUserName(fullName.split(' ')[0]);
       setLoading(false);
       showWelcome(uid);
 
