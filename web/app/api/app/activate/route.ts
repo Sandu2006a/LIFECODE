@@ -69,10 +69,25 @@ export async function POST(req: NextRequest) {
       profileName = prof?.display_name || prof?.full_name || null;
     } catch {}
 
+    const metaName = user.user_metadata?.display_name || user.user_metadata?.full_name || null;
+
+    // Self-healing migration: if the user signed up via a path that wrote the
+    // name only into user_metadata (not profiles), backfill profiles now so
+    // every subsequent read sees a consistent name. This also handles users
+    // who had no profiles row at all yet.
+    if (!profileName && metaName) {
+      try {
+        await admin.from('profiles').upsert(
+          { id: user.id, display_name: metaName },
+          { onConflict: 'id' },
+        );
+        profileName = metaName;
+      } catch {}
+    }
+
     const name =
       profileName ||
-      user.user_metadata?.display_name ||
-      user.user_metadata?.full_name ||
+      metaName ||
       user.email?.split('@')[0] ||
       'Athlete';
 

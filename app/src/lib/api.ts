@@ -96,13 +96,91 @@ export async function logIntake(pack: 'morning' | 'recovery'): Promise<{ ok: boo
   }
 }
 
+// Same architecture as scanMeal: call Gemini directly for the slow analysis
+// step, then post-save with pre-computed nutrients so /api/meal doesn't have
+// to call Gemini itself (which is what was timing out → 'HTML on /api/meal').
+const ANALYZE_TEXT_PROMPT = `Nutrition API. Given a meal description and a quantity in grams, estimate per-meal micronutrient amounts.
+
+Return STRICTLY valid JSON (no markdown):
+{
+  "nutrients": {
+    "vitamin_a": <μg>, "vitamin_c": <mg>, "vitamin_d3": <μg>,
+    "vitamin_e": <mg>, "vitamin_k2": <μg>, "vitamin_b12": <μg>,
+    "zinc": <mg>, "copper": <mg>, "magnesium": <mg>, "selenium": <μg>,
+    "omega_3": <mg>, "calcium": <mg>, "potassium": <mg>, "sodium": <mg>,
+    "iodine": <μg>, "iron": <mg>,
+    "eaa": <mg>, "glutamine": <mg>, "creatine": <mg>
+  }
+}
+Use 0 for nutrients not provided. JSON only.`;
+
+async function analyzeTextNutrientsDirect(meal: string, qty: number): Promise<Record<string, number> | null> {
+  if (!GEMINI_KEY) return null;
+  const body = JSON.stringify({
+    contents: [{
+      role: 'user',
+      parts: [{ text: `${ANALYZE_TEXT_PROMPT}\n\nMEAL: "${meal}"\nQUANTITY: ${qty} grams` }],
+    }],
+    generationConfig: {
+      temperature: 0.1,
+      maxOutputTokens: 1500,
+      responseMimeType: 'application/json',
+    },
+  });
+
+  async function call(model: 'gemini-2.5-flash' | 'gemini-2.5-pro') {
+    const { signal, cancel } = withTimeout(30_000);
+    try {
+      const res = await fetch(GEMINI_VISION_URL(model), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        signal,
+      });
+      cancel();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error('empty Gemini response');
+      return text;
+    } finally { cancel(); }
+  }
+
+  let raw: string;
+  try { raw = await call('gemini-2.5-flash'); }
+  catch (e: any) {
+    console.log('[analyzeText] Flash failed, Pro fallback:', e?.message);
+    try { raw = await call('gemini-2.5-pro'); } catch { return null; }
+  }
+
+  try {
+    let parsed: any;
+    try { parsed = JSON.parse(raw); }
+    catch {
+      const m = raw.match(/\{[\s\S]*\}/);
+      if (!m) return null;
+      parsed = JSON.parse(m[0]);
+    }
+    return parsed.nutrients || null;
+  } catch { return null; }
+}
+
 export async function logMeal(
   meal_name: string, quantity_g: number, nutrients?: Record<string, number>
 ): Promise<{ ok: boolean; error?: string; nutrients?: Record<string, number> }> {
+  // If caller didn't supply nutrients, compute them via direct Gemini first.
+  // This means /api/meal only inserts the row (fast — no Gemini server call),
+  // sidestepping the Vercel timeout that produced 'HTML on /api/meal' errors.
+  let computedNutrients = nutrients;
+  if (!computedNutrients || Object.keys(computedNutrients).length === 0) {
+    const direct = await analyzeTextNutrientsDirect(meal_name, quantity_g);
+    if (direct && Object.keys(direct).length > 0) computedNutrients = direct;
+  }
+
   try {
     const res = await authFetch('/api/meal', {
       method: 'POST',
-      body: JSON.stringify({ meal_name, quantity_g, nutrients }),
+      body: JSON.stringify({ meal_name, quantity_g, nutrients: computedNutrients }),
     });
     const json = await res.json();
     if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
