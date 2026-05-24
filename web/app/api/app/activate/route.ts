@@ -56,7 +56,21 @@ export async function POST(req: NextRequest) {
     // Mark as used (allow re-use — just track)
     await admin.from('activation_codes').update({ used: true }).eq('code', upperCode);
 
+    // Resolve display name. user_metadata is the canonical source written at signup,
+    // but the website also writes display_name into profiles row. We check both
+    // so the app gets a real name even if one of them missed it.
+    let profileName: string | null = null;
+    try {
+      const { data: prof } = await admin
+        .from('profiles')
+        .select('display_name, full_name')
+        .eq('id', user.id)
+        .maybeSingle();
+      profileName = prof?.display_name || prof?.full_name || null;
+    } catch {}
+
     const name =
+      profileName ||
       user.user_metadata?.display_name ||
       user.user_metadata?.full_name ||
       user.email?.split('@')[0] ||

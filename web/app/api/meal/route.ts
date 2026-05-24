@@ -25,10 +25,6 @@ async function analyzeMealText(meal: string, qty: number): Promise<Record<string
   const key = (process.env.GEMINI_API_KEY || '').trim();
   if (!key) return {};
   const genAI = new GoogleGenerativeAI(key);
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-pro',
-    generationConfig: { temperature: 0.1, maxOutputTokens: 1500 },
-  });
   const prompt = `${STRICT_INSTRUCTIONS}
 
 INPUT (text, nu imagine):
@@ -37,12 +33,40 @@ Cantitate: ${qty} grame
 
 Setează "isNutritionLabel": false. Setează "quantity_g": ${qty}. Calculează nutrienții pentru exact ${qty} grame din "${meal}".`;
 
+  async function runModel(modelId: 'gemini-2.5-pro' | 'gemini-2.5-flash') {
+    const model = genAI.getGenerativeModel({
+      model: modelId,
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 1500,
+        responseMimeType: 'application/json',
+      },
+    });
+    return model.generateContent(prompt);
+  }
+
+  let text: string;
   try {
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) return {};
-    const parsed = JSON.parse(match[0]);
+    const result = await runModel('gemini-2.5-pro');
+    text = result.response.text();
+  } catch (e: any) {
+    console.warn('[meal] Pro failed, falling back to Flash:', e?.message);
+    try {
+      const result = await runModel('gemini-2.5-flash');
+      text = result.response.text();
+    } catch {
+      return {};
+    }
+  }
+
+  try {
+    let parsed: any;
+    try { parsed = JSON.parse(text); }
+    catch {
+      const match = text.match(/\{[\s\S]*\}/);
+      if (!match) return {};
+      parsed = JSON.parse(match[0]);
+    }
     return normalizeStrictNutrients(parsed.nutrients || {});
   } catch {
     return {};

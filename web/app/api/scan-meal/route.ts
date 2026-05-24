@@ -32,28 +32,49 @@ export async function POST(req: NextRequest) {
     if (!key) return NextResponse.json({ error: 'gemini not configured' }, { status: 500 });
 
     const genAI = new GoogleGenerativeAI(key);
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-pro',
-      generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 4096,
-      },
-    });
 
     const imagePart = {
       inlineData: { data: imageBase64, mimeType: mimeType || 'image/jpeg' },
     };
 
-    const result = await model.generateContent([INGREDIENT_INSTRUCTIONS, imagePart]);
-    const text = result.response.text();
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) {
-      return NextResponse.json({ error: 'could not analyze image', raw: text }, { status: 500 });
+    // Try Pro first (more accurate at food recognition), Flash as fallback so the
+    // user never sees a complete failure when Pro is rate-limited or rejects an image.
+    async function runModel(modelId: 'gemini-2.5-pro' | 'gemini-2.5-flash') {
+      const model = genAI.getGenerativeModel({
+        model: modelId,
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 4096,
+          // Force JSON output — eliminates the markdown-wrap & "intro paragraph"
+          // failures that made the regex extraction unreliable.
+          responseMimeType: 'application/json',
+        },
+      });
+      return model.generateContent([INGREDIENT_INSTRUCTIONS, imagePart]);
     }
 
+    let text: string;
+    try {
+      const result = await runModel('gemini-2.5-pro');
+      text = result.response.text();
+    } catch (e: any) {
+      console.warn('[scan-meal] Pro failed, falling back to Flash:', e?.message);
+      const result = await runModel('gemini-2.5-flash');
+      text = result.response.text();
+    }
+
+    // With responseMimeType=json, `text` should already be valid JSON.
+    // Keep the regex extractor as a safety net for older SDK behavior.
     let parsed: any;
-    try { parsed = JSON.parse(match[0]); }
-    catch { return NextResponse.json({ error: 'invalid AI JSON', raw: text }, { status: 500 }); }
+    try { parsed = JSON.parse(text); }
+    catch {
+      const match = text.match(/\{[\s\S]*\}/);
+      if (!match) {
+        return NextResponse.json({ error: 'could not analyze image', raw: text.slice(0, 500) }, { status: 500 });
+      }
+      try { parsed = JSON.parse(match[0]); }
+      catch { return NextResponse.json({ error: 'invalid AI JSON', raw: text.slice(0, 500) }, { status: 500 }); }
+    }
 
     const isNutritionLabel = !!parsed.isNutritionLabel;
     const description = String(parsed.description || 'Scanned meal').slice(0, 200);
