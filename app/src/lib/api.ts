@@ -25,8 +25,17 @@ function withTimeout(ms: number, signal?: AbortSignal): { signal: AbortSignal; c
 // Drop-in replacement for fetch that:
 //  • adds a 10s timeout (otherwise blocked WiFi hangs forever),
 //  • retries each fallback URL until one succeeds,
+//  • detects HTML responses from captive portals / proxies / 404 pages
+//    and treats them as failures (so we retry the next fallback URL
+//    instead of letting the caller crash on `res.json()`),
 //  • caches which hosts are dead for the session.
-export async function lifecodeFetch(path: string, init?: RequestInit): Promise<Response> {
+//
+// Pass `expectJson: false` for endpoints that legitimately return non-JSON.
+export async function lifecodeFetch(
+  path: string,
+  init?: RequestInit & { expectJson?: boolean },
+): Promise<Response> {
+  const expectJson = init?.expectJson !== false;
   let lastError: any = null;
   for (const base of API_FALLBACKS) {
     if (_deadHosts.has(base)) continue;
@@ -35,6 +44,24 @@ export async function lifecodeFetch(path: string, init?: RequestInit): Promise<R
     try {
       const res = await fetch(url, { ...init, signal });
       cancel();
+
+      // If we expect JSON but the response is HTML, the request was intercepted
+      // by a captive portal, network proxy, or the route doesn't exist on this
+      // deploy. Buffer the body, mark the host dead, and try the next fallback.
+      if (expectJson) {
+        const ct = res.headers.get('content-type') || '';
+        const looksJson = ct.includes('application/json') || ct.includes('text/json');
+        // We must look at the body too — some proxies serve HTML with a misleading content-type
+        if (!looksJson) {
+          const peek = (await res.clone().text()).trim().slice(0, 1);
+          if (peek === '<') {
+            _deadHosts.add(base);
+            lastError = new Error(`Server returned HTML on ${path} (intercepted by network proxy)`);
+            console.log(`[api] ${base}${path} returned HTML — trying next URL`);
+            continue;
+          }
+        }
+      }
       return res;
     } catch (e: any) {
       cancel();
