@@ -176,7 +176,7 @@ function welcomeEmailHtml(email: string) {
         <p style="margin:0;font-size:11px;color:#bbb;line-height:1.8;font-family:'Inter',Arial,sans-serif;letter-spacing:0.3px;">
           <a href="https://lifecodenutrition.com" style="color:#999;text-decoration:none;font-weight:500;">lifecodenutrition.com</a>
           &nbsp;·&nbsp;
-          <a href="mailto:hello@lifecodenutrition.com" style="color:#999;text-decoration:none;font-weight:500;">hello@lifecodenutrition.com</a>
+          <a href="mailto:lifecodenutrition@gmail.com" style="color:#999;text-decoration:none;font-weight:500;">lifecodenutrition@gmail.com</a>
         </p>
       </td></tr>
 
@@ -251,12 +251,12 @@ export async function POST(req: NextRequest) {
     // Send welcome email to user
     let mailDebug: any = { sent: false };
     try {
-      const fromAddress = process.env.RESEND_FROM_EMAIL || 'Lifecode <hello@lifecodenutrition.com>';
+      const fromAddress = process.env.RESEND_FROM_EMAIL || 'Lifecode <lifecodenutrition@gmail.com>';
       mailDebug.from = fromAddress;
       const result = await getResend().emails.send({
         from: fromAddress,
         to: normal,
-        replyTo: 'hello@lifecodenutrition.com',
+        replyTo: 'lifecodenutrition@gmail.com',
         subject: 'Welcome to Lifecode 🧬',
         html: welcomeEmailHtml(normal),
       });
@@ -273,8 +273,8 @@ export async function POST(req: NextRequest) {
       try {
         const totalCount = taken + 1;
         await getResend().emails.send({
-          from: process.env.RESEND_FROM_EMAIL || 'Lifecode <hello@lifecodenutrition.com>',
-          to: 'hello@lifecodenutrition.com',
+          from: process.env.RESEND_FROM_EMAIL || 'Lifecode <lifecodenutrition@gmail.com>',
+          to: 'lifecodenutrition@gmail.com',
           replyTo: normal,
           subject: `🧬 New pre-order signup: ${normal}`,
           html: `

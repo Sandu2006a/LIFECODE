@@ -135,7 +135,7 @@ function emailHtml(plan: string, magicLink: string, activationCode: string, user
       <tr><td style="border-top:1px solid #f0f0f0;padding-top:28px;text-align:center;">
         <p style="margin:0;font-size:11px;color:#ccc;line-height:2;">
           LIFECODE · Protocol Members Only<br/>
-          <a href="mailto:hello@lifecodenutrition.com" style="color:#bbb;text-decoration:none;">hello@lifecodenutrition.com</a>
+          <a href="mailto:lifecodenutrition@gmail.com" style="color:#bbb;text-decoration:none;">lifecodenutrition@gmail.com</a>
           &nbsp;·&nbsp;
           <a href="${siteUrl}" style="color:#bbb;text-decoration:none;">lifecode.app</a>
         </p>

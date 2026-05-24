@@ -60,7 +60,7 @@ export default function ContactPage() {
             </p>
 
             <div className="mt-10 space-y-5">
-              <a href="mailto:hello@lifecodenutrition.com"
+              <a href="mailto:lifecodenutrition@gmail.com"
                 className="flex items-center gap-4 group">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{ background: 'linear-gradient(135deg, #FFF3EC, #FAF0FF)' }}>
@@ -72,7 +72,7 @@ export default function ContactPage() {
                 <div>
                   <p className="font-body text-[11px] tracking-[0.2em] uppercase text-[#aaa] mb-0.5">Email</p>
                   <p className="font-sans font-600 text-[#0a0a0a] text-[14px] group-hover:text-[#E8445A] transition-colors">
-                    hello@lifecodenutrition.com
+                    lifecodenutrition@gmail.com
                   </p>
                 </div>
               </a>

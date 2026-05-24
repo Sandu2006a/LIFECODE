@@ -47,7 +47,7 @@ export default function TermsPage() {
         acceptance of the revised Terms.
       </Section>
       <Section title="9. Contact">
-        For any legal inquiries: <a href="mailto:legal@lifecodenutrition.com">legal@lifecodenutrition.com</a>
+        For any legal inquiries: <a href="mailto:lifecodenutrition@gmail.com">lifecodenutrition@gmail.com</a>
       </Section>
     </main>
   );

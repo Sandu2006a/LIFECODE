@@ -13,7 +13,7 @@ export default function PrivacyPage() {
 
       <Section title="1. Who we are">
         LIFECODE is a sports nutrition brand operated by Lifecode Nutrition SRL. For privacy inquiries, contact us at:{' '}
-        <a href="mailto:privacy@lifecodenutrition.com">privacy@lifecodenutrition.com</a>
+        <a href="mailto:lifecodenutrition@gmail.com">lifecodenutrition@gmail.com</a>
       </Section>
       <Section title="2. What data we collect">
         During the pre-launch phase, we collect only your email address and the timestamp of your signup.
@@ -35,7 +35,7 @@ export default function PrivacyPage() {
         Under GDPR, you have the right to: access your data, correct inaccurate data, request deletion
         (right to be forgotten), withdraw consent at any time, and lodge a complaint with your national
         data protection authority. To exercise any of these rights, email us at{' '}
-        <a href="mailto:privacy@lifecodenutrition.com">privacy@lifecodenutrition.com</a>.
+        <a href="mailto:lifecodenutrition@gmail.com">lifecodenutrition@gmail.com</a>.
       </Section>
       <Section title="7. Cookies">
         We use essential cookies for site functionality. If you accept analytics cookies, we collect
@@ -52,7 +52,7 @@ export default function PrivacyPage() {
       </Section>
       <Section title="10. Contact">
         LIFECODE Nutrition ·{' '}
-        <a href="mailto:privacy@lifecodenutrition.com">privacy@lifecodenutrition.com</a>
+        <a href="mailto:lifecodenutrition@gmail.com">lifecodenutrition@gmail.com</a>
       </Section>
     </main>
   );
