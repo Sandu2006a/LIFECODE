@@ -132,6 +132,138 @@ export type ScannedIngredient = {
   nutrients: Record<string, number>;
 };
 
+// Prompt that drives Gemini's food vision. Returns strict JSON we can parse
+// directly: a list of ingredients with weights and per-ingredient micronutrients.
+// Mirrors web/lib/nutrients.ts INGREDIENT_INSTRUCTIONS but lives in the app so
+// we don't need to ship a separate package boundary.
+const SCAN_PROMPT = `You are a nutrition vision API. Analyze the meal in the image and break it into individual ingredients (e.g. chicken + rice + broccoli = 3 separate ingredients, not 1).
+
+Return STRICTLY valid JSON in this exact shape (no markdown, no commentary):
+{
+  "description": "<short label, max 60 chars>",
+  "isNutritionLabel": <true if the photo shows a packaged-food nutrition label, else false>,
+  "ingredients": [
+    {
+      "name": "<ingredient name>",
+      "quantity_g": <integer grams visible on plate>,
+      "nutrients": {
+        "vitamin_a": <μg>,
+        "vitamin_c": <mg>,
+        "vitamin_d3": <μg>,
+        "vitamin_e": <mg>,
+        "vitamin_k2": <μg>,
+        "vitamin_b12": <μg>,
+        "zinc": <mg>,
+        "copper": <mg>,
+        "magnesium": <mg>,
+        "selenium": <μg>,
+        "omega_3": <mg>,
+        "calcium": <mg>,
+        "potassium": <mg>,
+        "sodium": <mg>,
+        "iodine": <μg>,
+        "iron": <mg>,
+        "eaa": <mg>,
+        "glutamine": <mg>,
+        "creatine": <mg>
+      }
+    }
+  ]
+}
+
+Use 0 for nutrients the ingredient does not provide. Estimate quantities realistically from the photo. Return JSON only.`;
+
+// Direct Gemini Vision call — bypasses our /api/scan-meal entirely.
+// This eliminates Vercel timeout issues on image analysis, which were the
+// root cause of the "Server returned HTML on /api/scan-meal" errors.
+// Falls back to the server endpoint only if Gemini direct fails.
+const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_KEY || '';
+const GEMINI_VISION_URL = (model: 'gemini-2.5-flash' | 'gemini-2.5-pro') =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_KEY}`;
+
+async function scanMealDirectGemini(
+  imageBase64: string, mimeType: string,
+): Promise<{
+  ok: boolean;
+  error?: string;
+  description?: string;
+  quantity_g?: number;
+  isNutritionLabel?: boolean;
+  ingredients?: ScannedIngredient[];
+}> {
+  if (!GEMINI_KEY) return { ok: false, error: 'no gemini key on device' };
+  const body = JSON.stringify({
+    contents: [{
+      role: 'user',
+      parts: [
+        { text: SCAN_PROMPT },
+        { inlineData: { data: imageBase64, mimeType: mimeType || 'image/jpeg' } },
+      ],
+    }],
+    generationConfig: {
+      temperature: 0.2,
+      maxOutputTokens: 4096,
+      responseMimeType: 'application/json',
+    },
+  });
+
+  // Try Flash first (fast), Pro on fallback
+  async function call(model: 'gemini-2.5-flash' | 'gemini-2.5-pro') {
+    const { signal, cancel } = withTimeout(45_000);
+    try {
+      const res = await fetch(GEMINI_VISION_URL(model), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        signal,
+      });
+      cancel();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error('empty Gemini response');
+      return text;
+    } finally {
+      cancel();
+    }
+  }
+
+  let raw: string;
+  try {
+    raw = await call('gemini-2.5-flash');
+  } catch (e: any) {
+    console.log('[scanMeal] Flash direct failed, trying Pro:', e?.message);
+    try { raw = await call('gemini-2.5-pro'); }
+    catch (e2: any) { return { ok: false, error: e2?.message || 'gemini call failed' }; }
+  }
+
+  // responseMimeType=json ensures `raw` IS the JSON; safety regex below
+  let parsed: any;
+  try { parsed = JSON.parse(raw); }
+  catch {
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (!match) return { ok: false, error: 'could not parse Gemini JSON' };
+    try { parsed = JSON.parse(match[0]); }
+    catch { return { ok: false, error: 'invalid Gemini JSON' }; }
+  }
+
+  const rawIngs = Array.isArray(parsed.ingredients) ? parsed.ingredients : [];
+  const ingredients: ScannedIngredient[] = rawIngs.map((ing: any, idx: number) => ({
+    name: String(ing.name || `Ingredient ${idx + 1}`).slice(0, 100),
+    quantity_g: Math.max(1, parseInt(String(ing.quantity_g)) || 100),
+    nutrients: typeof ing.nutrients === 'object' && ing.nutrients ? ing.nutrients : {},
+  }));
+  const totalGrams = ingredients.reduce((s, ing) => s + ing.quantity_g, 0);
+
+  return {
+    ok: true,
+    description: String(parsed.description || 'Scanned meal').slice(0, 200),
+    isNutritionLabel: !!parsed.isNutritionLabel,
+    ingredients,
+    quantity_g: totalGrams || 100,
+  };
+}
+
 export async function scanMeal(
   imageBase64: string, mimeType: string = 'image/jpeg'
 ): Promise<{
@@ -142,6 +274,14 @@ export async function scanMeal(
   isNutritionLabel?: boolean;
   ingredients?: ScannedIngredient[];
 }> {
+  // Strategy 1: direct Gemini call — fast, no Vercel timeout exposure.
+  // Most users on most networks will succeed here.
+  const direct = await scanMealDirectGemini(imageBase64, mimeType);
+  if (direct.ok) return direct;
+  console.log('[scanMeal] direct Gemini failed, falling back to server:', direct.error);
+
+  // Strategy 2: server endpoint — only hit when direct call fails
+  // (e.g. Google API blocked on the user's network).
   try {
     const res = await authFetch('/api/scan-meal', {
       method: 'POST',
@@ -157,7 +297,7 @@ export async function scanMeal(
       ingredients: Array.isArray(json.ingredients) ? json.ingredients : [],
     };
   } catch (e: any) {
-    return { ok: false, error: e.message || 'network error' };
+    return { ok: false, error: direct.error || e.message || 'network error' };
   }
 }
 

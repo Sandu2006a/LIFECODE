@@ -37,7 +37,7 @@ function weekDays(): { date: Date; iso: string }[] {
 export default function SummaryScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [scanOpen, setScanOpen] = useState(false);
-  const [name, setName] = useState('Athlete');
+  const [name, setName] = useState('');
   const [avatarLetter, setAvatarLetter] = useState('A');
   const [userId, setUserId] = useState<string | null>(null);
   const [totals, setTotals] = useState<DailyTotals | null>(null);
@@ -67,7 +67,8 @@ export default function SummaryScreen() {
           .maybeSingle();
         let cachedName = '';
         try { cachedName = (await AsyncStorage.getItem('lifecode.user_name')) || ''; } catch {}
-        // Also try user_metadata
+        // Reject the legacy 'Athlete' fallback that earlier sessions may have cached
+        const goodCached = cachedName && cachedName !== 'Athlete' ? cachedName : '';
         let metaName = '';
         try {
           const { data: ud } = await supabase.auth.getUser();
@@ -75,12 +76,20 @@ export default function SummaryScreen() {
                   || ud?.user?.user_metadata?.full_name
                   || '';
         } catch {}
+        // alex.smith@gmail.com → "Alex" — much better than "Athlete" when no name is set
+        const localPart = (userEmail.split('@')[0] || '').split(/[^a-zA-Z]+/).find(s => s.length > 0) || '';
+        const emailName = localPart ? localPart.charAt(0).toUpperCase() + localPart.slice(1).toLowerCase() : '';
+
         const displayName =
           p?.display_name || p?.full_name ||
-          metaName || cachedName ||
-          userEmail.split('@')[0] || 'Athlete';
+          metaName || goodCached ||
+          emailName || 'You';
         setName(displayName);
         setAvatarLetter((p?.avatar_letter || displayName.charAt(0) || 'A').toUpperCase());
+        // Persist a *real* name so other screens (welcome bubble) see it
+        if (displayName && displayName !== 'You') {
+          try { await AsyncStorage.setItem('lifecode.user_name', displayName); } catch {}
+        }
       } catch (e: any) { console.log('[home] profile read failed:', e?.message); }
 
       try {

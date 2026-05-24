@@ -36,31 +36,22 @@ function getThisWeek(): { d: number; today: boolean }[] {
 
 const DUR_OPTIONS = [20, 30, 45, 60, 75, 90, 120];
 
+// Email-prefix → display name. alex.smith@gmail.com → "Alex". Strips digits and
+// punctuation, takes the first alpha chunk, capitalizes. Better fallback than
+// the generic "Athlete" that infuriated the user across sessions.
+function nameFromEmail(email: string): string {
+  if (!email) return '';
+  const local = email.split('@')[0] || '';
+  // Split on anything that isn't a letter; first non-empty chunk wins
+  const chunk = local.split(/[^a-zA-Z]+/).find(s => s.length > 0) || local;
+  if (!chunk) return '';
+  return chunk.charAt(0).toUpperCase() + chunk.slice(1).toLowerCase();
+}
+
 export default function ProfileScreen() {
-  const [name, setName] = useState('Athlete');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [sport, setSport] = useState('');
-  const [userIdState, setUserIdState] = useState<string | null>(null);
-
-  // Inline edit for the displayed name. Tap → input. Submit → AsyncStorage + Supabase.
-  const [editingName, setEditingName] = useState(false);
-  const [draftName, setDraftName] = useState('');
-
-  const saveName = async (newName: string) => {
-    const trimmed = newName.trim();
-    setEditingName(false);
-    if (!trimmed || trimmed === name) return;
-    setName(trimmed);
-    try { await AsyncStorage.setItem('lifecode.user_name', trimmed); } catch {}
-    if (userIdState) {
-      try {
-        await supabase.from('profiles').upsert(
-          { id: userIdState, display_name: trimmed },
-          { onConflict: 'id' },
-        );
-      } catch {}
-    }
-  };
 
   const [selectedDay, setSelectedDay] = useState(((new Date().getDay() + 6) % 7));
   const [workouts, setWorkouts] = useState<Record<number, Workout[]>>({ 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] });
@@ -92,7 +83,6 @@ export default function ProfileScreen() {
   async function load() {
     const { userId, accessToken } = await ensureSession();
     if (!userId) { console.log('[profile] no auth'); return; }
-    setUserIdState(userId);
 
     // Read profile via server (service role → bypasses RLS)
     let p: any = null;
@@ -130,22 +120,30 @@ export default function ProfileScreen() {
     }
 
     // Resolve display name. Priority:
-    //  1) profile.display_name / full_name (server-side DB)
-    //  2) supabase user_metadata (set by Supabase admin during signup)
-    //  3) AsyncStorage cache (saved by activate.tsx on every successful code entry)
-    //  4) email prefix
-    //  5) 'Athlete' (last resort)
+    //  1) profile.display_name / full_name (server-side DB, set at signup)
+    //  2) supabase user_metadata (display_name/full_name set during signup)
+    //  3) AsyncStorage cache, only if it's a real name (NOT the literal "Athlete"
+    //     that earlier sessions accidentally saved as fallback)
+    //  4) email-prefix derivation — alex@gmail.com → "Alex"
+    //  5) 'You' (never show generic "Athlete" again)
     let cachedName = '';
     try { cachedName = (await AsyncStorage.getItem('lifecode.user_name')) || ''; } catch {}
+    const goodCached = cachedName && cachedName !== 'Athlete' ? cachedName : '';
+
     const resolvedName =
       p?.display_name ||
       p?.full_name ||
       userMetaName ||
-      cachedName ||
-      userEmail.split('@')[0] ||
-      'Athlete';
+      goodCached ||
+      nameFromEmail(userEmail) ||
+      'You';
 
     setName(resolvedName);
+    // Persist whatever we resolved so other screens (home, activate welcome)
+    // see the same name from cache. Never persist the 'You' fallback.
+    if (resolvedName && resolvedName !== 'You') {
+      try { await AsyncStorage.setItem('lifecode.user_name', resolvedName); } catch {}
+    }
     setEmail(p?.email || userEmail || '');
     setSport(p?.sport || p?.goal || '');
 
@@ -331,28 +329,7 @@ User text: "${text}"`;
             <Text style={s.idLetter}>{avatarLetter}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            {editingName ? (
-              <TextInput
-                style={s.idName}
-                value={draftName}
-                onChangeText={setDraftName}
-                autoFocus
-                selectTextOnFocus
-                returnKeyType="done"
-                placeholder="Your name"
-                placeholderTextColor={colors.ink3}
-                onSubmitEditing={() => saveName(draftName)}
-                onBlur={() => saveName(draftName)}
-                maxLength={40}
-              />
-            ) : (
-              <Pressable onPress={() => { setDraftName(name === 'Athlete' ? '' : name); setEditingName(true); }} hitSlop={6}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text style={s.idName} numberOfLines={1}>{name}</Text>
-                  <Icon name="chat" size={12} color={colors.ink3} strokeWidth={2} />
-                </View>
-              </Pressable>
-            )}
+            <Text style={s.idName} numberOfLines={1}>{name || 'You'}</Text>
             {!!email && <Text style={s.idEmail} numberOfLines={1}>{email}</Text>}
             {!!sport && (
               <View style={s.sportChip}>
