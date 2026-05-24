@@ -13,5 +13,16 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "(tabs)/**",
+    "_layout.tsx",
+    "activate.tsx",
+    "login.tsx",
+    "onboarding.tsx",
+    "profile.tsx",
+    "index.tsx",
+    "modal.tsx"
   ]
 }

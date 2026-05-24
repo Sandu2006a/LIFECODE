@@ -1,15 +1,19 @@
 import { View, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../src/lib/supabase';
 import { getCachedTokens } from '../src/lib/auth-cache';
 
+// Auth gate.
+//  • Valid session → /(tabs).  We never re-ask for onboarding data once the user
+//    has a session — they activated a code, that's enough.
+//  • No session    → /activate.
 export default function Index() {
   useEffect(() => {
     (async () => {
       try {
         let { data: { session } } = await supabase.auth.getSession();
-        // Fall back to cached tokens (other-device sign-in or AsyncStorage hiccup)
         if (!session) {
           const tokens = getCachedTokens();
           if (tokens) {
@@ -21,19 +25,13 @@ export default function Index() {
           router.replace('/activate');
           return;
         }
-        // Profile filled = skip onboarding. We treat the profile as ready when
-        // either onboarding_done is true OR all three core fields exist
-        // (age + weight + height). This handles older profiles that never got
-        // the onboarding_done flag flipped.
-        const { data } = await supabase
-          .from('profiles')
-          .select('onboarding_done, age, weight_kg, height_cm')
-          .eq('id', session.user.id)
-          .maybeSingle();
-
-        const filled = !!(data?.onboarding_done ||
-          (data?.age && data?.weight_kg && data?.height_cm));
-        router.replace(filled ? '/(tabs)' : '/onboarding');
+        // Session exists → trust the user. Mark device as known and route in.
+        try {
+          await AsyncStorage.setItem('lifecode.activated_once', '1');
+          await AsyncStorage.setItem('lifecode.onboarding_done', '1');
+          await AsyncStorage.setItem('lifecode.last_uid', session.user.id);
+        } catch {}
+        router.replace('/(tabs)');
       } catch {
         router.replace('/activate');
       }
@@ -41,8 +39,8 @@ export default function Index() {
   }, []);
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fafaf7' }}>
-      <ActivityIndicator color="#0d0d0f" />
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F7F7F5' }}>
+      <ActivityIndicator color="#0A0A0B" />
     </View>
   );
 }

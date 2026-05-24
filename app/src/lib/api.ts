@@ -1,6 +1,52 @@
 import { ensureSession } from './session';
 
+// Primary URL + fallbacks (university WiFi, captive portals, country blocks)
+// can block custom Vercel domains. We try each in order on each request.
 export const API_URL = 'https://lifecodenutrition.com';
+const API_FALLBACKS: string[] = [
+  'https://lifecodenutrition.com',
+  // Vercel default URL — different domain, often not blocked when the custom one is
+  'https://lifecode-app.vercel.app',
+  // Additional fallback can be set via env var on the device
+  process.env.EXPO_PUBLIC_API_URL_FALLBACK || '',
+].filter(Boolean);
+
+// Per-domain blacklist that times out fast for the rest of the session
+// once a domain has failed (so we don't waste 10s on each request).
+const _deadHosts = new Set<string>();
+
+function withTimeout(ms: number, signal?: AbortSignal): { signal: AbortSignal; cancel: () => void } {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  if (signal) signal.addEventListener('abort', () => ctrl.abort());
+  return { signal: ctrl.signal, cancel: () => clearTimeout(t) };
+}
+
+// Drop-in replacement for fetch that:
+//  • adds a 10s timeout (otherwise blocked WiFi hangs forever),
+//  • retries each fallback URL until one succeeds,
+//  • caches which hosts are dead for the session.
+export async function lifecodeFetch(path: string, init?: RequestInit): Promise<Response> {
+  let lastError: any = null;
+  for (const base of API_FALLBACKS) {
+    if (_deadHosts.has(base)) continue;
+    const url = `${base}${path}`;
+    const { signal, cancel } = withTimeout(10_000);
+    try {
+      const res = await fetch(url, { ...init, signal });
+      cancel();
+      return res;
+    } catch (e: any) {
+      cancel();
+      lastError = e;
+      _deadHosts.add(base);
+      console.log(`[api] ${base} unreachable (${e?.name || 'error'}: ${e?.message || ''}) — trying next`);
+    }
+  }
+  // Reset dead-hosts after total failure so the next user action retries
+  _deadHosts.clear();
+  throw lastError || new Error('All API endpoints unreachable. Try mobile data or VPN.');
+}
 
 async function authFetch(path: string, init?: RequestInit) {
   const { accessToken } = await ensureSession();
@@ -9,7 +55,7 @@ async function authFetch(path: string, init?: RequestInit) {
     ...(init?.headers as Record<string, string> || {}),
   };
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
-  return fetch(`${API_URL}${path}`, { ...init, headers });
+  return lifecodeFetch(path, { ...init, headers });
 }
 
 export async function logIntake(pack: 'morning' | 'recovery'): Promise<{ ok: boolean; error?: string }> {

@@ -1,145 +1,155 @@
-import React, { useState, useCallback } from 'react';
-import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  RefreshControl, ActivityIndicator, Modal, TextInput,
-  KeyboardAvoidingView, Platform,
-} from 'react-native';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
+import { useFocusEffect, router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import MultiRing from '../../src/components/MultiRing';
-import GradientText from '../../src/components/GradientText';
-import { colors, fonts, radii, gradients } from '../../src/theme';
-import { lastNDays, shortDayLabel, localDateString } from '../../src/lib/dates';
-import { logIntake, getState, scanMeal, logMeal, type ScannedIngredient } from '../../src/lib/api';
-import {
-  fetchProtocol, getCachedProtocol, setCachedProtocol,
-  computeFallbackProtocol, profileFromState, applyLiveIntake, pakSummary,
-  type NutrientRow,
-} from '../../src/lib/protocol';
+import Avatar from '../../src/components/Avatar';
+import Icon from '../../src/components/Icon';
+import MealScanOverlay from '../../src/components/MealScanOverlay';
+import { colors, fonts, gradients, radii, shadows } from '../../src/theme';
+import { supabase } from '../../src/lib/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchDailyTotals, recomputeWithPacks, fetchWeekPcts, DailyTotals } from '../../src/lib/dailyTotals';
+import { logIntake } from '../../src/lib/api';
+import { ensureSession } from '../../src/lib/session';
 
-const GRAD: [string, string, string] = ['#C62828', '#7C3AED', '#1D4ED8'];
-const GRAD_ESS: [string, string] = ['#0d0d0f', '#3a3a3c'];
+const DAYS_SHORT  = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+const MONTHS      = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+const WEEK_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
-const DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+type DayData = { date: string; pcts: [number, number, number] };
 
-type DayPct = { date: string; label: string; dayNum: number; pct: number };
-type ScanResult = { meal: string; quantity_g: number; gains: { name: string; value: string; kind: 'morning' | 'essentials' | 'recovery' }[] };
-
-function ProgressBar({ pct, kind }: { pct: number; kind: 'morning' | 'essentials' | 'recovery' }) {
-  const color = kind === 'morning' ? colors.morning : kind === 'essentials' ? colors.ink : colors.recovery;
-  return (
-    <View style={bar.track}>
-      <View style={[bar.fill, { width: `${Math.min(pct, 100)}%` as any, backgroundColor: color }]} />
-    </View>
-  );
-}
-const bar = StyleSheet.create({
-  track: { height: 5, backgroundColor: 'rgba(13,13,15,0.08)', borderRadius: 3, overflow: 'hidden' },
-  fill: { height: 5, borderRadius: 3 },
-});
-
-const ID_TO_KIND: Record<string, 'morning' | 'essentials' | 'recovery'> = {};
-
-export default function HomeScreen() {
-  const [refreshing, setRefreshing] = useState(false);
-  const [displayName, setDisplayName] = useState('Athlete');
-  const [morningTaken, setMorningTaken] = useState(false);
-  const [recoveryTaken, setRecoveryTaken] = useState(false);
-  const [weekDays, setWeekDays] = useState<DayPct[]>([]);
-  const [packError, setPackError] = useState('');
-  const [protocol, setProtocol] = useState<NutrientRow[]>([]);
-  const [scanning, setScanning] = useState(false);
-  const [confirming, setConfirming] = useState(false);
-  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
-  const [scanError, setScanError] = useState('');
-
-  // Confirm modal state — supports multi-ingredient (myfitnesspal style)
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [confirmDesc, setConfirmDesc] = useState('');
-  const [confirmIsLabel, setConfirmIsLabel] = useState(false);
-  const [confirmIngredients, setConfirmIngredients] = useState<(ScannedIngredient & { id: string; originalQty: number })[]>([]);
-  const [editMode, setEditMode] = useState(false);
-
+function weekDays(): { date: Date; iso: string }[] {
+  const out: { date: Date; iso: string }[] = [];
   const today = new Date();
-  const dateLabel = `${DAYS_SHORT[today.getDay()]} · ${MONTHS[today.getMonth()]} ${today.getDate()}`;
-  const hour = today.getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const offset = (today.getDay() + 6) % 7;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - offset);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    out.push({ date: d, iso: d.toISOString().split('T')[0] });
+  }
+  return out;
+}
+
+export default function SummaryScreen() {
+  const [refreshing, setRefreshing] = useState(false);
+  const [scanOpen, setScanOpen] = useState(false);
+  const [name, setName] = useState('Athlete');
+  const [avatarLetter, setAvatarLetter] = useState('A');
+  const [userId, setUserId] = useState<string | null>(null);
+  const [totals, setTotals] = useState<DailyTotals | null>(null);
+  const [weekData, setWeekData] = useState<DayData[]>([]);
+  const [mealsScanned, setMealsScanned] = useState(0);
+  const [streak, setStreak] = useState(0);
+
+  const today    = new Date();
+  const dateLbl  = `${DAYS_SHORT[today.getDay()]} · ${MONTHS[today.getMonth()]} ${today.getDate()}`;
+  const todayIso = today.toISOString().split('T')[0];
 
   const loadData = async () => {
     try {
-      const state = await getState();
-      if (!state) return;
+      // Use ensureSession which combines live session + cached tokens.
+      // supabase.auth.getUser() can return null in Expo Go after reload even
+      // when the user IS authenticated (AsyncStorage hiccup).
+      const { userId: uid } = await ensureSession();
+      if (!uid) { console.log('[home] no auth session'); return; }
+      setUserId(uid);
+      const userEmail = (await supabase.auth.getUser()).data?.user?.email || '';
 
-      const p = state.profile;
-      const fallbackName = p?.display_name || p?.full_name
-        || (p?.email ? String(p.email).split('@')[0] : '')
-        || 'Athlete';
-      setDisplayName(fallbackName);
+      try {
+        const { data: p } = await supabase
+          .from('profiles')
+          .select('display_name, full_name, avatar_letter')
+          .eq('id', uid)
+          .maybeSingle();
+        let cachedName = '';
+        try { cachedName = (await AsyncStorage.getItem('lifecode.user_name')) || ''; } catch {}
+        // Also try user_metadata
+        let metaName = '';
+        try {
+          const { data: ud } = await supabase.auth.getUser();
+          metaName = ud?.user?.user_metadata?.display_name
+                  || ud?.user?.user_metadata?.full_name
+                  || '';
+        } catch {}
+        const displayName =
+          p?.display_name || p?.full_name ||
+          metaName || cachedName ||
+          userEmail.split('@')[0] || 'Athlete';
+        setName(displayName);
+        setAvatarLetter((p?.avatar_letter || displayName.charAt(0) || 'A').toUpperCase());
+      } catch (e: any) { console.log('[home] profile read failed:', e?.message); }
 
-      const intake = state.today?.intake || [];
-      const packs = intake.map((l: any) => l.pack);
-      const mTaken = packs.includes('morning');
-      const rTaken = packs.includes('recovery');
-      setMorningTaken(mTaken);
-      setRecoveryTaken(rTaken);
+      try {
+        const t = await fetchDailyTotals(uid);
+        setTotals(t);
+      } catch (e: any) {
+        console.log('[home] fetchDailyTotals threw:', e?.message);
+      }
 
-      // Protocol: cached first, then API, then local fallback
-      let staticProtocol: NutrientRow[] = [];
-      if (p) {
-        const snap = profileFromState(state);
-        const cached = await getCachedProtocol(snap);
-        if (cached && cached.length > 0) {
-          staticProtocol = cached;
-        } else {
-          const r = await fetchProtocol(false);
-          if (r.nutrients && r.nutrients.length > 0) {
-            staticProtocol = r.nutrients;
-            await setCachedProtocol(snap, r.nutrients);
-          } else {
-            staticProtocol = computeFallbackProtocol(snap);
-            await setCachedProtocol(snap, staticProtocol);
-          }
+      try {
+        // Real per-day percentages computed server-side via /api/me/state.
+        // Each day's rings reflect actual pack+food consumption, not just binary 100/0.
+        const weekPcts = await fetchWeekPcts();
+        const wd: DayData[] = weekPcts.map(d => ({
+          date: d.iso,
+          pcts: [d.morningPct, d.essentialsPct, d.recoveryPct],
+        }));
+        setWeekData(wd);
+      } catch (e: any) { console.log('[home] week aggregate failed:', e?.message); }
+
+      try {
+        const sixtyAgo = new Date(); sixtyAgo.setDate(sixtyAgo.getDate() - 60);
+        const { data: allLogs } = await supabase
+          .from('intake_logs').select('taken_at')
+          .eq('user_id', uid)
+          .gte('taken_at', sixtyAgo.toISOString());
+        const all: Record<string, boolean> = {};
+        (allLogs || []).forEach((l: any) => { all[l.taken_at.split('T')[0]] = true; });
+
+        let s = 0;
+        for (let i = 0; i < 60; i++) {
+          const d = new Date(); d.setDate(d.getDate() - i);
+          const iso = d.toISOString().split('T')[0];
+          if (iso === todayIso && !all[iso]) continue;
+          if (all[iso]) s++;
+          else if (iso !== todayIso) break;
         }
-      }
+        setStreak(s);
+      } catch (e: any) { console.log('[home] streak failed:', e?.message); }
 
-      const todayMeals = state.today?.meals || [];
-      const live = applyLiveIntake(staticProtocol, mTaken, rTaken, todayMeals);
-      setProtocol(live);
-
-      // Weekly chips: real per-day coverage
-      const days = lastNDays(7);
-      const weekPacks: Record<string, { morning: boolean; recovery: boolean }> = {};
-      const weekMealsByDay: Record<string, any[]> = {};
-      for (const d of days) {
-        const k = localDateString(d);
-        weekPacks[k] = { morning: false, recovery: false };
-        weekMealsByDay[k] = [];
-      }
-      for (const it of (state.week?.intake || [])) {
-        const ds = localDateString(new Date(it.taken_at));
-        if (!weekPacks[ds]) continue;
-        if (it.pack === 'morning') weekPacks[ds].morning = true;
-        if (it.pack === 'recovery') weekPacks[ds].recovery = true;
-      }
-      for (const m of (state.week?.meals || [])) {
-        const ds = localDateString(new Date(m.logged_at));
-        if (weekMealsByDay[ds]) weekMealsByDay[ds].push(m);
-      }
-      const week: DayPct[] = days.map(d => {
-        const ds = localDateString(d);
-        const b = weekPacks[ds];
-        const meals = weekMealsByDay[ds];
-        const dayLive = applyLiveIntake(staticProtocol, b.morning, b.recovery, meals);
-        const pct = dayLive.length > 0
-          ? Math.round(dayLive.reduce((s, r) => s + r.percent, 0) / dayLive.length)
-          : 0;
-        return { date: ds, label: shortDayLabel(d), dayNum: d.getDate(), pct };
-      });
-      setWeekDays(week);
-    } catch {}
+      try {
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
+        const { count } = await supabase
+          .from('meal_logs')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', uid)
+          .gte('logged_at', monthStart);
+        setMealsScanned(count || 0);
+      } catch (e: any) { console.log('[home] meal count failed:', e?.message); }
+    } catch (e: any) {
+      console.log('[home] loadData outer error:', e?.message);
+    }
   };
+
+  useFocusEffect(useCallback(() => { loadData(); }, []));
+
+  // Midnight rollover: poll every 30s, reload when the calendar day changes
+  // so the rings reset and a fresh week-cell appears.
+  const lastDateRef = useRef(todayIso);
+  useEffect(() => {
+    const tick = setInterval(() => {
+      const now = new Date().toISOString().split('T')[0];
+      if (now !== lastDateRef.current) {
+        lastDateRef.current = now;
+        loadData();
+      }
+    }, 30_000);
+    return () => clearInterval(tick);
+  }, []);
 
   const refresh = async () => {
     setRefreshing(true);
@@ -147,157 +157,51 @@ export default function HomeScreen() {
     setRefreshing(false);
   };
 
-  useFocusEffect(useCallback(() => { loadData(); }, []));
-
-  // Per-pak coverage
-  const morningSum = pakSummary(protocol, 'morning');
-  const essentialsSum = pakSummary(protocol, 'essentials');
-  const recoverySum = pakSummary(protocol, 'recovery');
-  const morningPct = morningSum.percent;
-  const essentialsPct = essentialsSum.percent;
-  const recoveryPct = recoverySum.percent;
-  const overall = protocol.length > 0
-    ? Math.round(protocol.reduce((s, r) => s + r.percent, 0) / protocol.length)
-    : 0;
-
   const markTaken = async (pack: 'morning' | 'recovery') => {
-    const already = pack === 'morning' ? morningTaken : recoveryTaken;
-    if (already) return;
-    setPackError('');
-    const result = await logIntake(pack);
-    if (!result.ok) {
-      setPackError(`Save failed: ${result.error}`);
-      return;
+    if (!userId) { console.log('[home] markTaken: no userId yet'); return; }
+    const already = pack === 'morning'
+      ? !!totals?.morningTaken
+      : !!totals?.recoveryTaken;
+    const nextMorning  = pack === 'morning'  ? !already : !!totals?.morningTaken;
+    const nextRecovery = pack === 'recovery' ? !already : !!totals?.recoveryTaken;
+
+    // INSTANT visual feedback: locally recompute every ring + pct using the
+    // existing rows + new pack state. No DB round-trip needed for the UI.
+    if (totals) {
+      setTotals(recomputeWithPacks(totals, nextMorning, nextRecovery));
     }
-    if (pack === 'morning') setMorningTaken(true);
-    else setRecoveryTaken(true);
+
+    try {
+      if (already) {
+        // Untoggle: direct Supabase delete (no server endpoint for delete yet).
+        // If RLS blocks this, the optimistic UI still reflects the toggle.
+        const startIso = todayIso + 'T00:00:00.000Z';
+        const endIso   = todayIso + 'T23:59:59.999Z';
+        const { error } = await supabase.from('intake_logs').delete()
+          .eq('user_id', userId).eq('pack', pack)
+          .gte('taken_at', startIso).lte('taken_at', endIso);
+        if (error) console.log('[home] intake delete error:', error.message);
+      } else {
+        // Take pack: use server endpoint /api/intake (service role, bypasses RLS).
+        const r = await logIntake(pack);
+        if (!r.ok) console.log('[home] intake server error:', r.error);
+      }
+    } catch (e: any) {
+      console.log('[home] markTaken threw:', e?.message);
+    }
+    // Re-sync with the DB in the background so week/streak counters stay accurate
     loadData();
   };
 
-  const handleScan = async () => {
-    setScanError('');
-    setScanResult(null);
-    try {
-      const perm = await ImagePicker.requestCameraPermissionsAsync();
-      if (!perm.granted) {
-        const libPerm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!libPerm.granted) {
-          setScanError('Camera/photo permission denied.');
-          return;
-        }
-      }
-      const result = perm.granted
-        ? await ImagePicker.launchCameraAsync({
-            base64: true, quality: 0.7, mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          })
-        : await ImagePicker.launchImageLibraryAsync({
-            base64: true, quality: 0.7, mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          });
-      if (result.canceled || !result.assets?.[0]?.base64) return;
-      const asset = result.assets[0];
-      setScanning(true);
-      const resp = await scanMeal(asset.base64!, asset.mimeType || 'image/jpeg');
-      setScanning(false);
-      if (!resp.ok) {
-        setScanError(`Scan failed: ${resp.error}`);
-        return;
-      }
-      // Open confirm modal — multi-ingredient editor (myfitnesspal style)
-      const ings = (resp.ingredients || []).map((ing, i) => ({
-        ...ing,
-        id: `ing-${Date.now()}-${i}`,
-        originalQty: ing.quantity_g,
-      }));
-      setConfirmIngredients(ings.length > 0 ? ings : [{
-        id: `ing-${Date.now()}`,
-        name: resp.description || 'Scanned meal',
-        quantity_g: resp.quantity_g || 100,
-        originalQty: resp.quantity_g || 100,
-        nutrients: {},
-      }]);
-      setConfirmDesc(resp.description || '');
-      setConfirmIsLabel(!!resp.isNutritionLabel);
-      setEditMode(false);
-      setConfirmOpen(true);
-    } catch (e: any) {
-      setScanning(false);
-      setScanError(e?.message || 'Scan error.');
-    }
-  };
+  const morningPct    = totals?.morningPct    ?? 0;
+  const essentialsPct = totals?.essentialsPct ?? 0;
+  const recoveryPct   = totals?.recoveryPct   ?? 0;
+  const totalPct      = totals?.totalPct      ?? 0;
+  const morningTaken  = totals?.morningTaken  ?? false;
+  const recoveryTaken = totals?.recoveryTaken ?? false;
+  const takenCount    = (morningTaken ? 1 : 0) + (recoveryTaken ? 1 : 0);
 
-  const submitConfirm = async () => {
-    const desc = confirmDesc.trim() || 'Scanned meal';
-    if (confirmIngredients.length === 0) { setScanError('No ingredients.'); return; }
-    setConfirming(true);
-    setScanError('');
-
-    // Aggregate: for each ingredient, scale its nutrients by editedQty/originalQty,
-    // then sum across ingredients. This way edits to weight properly recompute.
-    const aggregated: Record<string, number> = {};
-    let totalGrams = 0;
-    for (const ing of confirmIngredients) {
-      const ratio = ing.originalQty > 0 ? ing.quantity_g / ing.originalQty : 1;
-      totalGrams += ing.quantity_g;
-      for (const [k, v] of Object.entries(ing.nutrients || {})) {
-        const scaled = (Number(v) || 0) * ratio;
-        if (scaled <= 0) continue;
-        aggregated[k] = (aggregated[k] || 0) + scaled;
-      }
-    }
-    // Round to sensible precision
-    for (const k of Object.keys(aggregated)) {
-      aggregated[k] = Math.round(aggregated[k] * 100) / 100;
-    }
-
-    const qty = totalGrams || 100;
-    const result = await logMeal(desc, qty, aggregated);
-    setConfirming(false);
-    if (!result.ok) {
-      setScanError(`Save failed: ${result.error}`);
-      return;
-    }
-    // Build gain chips
-    const idMap: Record<string, 'morning' | 'essentials' | 'recovery'> = {};
-    for (const r of protocol) {
-      if (r.inMorning) idMap[r.id] = 'morning';
-      else if (r.inEssentials) idMap[r.id] = 'essentials';
-      else if (r.inRecovery) idMap[r.id] = 'recovery';
-    }
-    const labelMap: Record<string, string> = {
-      vitamin_a: 'Vit A', vitamin_c: 'Vit C', vitamin_d3: 'Vit D3',
-      vitamin_e: 'Vit E', vitamin_k2: 'Vit K2', vitamin_b12: 'B12',
-      vitamin_b6: 'B6', folate: 'Folate', b_complex: 'B-Complex',
-      zinc: 'Zinc', copper: 'Cu', magnesium: 'Mg', selenium: 'Se',
-      iron: 'Iron', calcium: 'Ca', omega_3: 'Omega-3', potassium: 'K+',
-      iodine: 'Iodine', sodium: 'Na', coq10: 'CoQ10', choline: 'Choline',
-      eaa: 'EAA', creatine: 'Creatine', glutamine: 'Glutamine',
-    };
-    const unitMap: Record<string, string> = {
-      vitamin_a: 'μg', vitamin_c: 'mg', vitamin_d3: 'μg', vitamin_e: 'mg',
-      vitamin_k2: 'μg', vitamin_b12: 'μg', vitamin_b6: 'mg', folate: 'μg',
-      b_complex: '%', zinc: 'mg', copper: 'mg', magnesium: 'mg',
-      selenium: 'μg', iron: 'mg', calcium: 'mg', omega_3: 'mg',
-      potassium: 'mg', iodine: 'μg', sodium: 'mg', coq10: 'mg',
-      choline: 'mg', eaa: 'mg', creatine: 'mg', glutamine: 'mg',
-    };
-    const gainSource = result.nutrients || aggregated;
-    const top = Object.entries(gainSource)
-      .map(([k, v]) => [k, Number(v) || 0] as [string, number])
-      .filter(([, v]) => v > 0)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 4);
-    const gains: ScanResult['gains'] = top.map(([k, v]) => ({
-      name: labelMap[k] || k,
-      value: `+${Math.round(v)}${unitMap[k] || ''}`,
-      kind: idMap[k] || 'essentials',
-    }));
-    setScanResult({ meal: desc, quantity_g: qty, gains });
-    setConfirmOpen(false);
-    await loadData();
-  };
-
-  const firstName = displayName.split(' ')[0];
-  const todayStr = localDateString();
+  const todayWeekIdx = (today.getDay() + 6) % 7;
 
   return (
     <SafeAreaView style={s.safe} edges={['top']}>
@@ -306,353 +210,251 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.ink3} />}
       >
-        <View style={s.greet}>
-          <Text style={s.day}>{dateLabel}</Text>
-          <Text style={s.h1}>{greeting},{'\n'}</Text>
-          <GradientText colors={GRAD} style={s.h1Italic}>{firstName}.</GradientText>
+        <View style={s.head}>
+          <View style={{ flex: 1 }}>
+            <Text style={s.date}>{dateLbl}</Text>
+            <Text style={s.h1}>Today</Text>
+          </View>
+          <Pressable onPress={() => router.push('/profile')} hitSlop={10}>
+            <Avatar name={avatarLetter} size={38} gradient={gradients.brand} border={2} borderColor="#fff" />
+          </Pressable>
         </View>
 
-        <View style={s.px}>
-
-          {/* Weekly chips */}
-          {weekDays.length > 0 && (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.weekRow}>
-              {weekDays.map(d => {
-                const isToday = d.date === todayStr;
-                return (
-                  <View key={d.date} style={[s.weekChip, isToday && s.weekChipToday]}>
-                    <Text style={[s.weekDay, isToday && s.weekDayToday]}>{d.label}</Text>
-                    <Text style={[s.weekNum, isToday && s.weekNumToday]}>{d.dayNum}</Text>
-                    <View style={s.weekBar}>
-                      <View style={[s.weekFill, {
-                        width: `${d.pct}%` as any,
-                        backgroundColor: d.pct >= 80 ? '#16a34a' : d.pct >= 50 ? colors.morning : colors.ink4,
-                      }]} />
-                    </View>
-                    <Text style={[s.weekPct, isToday && s.weekPctToday]}>{d.pct}%</Text>
-                  </View>
-                );
-              })}
-            </ScrollView>
-          )}
-
-          {/* Big multi-ring nutrient load */}
-          <View style={s.card}>
-            <View style={s.row}>
-              <Text style={s.eyebrow}>Nutrient load</Text>
-              <View style={s.chip}><Text style={s.chipText}>{overall}% covered</Text></View>
-            </View>
-
-            <View style={s.ringStage}>
-              <MultiRing size={224} items={[
-                { label: 'Morning',    pct: morningPct,    gradient: gradients.morning },
-                { label: 'Essentials', pct: essentialsPct, gradient: GRAD_ESS },
-                { label: 'Recovery',   pct: recoveryPct,   gradient: gradients.recovery },
-              ]} />
-              <View style={s.ringCenter}>
-                <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                  <GradientText colors={GRAD} style={s.huge}>{overall}</GradientText>
-                  <Text style={s.hugeUnit}>%</Text>
-                </View>
-                <Text style={s.ringLbl}>covered</Text>
+        <TouchableOpacity style={s.card} onPress={() => router.push('/details')} activeOpacity={0.85}>
+          <View style={s.eyebrowRow}>
+            <Text style={s.eyebrow}>LIFE RING</Text>
+            <Text style={s.eyebrowStat}>
+              <Text style={s.numSerif}>{totalPct}</Text>
+              <Text style={s.eyebrowSm}>% coded</Text>
+            </Text>
+          </View>
+          <View style={s.ringStage}>
+            <MultiRing
+              size={220}
+              stroke={16}
+              gap={6}
+              items={[
+                { pct: morningPct,    gradient: gradients.morning  },
+                { pct: essentialsPct, color: colors.ink            },
+                { pct: recoveryPct,   gradient: gradients.recovery },
+              ]}
+            />
+            <View style={s.ringCenter}>
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                <Text style={s.bigPct}>{totalPct}</Text>
+                <Text style={s.bigPctUnit}>%</Text>
               </View>
-            </View>
-
-            <View style={s.legendRow}>
-              <View style={s.legendCell}>
-                <View style={[s.legendDot, { backgroundColor: colors.morning }]} />
-                <Text style={s.legendLbl}>Morning</Text>
-                <Text style={[s.legendPct, { color: colors.morning }]}>{morningPct}%</Text>
-              </View>
-              <View style={s.legendCell}>
-                <View style={[s.legendDot, { backgroundColor: colors.ink }]} />
-                <Text style={s.legendLbl}>Essentials</Text>
-                <Text style={s.legendPct}>{essentialsPct}%</Text>
-              </View>
-              <View style={s.legendCell}>
-                <View style={[s.legendDot, { backgroundColor: colors.recovery }]} />
-                <Text style={s.legendLbl}>Recovery</Text>
-                <Text style={[s.legendPct, { color: colors.recovery }]}>{recoveryPct}%</Text>
-              </View>
+              <Text style={s.codedLbl}>CODED</Text>
             </View>
           </View>
+          <View style={s.legend}>
+            <LegendCol pct={morningPct}    name="Morning"    gradient={gradients.morning}  />
+            <LegendCol pct={essentialsPct} name="Essentials" color={colors.ink}            />
+            <LegendCol pct={recoveryPct}   name="Recovery"   gradient={gradients.recovery} />
+          </View>
+          <View style={s.tapHint}>
+            <Text style={s.tapHintText}>TAP FOR DETAILS</Text>
+            <Icon name="chevron" size={12} color={colors.ink3} strokeWidth={2} />
+          </View>
+        </TouchableOpacity>
 
-          {/* Scan a meal CTA */}
-          <TouchableOpacity
-            style={[s.scanCta, scanning && { opacity: 0.7 }]}
-            onPress={handleScan}
-            disabled={scanning}
-            activeOpacity={0.85}
-          >
-            <View style={s.scanIcon}>
-              {scanning
-                ? <ActivityIndicator color="#fff" size="small" />
-                : <Text style={{ color: '#fff', fontSize: 22, lineHeight: 22 }}>📷</Text>}
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={s.scanTitle}>{scanning ? 'Analyzing meal…' : 'Scan a meal'}</Text>
-              <Text style={s.scanSub}>{scanning ? 'Recognizing micronutrients' : 'AI reads the photo · updates your rings'}</Text>
-            </View>
-            <Text style={s.scanArrow}>{scanning ? '···' : '+'}</Text>
-          </TouchableOpacity>
+        <TouchableOpacity style={s.ctaDark} onPress={() => setScanOpen(true)} activeOpacity={0.85}>
+          <View>
+            <Text style={s.ctaDarkEyebrow}>AI MEAL SCAN</Text>
+            <Text style={s.ctaDarkTitle}>Log a <Text style={{ fontFamily: fonts.serifItalic }}>meal</Text></Text>
+          </View>
+          <View style={s.ctaDarkBubble}>
+            <Icon name="camera" size={18} color="#fff" strokeWidth={1.8} />
+          </View>
+        </TouchableOpacity>
 
-          {!!scanError && (
-            <View style={s.errBanner}><Text style={s.errBannerText}>{scanError}</Text></View>
-          )}
+        <TouchableOpacity style={s.card} onPress={() => router.push('/week')} activeOpacity={0.85}>
+          <View style={s.eyebrowRow}>
+            <Text style={s.eyebrow}>THIS WEEK</Text>
+            <Text style={s.eyebrowStat}>
+              <Text style={s.numSerif}>{weekData.filter(d => d.pcts[0] > 0 || d.pcts[1] > 0 || d.pcts[2] > 0).length}</Text>
+              <Text style={s.eyebrowSm}>/7 days</Text>
+            </Text>
+          </View>
+          <View style={s.weekRow}>
+            {weekData.map((d, i) => {
+              const isToday = i === todayWeekIdx;
+              const dayNum = new Date(d.date + 'T00:00:00').getDate();
+              return (
+                <View key={d.date} style={s.weekCell}>
+                  <Text style={s.weekLbl}>{WEEK_LABELS[i]}</Text>
+                  <MultiRing size={30} stroke={2.5} gap={1} items={[
+                    { pct: d.pcts[0], gradient: gradients.morning  },
+                    { pct: d.pcts[1], color: colors.ink            },
+                    { pct: d.pcts[2], gradient: gradients.recovery },
+                  ]} />
+                  {isToday ? (
+                    <View style={s.todayPill}><Text style={[s.weekNum, { color: '#fff' }]}>{dayNum}</Text></View>
+                  ) : (
+                    <Text style={s.weekNum}>{dayNum}</Text>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+          <View style={s.tapHint}>
+            <Text style={s.tapHintText}>TAP TO REVIEW PAST DAYS</Text>
+            <Icon name="chevron" size={12} color={colors.ink3} strokeWidth={2} />
+          </View>
+        </TouchableOpacity>
 
-          {scanResult && (
-            <View style={s.card}>
-              <View style={s.row}>
-                <Text style={s.eyebrow}>Just logged</Text>
-                <Text style={s.mutedSm}>just now</Text>
-              </View>
-              <Text style={s.scanMeal}>{scanResult.meal}{scanResult.quantity_g ? ` · ${scanResult.quantity_g}g` : ''}</Text>
-              <View style={s.gainRow}>
-                {scanResult.gains.map((g, i) => {
-                  const c = g.kind === 'morning' ? colors.morning : g.kind === 'essentials' ? colors.ink : colors.recovery;
-                  return (
-                    <View key={i} style={[s.gainChip, { borderColor: c, backgroundColor: c + '12' }]}>
-                      <Text style={[s.gainVal, { color: c }]}>{g.value}</Text>
-                      <Text style={s.gainName}>{g.name}</Text>
-                    </View>
-                  );
-                })}
-              </View>
-            </View>
-          )}
+        <Text style={[s.eyebrow, { marginLeft: 4, marginBottom: 8, marginTop: 4 }]}>AWARDS &amp; STREAKS</Text>
+        <View style={s.awards}>
+          <AwardCard icon="flame"   bg={colors.ink}    big={streak}                                          title="Day"      em="streak"  sub={streak > 0 ? `${streak} days running` : 'Start your streak'} />
+          <AwardCard icon="sparkle" bg="grad-morning"  big={morningPct === 100 ? '✓' : `${morningPct}%`}     title="Morning"  em="coded"   sub={morningPct >= 85 ? 'Fully coded' : 'Add food + pack'} />
+          <AwardCard icon="moon"    bg="grad-recovery" big={recoveryPct === 100 ? '✓' : `${recoveryPct}%`}   title="Recovery" em="coded"   sub={recoveryPct >= 85 ? 'Closed tonight' : 'Add food + pack'} />
+          <AwardCard icon="camera"  bg={colors.ink}    big={totals?.mealsCount ?? 0}                          title="Meals"    em="scanned" sub="Today" />
+        </View>
 
-          {!!packError && (
-            <View style={s.errBanner}>
-              <Text style={s.errBannerText}>{packError}</Text>
-            </View>
-          )}
-
-          {/* Morning pack */}
-          <TouchableOpacity
-            style={[s.packCard, { borderColor: morningTaken ? 'rgba(226,106,31,0.35)' : 'rgba(226,106,31,0.1)' }]}
-            onPress={() => markTaken('morning')}
-            activeOpacity={0.8}
-          >
-            <View style={s.row}>
-              <Text style={s.packTime}>{morningTaken ? 'Taken ✓' : 'Take before 10:00'}</Text>
-              <Text style={[s.eyebrow, { color: colors.morning }]}>Morning</Text>
-            </View>
-            <Text style={s.packTitle}>Morning Pack <Text style={s.em}>—</Text></Text>
-            <Text style={s.packSub}>Activate. Focus. Perform.</Text>
-            <View style={{ marginTop: 16 }}><ProgressBar pct={morningTaken ? 100 : morningPct} kind="morning" /></View>
-          </TouchableOpacity>
-
-          {/* Recovery pack */}
-          <TouchableOpacity
-            style={[s.packCard, { borderColor: recoveryTaken ? 'rgba(74,58,168,0.35)' : 'rgba(74,58,168,0.1)' }]}
-            onPress={() => markTaken('recovery')}
-            activeOpacity={0.8}
-          >
-            <View style={s.row}>
-              <Text style={s.packTime}>{recoveryTaken ? 'Taken ✓' : 'Within 45 min of training'}</Text>
-              <Text style={[s.eyebrow, { color: colors.recovery }]}>Recovery</Text>
-            </View>
-            <Text style={s.packTitle}>Recovery Pack <Text style={s.em}>—</Text></Text>
-            <Text style={s.packSub}>Recover. Restore. Reset.</Text>
-            <View style={{ marginTop: 16 }}><ProgressBar pct={recoveryTaken ? 100 : recoveryPct} kind="recovery" /></View>
-          </TouchableOpacity>
-
+        <View style={s.card}>
+          <View style={s.eyebrowRow}>
+            <Text style={s.eyebrow}>TAKEN TODAY</Text>
+            <Text style={s.eyebrowStat}>
+              <Text style={s.numSerif}>{takenCount}</Text>
+              <Text style={s.eyebrowSm}> / 2</Text>
+            </Text>
+          </View>
+          <View style={{ gap: 12, marginTop: 6 }}>
+            <PackRow
+              done={morningTaken}
+              gradient={gradients.morning}
+              name="Morning pack"
+              time="morning"
+              meta="B1·B2·B3·B5·B6·B7·B9·B12 · Caffeine · Theanine · Taurine · Rhodiola · Na·K"
+              onPress={() => markTaken('morning')}
+            />
+            <PackRow
+              done={recoveryTaken}
+              gradient={gradients.recovery}
+              name="Recovery pack"
+              time="post-workout"
+              meta="EAA 7g · Creatine 5g · HMB · Tart Cherry · Mg · Na · K · AstraGin"
+              onPress={() => markTaken('recovery')}
+            />
+          </View>
         </View>
       </ScrollView>
 
-      {/* Confirm/edit modal */}
-      <Modal visible={confirmOpen} transparent animationType="slide" onRequestClose={() => setConfirmOpen(false)}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={s.modalRoot}>
-          <TouchableOpacity style={s.modalBackdrop} activeOpacity={1} onPress={() => !confirming && setConfirmOpen(false)} />
-          <View style={s.modalCard}>
-            <View style={s.modalHandle} />
-            <Text style={s.modalEyebrow}>{confirmIsLabel ? 'Nutrition label detected' : 'AI sees'}</Text>
-            <Text style={s.modalTitle}>Confirm what you ate</Text>
-            <Text style={s.modalHint}>Edit if needed, then continue. We'll calculate the micronutrients.</Text>
-
-            <View style={s.modalInputBox}>
-              <TextInput
-                style={s.modalInput}
-                value={confirmDesc}
-                onChangeText={setConfirmDesc}
-                multiline
-                placeholder="e.g. Grilled chicken breast with rice and broccoli"
-                placeholderTextColor={colors.ink3}
-                editable={!confirming}
-              />
-            </View>
-
-            {/* Ingredients list — myfitnesspal style */}
-            {confirmIngredients.length > 0 && (
-              <View>
-                <View style={s.ingHeadRow}>
-                  <Text style={s.modalEyebrow}>
-                    {confirmIngredients.length === 1 ? 'Item' : `${confirmIngredients.length} ingredients detected`}
-                  </Text>
-                  {confirmIngredients.length > 1 && (
-                    <TouchableOpacity onPress={() => setEditMode(m => !m)}>
-                      <Text style={s.editToggle}>{editMode ? 'Done' : 'Edit each'}</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-
-                <ScrollView style={{ maxHeight: 240 }} keyboardShouldPersistTaps="handled">
-                  {confirmIngredients.map((ing, idx) => (
-                    <View key={ing.id} style={s.ingItem}>
-                      {editMode ? (
-                        <TextInput
-                          style={s.ingNameInput}
-                          value={ing.name}
-                          onChangeText={txt => {
-                            setConfirmIngredients(prev => prev.map((x, i) => i === idx ? { ...x, name: txt } : x));
-                          }}
-                          editable={!confirming}
-                          placeholderTextColor={colors.ink3}
-                        />
-                      ) : (
-                        <Text style={s.ingName} numberOfLines={2}>{ing.name}</Text>
-                      )}
-                      <View style={s.ingQtyBox}>
-                        <TextInput
-                          style={s.ingQtyInput}
-                          value={String(ing.quantity_g)}
-                          onChangeText={txt => {
-                            const n = Math.max(0, parseInt(txt.replace(/[^0-9]/g, '')) || 0);
-                            setConfirmIngredients(prev => prev.map((x, i) => i === idx ? { ...x, quantity_g: n } : x));
-                          }}
-                          keyboardType="numeric"
-                          maxLength={5}
-                          editable={!confirming}
-                        />
-                        <Text style={s.ingQtyUnit}>g</Text>
-                      </View>
-                      {editMode && confirmIngredients.length > 1 && (
-                        <TouchableOpacity
-                          onPress={() => setConfirmIngredients(prev => prev.filter((_, i) => i !== idx))}
-                          style={s.ingDelBtn}
-                        >
-                          <Text style={s.ingDelText}>×</Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-
-            <TouchableOpacity
-              style={[s.modalBtn, { backgroundColor: confirming ? colors.ink4 : colors.ink }]}
-              onPress={submitConfirm}
-              disabled={confirming || confirmIngredients.length === 0}
-            >
-              {confirming
-                ? <ActivityIndicator color="#fff" />
-                : <Text style={s.modalBtnText}>
-                    Continue · Log {confirmIngredients.reduce((s, i) => s + i.quantity_g, 0)}g
-                  </Text>}
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => !confirming && setConfirmOpen(false)} style={{ paddingVertical: 8 }}>
-              <Text style={s.modalCancel}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+      <MealScanOverlay visible={scanOpen} onClose={() => setScanOpen(false)} onSaved={loadData} totals={totals} />
     </SafeAreaView>
+  );
+}
+
+function LegendCol({ pct, name, gradient, color }: { pct: number; name: string; gradient?: string[]; color?: string }) {
+  return (
+    <View style={s.legendCol}>
+      {gradient ? (
+        <LinearGradient colors={gradient as [string, string, ...string[]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={s.swatch} />
+      ) : (
+        <View style={[s.swatch, { backgroundColor: color || colors.ink }]} />
+      )}
+      <Text style={s.legendVal}>{pct}%</Text>
+      <Text style={s.legendName}>{name}</Text>
+    </View>
+  );
+}
+
+function AwardCard({ icon, bg, big, title, em, sub }: { icon: string; bg: string; big: number | string; title: string; em: string; sub: string }) {
+  const isGrad = bg.startsWith('grad-');
+  const gradient: string[] = bg === 'grad-morning' ? gradients.morning : bg === 'grad-recovery' ? gradients.recovery : [];
+  return (
+    <View style={s.award}>
+      <View style={[s.awardIco, !isGrad && { backgroundColor: bg }]}>
+        {isGrad && (
+          <LinearGradient colors={gradient as [string, string, ...string[]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill as any} />
+        )}
+        <Icon name={icon} size={16} color="#fff" strokeWidth={1.8} />
+      </View>
+      <Text style={s.awardBig}>{big}</Text>
+      <Text style={s.awardTitle}>
+        {title} <Text style={{ fontFamily: fonts.serifItalic }}>{em}</Text>
+      </Text>
+      <Text style={s.awardSub}>{sub}</Text>
+    </View>
+  );
+}
+
+function PackRow({ done, gradient, name, time, meta, onPress }: { done: boolean; gradient: string[]; name: string; time: string; meta: string; onPress: () => void }) {
+  return (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={s.packRow}>
+      <View style={s.packPillWrap}>
+        <LinearGradient
+          colors={gradient as [string, string, ...string[]]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={s.packPill}
+        />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={s.packName}>{name}</Text>
+        <Text style={s.packMeta}>
+          <Text style={{ fontFamily: fonts.serifItalic }}>{time}</Text> · {meta}
+        </Text>
+      </View>
+      <View style={[s.checkCircle, done && { backgroundColor: colors.ink, borderColor: colors.ink }]}>
+        {done && <Icon name="check" size={14} color="#fff" strokeWidth={2.5} />}
+      </View>
+    </TouchableOpacity>
   );
 }
 
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  scroll: { paddingBottom: 32 },
-  px: { paddingHorizontal: 22, gap: 14 },
+  scroll: { paddingHorizontal: 22, paddingTop: 6, paddingBottom: 110, gap: 14 },
 
-  greet: { paddingHorizontal: 22, paddingTop: 16, paddingBottom: 20 },
-  day: { fontFamily: fonts.sansSemiBold, fontSize: 12, letterSpacing: 1, color: colors.ink3, textTransform: 'uppercase', marginBottom: 4 },
-  h1: { fontFamily: fonts.serif, fontSize: 40, lineHeight: 44, color: colors.ink },
-  h1Italic: { fontFamily: fonts.serifItalic, fontSize: 40, lineHeight: 44 },
+  head: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6, marginTop: 4 },
+  date: { fontFamily: fonts.sansSemiBold, fontSize: 11, letterSpacing: 2.4, color: colors.ink3 },
+  h1: { fontFamily: fonts.serifItalic, fontSize: 34, lineHeight: 36, color: colors.ink, marginTop: 4, letterSpacing: -0.8 },
 
-  weekRow: { gap: 8, paddingBottom: 4 },
-  weekChip: { width: 56, paddingVertical: 10, paddingHorizontal: 8, borderRadius: 14, backgroundColor: colors.surf, borderWidth: 1, borderColor: colors.line, alignItems: 'center', gap: 4 },
-  weekChipToday: { borderColor: colors.ink, borderWidth: 1.5 },
-  weekDay: { fontFamily: fonts.sansSemiBold, fontSize: 9, letterSpacing: 0.6, color: colors.ink3, textTransform: 'uppercase' },
-  weekDayToday: { color: colors.ink },
-  weekNum: { fontFamily: fonts.serifItalic, fontSize: 18, color: colors.ink2 },
-  weekNumToday: { color: colors.ink },
-  weekBar: { height: 3, width: '100%', backgroundColor: 'rgba(13,13,15,0.06)', borderRadius: 2, overflow: 'hidden', marginTop: 2 },
-  weekFill: { height: 3, borderRadius: 2 },
-  weekPct: { fontFamily: fonts.sansMedium, fontSize: 10, color: colors.ink3 },
-  weekPctToday: { color: colors.ink2 },
+  card: { backgroundColor: colors.surf, borderRadius: radii.card, padding: 20, borderWidth: 1, borderColor: colors.line, ...shadows.card },
+  eyebrowRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  eyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 10, letterSpacing: 2.2, color: colors.ink3, textTransform: 'uppercase' },
+  eyebrowStat: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.ink3, letterSpacing: 0.2 },
+  eyebrowSm: { fontFamily: fonts.sansMedium, fontSize: 11, color: colors.ink3 },
+  numSerif: { fontFamily: fonts.serifItalic, fontSize: 14, color: colors.ink },
 
-  card: { backgroundColor: colors.surf, borderRadius: radii.card, padding: 22, paddingTop: 26, borderWidth: 1, borderColor: colors.line, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.04, shadowRadius: 24, elevation: 2 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  eyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, letterSpacing: 1.2, color: colors.ink3, textTransform: 'uppercase' },
-  chip: { backgroundColor: 'rgba(13,13,15,0.06)', borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
-  chipText: { fontFamily: fonts.sansSemiBold, fontSize: 11, color: colors.ink2 },
-  mutedSm: { fontFamily: fonts.sans, fontSize: 11, color: colors.ink3 },
-
-  ringStage: { alignItems: 'center', justifyContent: 'center', marginVertical: 4 },
+  ringStage: { alignItems: 'center', justifyContent: 'center', marginVertical: 8, height: 220 },
   ringCenter: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
-  huge: { fontFamily: fonts.serifItalic, fontSize: 52, lineHeight: 56 },
-  hugeUnit: { fontFamily: fonts.serifItalic, fontSize: 24, color: colors.ink3, marginLeft: 2 },
-  ringLbl: { fontFamily: fonts.sansSemiBold, fontSize: 10, letterSpacing: 1.2, color: colors.ink3, textTransform: 'uppercase', marginTop: 4 },
+  bigPct: { fontFamily: fonts.serifItalic, fontSize: 56, lineHeight: 56, color: colors.ink, letterSpacing: -2 },
+  bigPctUnit: { fontFamily: fonts.serifItalic, fontSize: 22, color: colors.ink3, marginTop: 8, letterSpacing: -0.5 },
+  codedLbl: { fontFamily: fonts.sansSemiBold, fontSize: 10, letterSpacing: 2.4, color: colors.ink3, marginTop: 2 },
 
-  legendRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 6, marginTop: 14 },
-  legendCell: { alignItems: 'center', gap: 4 },
-  legendDot: { width: 8, height: 8, borderRadius: 4 },
-  legendLbl: { fontFamily: fonts.sansMedium, fontSize: 10, letterSpacing: 0.6, color: colors.ink3, textTransform: 'uppercase' },
-  legendPct: { fontFamily: fonts.serifItalic, fontSize: 18, color: colors.ink },
+  legend: { flexDirection: 'row', justifyContent: 'space-around', paddingTop: 6 },
+  legendCol: { alignItems: 'center', gap: 4, flex: 1 },
+  swatch: { width: 30, height: 6, borderRadius: 3 },
+  legendVal: { fontFamily: fonts.serifItalic, fontSize: 18, color: colors.ink },
+  legendName: { fontFamily: fonts.sans, fontSize: 11, color: colors.ink3 },
 
-  scanCta: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: colors.ink, borderRadius: radii.card,
-    paddingHorizontal: 18, paddingVertical: 16,
-  },
-  scanIcon: { width: 42, height: 42, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
-  scanTitle: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: '#fff' },
-  scanSub: { fontFamily: fonts.sans, fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
-  scanArrow: { fontFamily: fonts.sansBold, fontSize: 24, color: '#fff', marginLeft: 4 },
+  tapHint: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingTop: 12, marginTop: 4, borderTopWidth: 1, borderTopColor: 'rgba(13,13,15,0.04)' },
+  tapHintText: { fontFamily: fonts.sansSemiBold, fontSize: 10, letterSpacing: 2, color: colors.ink3 },
 
-  scanMeal: { fontFamily: fonts.sansSemiBold, fontSize: 15, color: colors.ink, marginBottom: 10 },
-  gainRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  gainChip: { flexDirection: 'row', alignItems: 'baseline', gap: 5, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radii.pill, borderWidth: 1 },
-  gainVal: { fontFamily: fonts.sansBold, fontSize: 13 },
-  gainName: { fontFamily: fonts.sansMedium, fontSize: 12, color: colors.ink2 },
+  ctaDark: { backgroundColor: colors.ink, borderRadius: radii.card, paddingHorizontal: 22, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  ctaDarkEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 10, letterSpacing: 2.2, color: 'rgba(250,250,250,0.55)' },
+  ctaDarkTitle: { fontFamily: fonts.sansSemiBold, fontSize: 22, color: '#FAFAFA', marginTop: 4 },
+  ctaDarkBubble: { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.10)', alignItems: 'center', justifyContent: 'center' },
 
-  packCard: { backgroundColor: colors.surf, borderRadius: radii.card, padding: 22, borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.04, shadowRadius: 24, elevation: 2 },
-  packTime: { fontFamily: fonts.sans, fontSize: 12, color: colors.ink3 },
-  packTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.ink, marginTop: 12 },
-  em: { fontFamily: fonts.serifItalic },
-  packSub: { fontFamily: fonts.sans, fontSize: 14, color: colors.ink2, marginTop: 4 },
+  weekRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 14 },
+  weekCell: { alignItems: 'center', gap: 6, flex: 1 },
+  weekLbl: { fontFamily: fonts.sansSemiBold, fontSize: 10, letterSpacing: 1.6, color: colors.ink3 },
+  weekNum: { fontFamily: fonts.serifItalic, fontSize: 14, color: colors.ink },
+  todayPill: { backgroundColor: colors.ink, borderRadius: 999, paddingHorizontal: 7, paddingVertical: 1 },
 
-  errBanner: { backgroundColor: 'rgba(229,85,85,0.10)', borderWidth: 1, borderColor: 'rgba(229,85,85,0.35)', borderRadius: 12, padding: 12 },
-  errBannerText: { fontFamily: fonts.sansMedium, fontSize: 13, color: '#c43030' },
+  awards: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 4 },
+  award: { width: '47.5%', backgroundColor: colors.surf, borderRadius: 18, padding: 14, borderWidth: 1, borderColor: colors.line, gap: 6 },
+  awardIco: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  awardBig: { fontFamily: fonts.serifItalic, fontSize: 32, lineHeight: 34, color: colors.ink, marginTop: 4 },
+  awardTitle: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.ink },
+  awardSub: { fontFamily: fonts.sans, fontSize: 11, color: colors.ink3 },
 
-  modalRoot: { flex: 1, justifyContent: 'flex-end' },
-  modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)' },
-  modalCard: { backgroundColor: colors.surf, paddingHorizontal: 22, paddingTop: 14, paddingBottom: 28, borderTopLeftRadius: 26, borderTopRightRadius: 26, gap: 14 },
-  modalHandle: { alignSelf: 'center', width: 38, height: 4, borderRadius: 2, backgroundColor: 'rgba(13,13,15,0.18)', marginBottom: 6 },
-  modalEyebrow: { fontFamily: fonts.sansSemiBold, fontSize: 11, letterSpacing: 1.2, color: colors.ink3, textTransform: 'uppercase' },
-  modalTitle: { fontFamily: fonts.serif, fontSize: 26, color: colors.ink, marginTop: -4 },
-  modalHint: { fontFamily: fonts.sans, fontSize: 13, color: colors.ink3, marginTop: -8, lineHeight: 18 },
-  modalInputBox: { backgroundColor: 'rgba(13,13,15,0.04)', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: colors.line },
-  modalInput: { fontFamily: fonts.sans, fontSize: 15, color: colors.ink, minHeight: 56, lineHeight: 22, textAlignVertical: 'top' },
-  modalQtyRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, marginTop: 2 },
-  modalQtyLabel: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.ink2 },
-  modalQtyInputBox: { flexDirection: 'row', alignItems: 'baseline', backgroundColor: 'rgba(13,13,15,0.06)', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6 },
-  modalQtyInput: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: colors.ink, minWidth: 50, textAlign: 'right' },
-  modalQtyUnit: { fontFamily: fonts.sans, fontSize: 14, color: colors.ink3, marginLeft: 4 },
-  modalBtn: { paddingVertical: 14, borderRadius: radii.pill, alignItems: 'center', marginTop: 6 },
-  modalBtnText: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: '#fff', letterSpacing: 0.4 },
-  modalCancel: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.ink3, textAlign: 'center' },
-
-  ingHeadRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, marginBottom: 6 },
-  editToggle: { fontFamily: fonts.sansSemiBold, fontSize: 12, color: colors.morning, letterSpacing: 0.4 },
-  ingItem: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(13,13,15,0.06)' },
-  ingName: { flex: 1, fontFamily: fonts.sansMedium, fontSize: 14, color: colors.ink },
-  ingNameInput: { flex: 1, fontFamily: fonts.sansMedium, fontSize: 14, color: colors.ink, backgroundColor: 'rgba(13,13,15,0.04)', paddingHorizontal: 8, paddingVertical: 6, borderRadius: 8 },
-  ingQtyBox: { flexDirection: 'row', alignItems: 'baseline', backgroundColor: 'rgba(13,13,15,0.06)', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
-  ingQtyInput: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.ink, minWidth: 40, textAlign: 'right' },
-  ingQtyUnit: { fontFamily: fonts.sans, fontSize: 12, color: colors.ink3, marginLeft: 3 },
-  ingDelBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(229,85,85,0.12)', alignItems: 'center', justifyContent: 'center' },
-  ingDelText: { fontFamily: fonts.sansBold, fontSize: 18, color: '#e55', lineHeight: 18, marginTop: -2 },
+  packRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 4 },
+  packPillWrap: { width: 8, height: 38, borderRadius: 4, overflow: 'hidden' },
+  packPill: { flex: 1 },
+  packName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.ink },
+  packMeta: { fontFamily: fonts.sans, fontSize: 11, color: colors.ink3, marginTop: 2 },
+  checkCircle: { width: 26, height: 26, borderRadius: 13, borderWidth: 1.5, borderColor: colors.line2, alignItems: 'center', justifyContent: 'center' },
 });

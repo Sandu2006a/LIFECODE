@@ -6,11 +6,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../src/lib/supabase';
 import { getCachedUserId, getCachedTokens } from '../src/lib/auth-cache';
+import { lifecodeFetch } from '../src/lib/api';
 import { fonts, radii } from '../src/theme';
-
-const API_URL = 'https://lifecodenutrition.com';
 
 const C = {
   bg: '#ffffff', text: '#111111', muted: '#666666', dim: '#999999',
@@ -96,7 +96,18 @@ export default function OnboardingScreen() {
       const weight_kg = parseFloat(data.weight) || null;
       const height_cm = parseInt(data.height) || null;
 
-      // Get access token for auth header (fallback to JWT client when service role key is absent)
+      // CRITICAL: Set local onboarding flag FIRST (before any network call).
+      // This guarantees the app remembers the user even if every API call below fails.
+      try {
+        await AsyncStorage.setItem('lifecode.onboarding_done', '1');
+        await AsyncStorage.setItem('lifecode.last_uid', uid);
+        await AsyncStorage.setItem('lifecode.profile_local', JSON.stringify({
+          age, weight_kg, height_cm, gender: data.gender, goal: data.level, sport: data.bestResult.trim() || data.level,
+        }));
+        console.log('[onboarding] local flag saved for uid', uid);
+      } catch (e: any) { console.log('[onboarding] AsyncStorage save failed:', e?.message); }
+
+      // Get access token for auth header
       let accessToken: string | null = null;
       const { data: { session: freshSession } } = await supabase.auth.getSession();
       accessToken = freshSession?.access_token ?? null;
@@ -110,56 +121,45 @@ export default function OnboardingScreen() {
 
       const sportDescription = data.bestResult.trim() || data.level;
 
-      // Save profile via admin API (bypasses RLS — works even if session is lost)
-      fetch(`${API_URL}/api/save-profile`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({
-          user_id: uid, age, gender: data.gender || null,
-          weight_kg, height_cm, goal: data.level,
-          sport: sportDescription,
-        }),
-      }).catch(() => {});
+      // AWAIT save-profile so the DB write happens before the user navigates.
+      // (Previously this was fire-and-forget — sometimes got cancelled.)
+      try {
+        const r = await lifecodeFetch('/api/save-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
+          body: JSON.stringify({
+            user_id: uid, age, gender: data.gender || null,
+            weight_kg, height_cm, goal: data.level,
+            sport: sportDescription,
+          }),
+        });
+        console.log('[onboarding] /api/save-profile status', r.status);
+      } catch (e: any) { console.log('[onboarding] save-profile threw:', e?.message); }
 
-      // Also try direct Supabase upsert (works if session is active)
-      supabase.from('profiles').upsert({
-        id: uid, age, gender: data.gender || null,
-        weight_kg, height_cm, goal: data.level,
-        onboarding_done: true, updated_at: new Date().toISOString(),
-      }, { onConflict: 'id' }).then(({ error }) => {
-        if (error) {
-          supabase.from('profiles').update({
-            age, gender: data.gender || null, weight_kg, height_cm,
-            goal: data.level, onboarding_done: true,
-            updated_at: new Date().toISOString(),
-          }).eq('id', uid).catch(() => {});
-        }
-      }).catch(() => {});
+      // Best-effort Supabase direct upsert (RLS-dependent, in case server route fails)
+      (async () => {
+        try {
+          await supabase.from('profiles').upsert({
+            id: uid, age, gender: data.gender || null,
+            weight_kg, height_cm, goal: data.level,
+            onboarding_done: true, updated_at: new Date().toISOString(),
+          }, { onConflict: 'id' });
+        } catch {}
+      })();
+
+      // (Local flag already saved at the top of save() — guaranteed before any network call.)
 
       // Navigate immediately
       router.replace('/(tabs)');
 
-      // Fire-and-forget: AI generates personalized targets in background
+      // Fire-and-forget: AI generates personalized MICRONUTRIENT targets in background.
+      // (We deliberately skip calorie/macro analysis — this app tracks micronutrients only.)
       const ageN    = parseInt(data.age)    || 25;
       const heightN = parseInt(data.height) || 175;
       const weightN = parseFloat(data.weight) || 75;
       const genderS = data.gender || 'male';
-      const levelLabel = LEVELS.find(l => l.key === data.level)?.label ?? data.level;
 
-      // Macro targets (calories/protein/carbs/fats)
-      fetch(`${API_URL}/api/analyze-profile`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({
-          user_id: uid, name: userName,
-          age: ageN, height: heightN, weight: weightN, gender: genderS,
-          sport: sportDescription,
-          result: data.bestResult.trim() || levelLabel,
-        }),
-      }).catch(() => {});
-
-      // Micronutrient targets (vitamin/mineral needs)
-      fetch(`${API_URL}/api/analyze-nutrients`, {
+      lifecodeFetch('/api/analyze-nutrients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({

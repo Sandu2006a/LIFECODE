@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     const genAI = new GoogleGenerativeAI(key);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-pro',
       generationConfig: {
         temperature: 0.2,
         maxOutputTokens: 4096,

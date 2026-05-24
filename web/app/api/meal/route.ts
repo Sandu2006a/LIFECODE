@@ -26,7 +26,7 @@ async function analyzeMealText(meal: string, qty: number): Promise<Record<string
   if (!key) return {};
   const genAI = new GoogleGenerativeAI(key);
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-2.5-pro',
     generationConfig: { temperature: 0.1, maxOutputTokens: 1500 },
   });
   const prompt = `${STRICT_INSTRUCTIONS}

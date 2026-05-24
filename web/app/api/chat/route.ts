@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
         : '  No workouts scheduled today.';
     }
 
-    const model = getGenAI().getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = getGenAI().getGenerativeModel({ model: 'gemini-2.5-pro' });
 
     const microsContext = micros
       ? micros.map((m: { label: string; current: number; target: number; unit: string }) =>

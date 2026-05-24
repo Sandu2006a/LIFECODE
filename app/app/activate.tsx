@@ -6,11 +6,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../src/lib/supabase';
-import { cacheAuth } from '../src/lib/auth-cache';
+import { cacheAuth, checkOnboardingDone } from '../src/lib/auth-cache';
+import { lifecodeFetch, API_URL } from '../src/lib/api';
 import { colors, fonts, radii, gradients } from '../src/theme';
 
-const API_URL = 'https://lifecodenutrition.com';
 const CODE_LEN = 5;
 
 export default function ActivateScreen() {
@@ -47,8 +48,8 @@ export default function ActivateScreen() {
     setError('');
 
     try {
-      // Step 1: validate code with server
-      const res = await fetch(`${API_URL}/api/app/activate`, {
+      // Step 1: validate code with server (with timeout + fallback URL)
+      const res = await lifecodeFetch('/api/app/activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code }),
@@ -80,6 +81,17 @@ export default function ActivateScreen() {
         cacheAuth(uid, authData.session.access_token, authData.session.refresh_token);
       }
 
+      // Activation succeeded = user owns a valid LIFECODE account.
+      // Mark this device as "known". From now on, NEVER show onboarding here.
+      const fullName = (data.name || '').toString().trim() || 'Athlete';
+      try {
+        await AsyncStorage.setItem('lifecode.activated_once', '1');
+        await AsyncStorage.setItem('lifecode.onboarding_done', '1');
+        await AsyncStorage.setItem('lifecode.last_uid', uid);
+        await AsyncStorage.setItem('lifecode.user_name', fullName);
+        console.log('[activate] flags set, name persisted:', fullName);
+      } catch (e: any) { console.log('[activate] flag save failed:', e?.message); }
+
       setUserId(uid);
       setUserName((data.name || 'Athlete').split(' ')[0]);
       setLoading(false);
@@ -87,7 +99,10 @@ export default function ActivateScreen() {
 
     } catch (e: any) {
       console.error('activate error:', e);
-      setError('Network error. Check your connection.');
+      const msg = e?.name === 'AbortError'
+        ? 'Connection timed out. Your network may be blocking lifecodenutrition.com — try mobile data or VPN.'
+        : (e?.message || 'Network error. Check your connection or try mobile data.');
+      setError(msg);
       setLoading(false);
     }
   };
@@ -98,23 +113,18 @@ export default function ActivateScreen() {
       Animated.timing(fadeA,  { toValue: 1, duration: 700, useNativeDriver: true }),
       Animated.spring(scaleA, { toValue: 1, friction: 6, tension: 60, useNativeDriver: true }),
     ]).start(() => {
-      setTimeout(async () => {
-        if (!uid) { router.replace('/onboarding'); return; }
-        try {
-          const { data: profile } = await supabase
-            .from('profiles').select('onboarding_done').eq('id', uid).maybeSingle();
-          router.replace(profile?.onboarding_done ? '/(tabs)' : '/onboarding');
-        } catch {
-          router.replace('/onboarding');
-        }
-      }, 2600);
+      // Successful activation = trusted user. Always route to /(tabs).
+      // No DB / RLS / server check needed — the user already entered a valid code.
+      setTimeout(() => {
+        router.replace('/(tabs)');
+      }, 1800);
     });
   };
 
   if (welcomed) {
     return (
       <SafeAreaView style={s.safe}>
-        <LinearGradient colors={['#fafaf7', '#fff8f3', '#fafaf7']} style={s.welcomeBg}>
+        <LinearGradient colors={['#F7F7F5', '#EEF2FF', '#F7F7F5']} style={s.welcomeBg}>
           <Animated.View style={[s.welcomeBox, { opacity: fadeA, transform: [{ scale: scaleA }] }]}>
             <Text style={s.brand}>LIFECODE</Text>
             <View style={{ height: 40 }} />
@@ -220,6 +230,6 @@ const s = StyleSheet.create({
   welcomeBg:    { flex: 1, alignItems: 'flex-start', justifyContent: 'center', paddingHorizontal: 36 },
   welcomeBox:   { width: '100%' },
   welcomeGreet: { fontFamily: fonts.serif,       fontSize: 52, color: colors.ink2,    lineHeight: 56 },
-  welcomeName:  { fontFamily: fonts.serifItalic, fontSize: 64, color: colors.morning, lineHeight: 68 },
+  welcomeName:  { fontFamily: fonts.serifItalic, fontSize: 64, color: colors.morning, lineHeight: 68, letterSpacing: -2.2 },
   welcomeSub:   { fontFamily: fonts.sans,        fontSize: 16, color: colors.ink2,    lineHeight: 26 },
 });

@@ -1,20 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TextInput,
-  TouchableOpacity, KeyboardAvoidingView, Platform,
+  TouchableOpacity, KeyboardAvoidingView, Platform, Pressable,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import Avatar from '../../src/components/Avatar';
 import Icon from '../../src/components/Icon';
-import { colors, fonts, radii } from '../../src/theme';
-import { ensureSession } from '../../src/lib/session';
-import { applyLiveIntake, type NutrientRow } from '../../src/lib/protocol';
-import { getState, saveMemory, logMeal } from '../../src/lib/api';
+import { colors, fonts, gradients, radii, shadows } from '../../src/theme';
+import { supabase } from '../../src/lib/supabase';
+import { fetchDailyTotals, summariseDeficits, DailyTotals } from '../../src/lib/dailyTotals';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ensureSession, authHeaders } from '../../src/lib/session';
+import { lifecodeFetch, logMeal } from '../../src/lib/api';
 
 type Message = { id: number; role: 'ai' | 'user'; text: string };
 
-const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_KEY;
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`;
+// Direct Gemini call as a backup if the server endpoint is unreachable.
+const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_KEY || '';
+const GEMINI_URL = (model: string) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_KEY}`;
+const PREFERRED_MODEL = 'gemini-2.5-pro';
+const FALLBACK_MODEL  = 'gemini-2.5-flash';
 
 function Bubble({ msg }: { msg: Message }) {
   if (msg.role === 'ai') {
@@ -34,217 +42,95 @@ function Bubble({ msg }: { msg: Message }) {
 }
 
 const b = StyleSheet.create({
-  aiBubble: { backgroundColor: colors.surf, borderRadius: radii.card, borderWidth: 1, borderColor: colors.line, padding: 14, maxWidth: '86%', marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 1 },
+  aiBubble: { backgroundColor: colors.surf, borderRadius: radii.card, borderWidth: 1, borderColor: colors.line, padding: 14, maxWidth: '85%', marginBottom: 10, ...shadows.card },
   aiText: { fontFamily: fonts.sans, fontSize: 15, color: colors.ink, lineHeight: 22 },
   meWrap: { alignItems: 'flex-end', marginBottom: 10 },
-  meBubble: { backgroundColor: 'rgba(13,13,15,0.07)', borderRadius: radii.card, padding: 14, maxWidth: '86%' },
-  meText: { fontFamily: fonts.sans, fontSize: 15, color: colors.ink, lineHeight: 22 },
+  meBubble: { backgroundColor: colors.ink, borderRadius: radii.card, padding: 14, maxWidth: '85%' },
+  meText: { fontFamily: fonts.sans, fontSize: 15, color: '#FAFAFA', lineHeight: 22 },
 });
 
-type Memory = { memory: string; category: string };
-
-type ContextData = {
-  name: string;
-  age: number;
-  gender: string;
-  weight: number;
-  height: number;
-  goal: string;
-  sport: string;
-  morningTaken: boolean;
-  recoveryTaken: boolean;
-  todayMeals: { meal_name: string; quantity_g: number; nutrients: any }[];
-  protocolRows: NutrientRow[];
-  memories: Memory[];
-};
-
-async function buildContext(): Promise<ContextData | null> {
-  const state = await getState();
-  if (!state) return null;
-  const p = state.profile;
-  if (!p) return null;
-
-  const packs = (state.today?.intake || []).map((l: any) => l.pack);
-  const morningTaken = packs.includes('morning');
-  const recoveryTaken = packs.includes('recovery');
-  const todayMeals = state.today?.meals || [];
-
-  const staticProtocol: NutrientRow[] = (p.protocol_analysis as NutrientRow[]) || [];
-  const protocolRows = staticProtocol.length > 0
-    ? applyLiveIntake(staticProtocol, morningTaken, recoveryTaken, todayMeals)
-    : [];
-
-  const fallbackName = p.display_name || p.full_name
-    || (p.email ? String(p.email).split('@')[0] : '')
-    || 'Athlete';
-
-  return {
-    name: fallbackName,
-    age: p.age || 0,
-    gender: p.gender || '',
-    weight: p.weight_kg || 0,
-    height: p.height_cm || 0,
-    goal: p.goal || '',
-    sport: p.sport || '',
-    morningTaken,
-    recoveryTaken,
-    todayMeals,
-    protocolRows,
-    memories: (state.memories || []) as Memory[],
-  };
-}
-
-function buildSystemPrompt(ctx: ContextData): string {
-  const date = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-
-  const goalLabel: Record<string, string> = {
-    amateur: 'Amateur — trains for health and fun',
-    competitive: 'Competitive — club/regional level athlete',
-    elite: 'Elite / Pro — national or professional level',
-  };
-
-  const protocolLines = ctx.protocolRows.length > 0
-    ? ctx.protocolRows.map(r => {
-        const tag = r.status === 'covered' ? '✓ COMPLETE' : r.status === 'partial' ? 'partial' : 'LOW';
-        const inLabel = [r.inMorning ? 'Morning' : '', r.inRecovery ? 'Recovery' : ''].filter(Boolean).join('+') || 'food only';
-        return `  ${r.name}: ${r.total}/${r.dailyTarget} ${r.unit} (${r.percent}%) ${tag} [${inLabel}]`;
-      }).join('\n')
-    : '  Protocol not yet calculated — open Track tab to generate.';
-
-  const mealLines = ctx.todayMeals.length > 0
-    ? ctx.todayMeals.map(m => `  • ${m.meal_name} — ${m.quantity_g}g`).join('\n')
-    : '  None logged yet';
-
-  const memoryLines = ctx.memories.length > 0
-    ? ctx.memories.map(m => `  [${m.category}] ${m.memory}`).join('\n')
-    : '  No memories stored yet — extract any useful insights from this conversation.';
-
-  return `You are the LIFECODE AI — the precision sports performance coach of ${ctx.name}.
-
-CRITICAL INSTRUCTION: Before answering ANY question, analyze ALL the data below. Reference specific numbers and gaps in your response. Never give generic advice — always personalize to ${ctx.name}'s exact data and remembered insights.
-
-━━━ ATHLETE PROFILE ━━━
-Name: ${ctx.name} | Age: ${ctx.age} | Gender: ${ctx.gender}
-Weight: ${ctx.weight}kg | Height: ${ctx.height}cm
-Sport: ${ctx.sport || 'Not specified'}
-Level: ${goalLabel[ctx.goal] || ctx.goal || 'Not set'}
-
-━━━ LONG-TERM MEMORY (use these every response) ━━━
-${memoryLines}
-
-━━━ TODAY'S PACKS — ${date} ━━━
-Morning Pack: ${ctx.morningTaken ? 'TAKEN ✓' : 'NOT TAKEN ✗'}
-Recovery Pack: ${ctx.recoveryTaken ? 'TAKEN ✓' : 'NOT TAKEN ✗'}
-
-━━━ MICRONUTRIENT STATUS TODAY (live: pack + meals) ━━━
-${protocolLines}
-
-━━━ MEALS LOGGED TODAY ━━━
-${mealLines}
-
-━━━ LIFECODE SUPPLEMENT FORMULAS ━━━
-Morning Pack: Vit A 800μg | Vit C 200mg | Vit D3 25μg | Vit E 12mg | Vit K2 50μg | B12 100μg | B-Complex 100% RDA | Zinc 10mg | Copper 0.5mg | Mg Citrate 350mg | Selenium 50μg
-Recovery Pack: Maltodextrin 20g | EAA 7g | Creatine 5g | L-Glutamine 3g | HMB 1.5g | Tart Cherry 500mg | Himalayan Salt 300mg | Mg Bisglycinate 150mg | L-Theanine 100mg | AstraGin 50mg
-
-━━━ COACHING RULES ━━━
-1. Analyze ${ctx.name}'s data FIRST — identify which nutrients are LOW (< 50%), partial (50-99%), or COMPLETE (≥100%)
-2. Give direct, data-driven answers using actual percentages and numbers
-3. If a nutrient is low, identify the gap and suggest food sources with realistic quantities
-4. Be concise (2-4 sentences) unless the user asks for detail
-5. Use ${ctx.name}'s name when addressing them
-6. If morning/recovery pack not taken, mention this as the first priority
-
-━━━ FOOD INTAKE TRACKING (mandatory) ━━━
-Whenever the user mentions eating, drinking, or consuming ANYTHING (a fruit, a meal, a snack, even water with lemon), append EXACTLY this on a NEW LINE at the end of your response:
-LOG_FOOD:{"meal":"<food name>","quantity_g":<grams>}
-If the user gives a quantity (like "30g cheese" or "2 eggs"), use it. Otherwise use realistic gram estimates: 1 orange ~150g, 1 apple ~180g, 1 egg ~50g, chicken breast ~150g, salmon fillet ~150g, salad bowl ~100g, slice of bread ~30g, glass of milk ~250g, 1 cup rice ~200g.
-Example: user says "I just ate an orange" → response text first, then on a new line: LOG_FOOD:{"meal":"orange","quantity_g":150}
-Logging this updates the user's micronutrient progress bars automatically.
-
-━━━ MEMORY EXTRACTION (mandatory) ━━━
-When the user shares a personal insight, preference, allergy, training detail, schedule, recovery pattern, or any fact about themselves that would help future advice — append on a NEW LINE:
-SAVE_MEMORY:{"memory":"<the fact in third person>","category":"nutrition|training|recovery|preference|schedule|health"}
-Examples:
-- "I'm vegetarian" → SAVE_MEMORY:{"memory":"User is vegetarian","category":"nutrition"}
-- "I train twice a day" → SAVE_MEMORY:{"memory":"User trains twice daily","category":"training"}
-- "I can't eat dairy" → SAVE_MEMORY:{"memory":"User is dairy intolerant","category":"health"}
-
-NEVER mention the LOG_FOOD or SAVE_MEMORY tags in human-readable text. They are machine markers — put them on their own lines at the end of your response.`;
-}
-
-function extractTag(text: string, marker: string): { json: any | null; cleaned: string } {
-  const idx = text.indexOf(marker);
-  if (idx === -1) return { json: null, cleaned: text };
-  const start = text.indexOf('{', idx + marker.length);
-  if (start === -1) return { json: null, cleaned: text };
-  let depth = 0;
-  for (let i = start; i < text.length; i++) {
-    if (text[i] === '{') depth++;
-    else if (text[i] === '}') {
-      depth--;
-      if (depth === 0) {
-        const block = text.slice(start, i + 1);
-        let parsed: any = null;
-        try { parsed = JSON.parse(block); } catch {}
-        const cleanFrom = (idx > 0 && text[idx - 1] === '\n') ? idx - 1 : idx;
-        const cleaned = (text.slice(0, cleanFrom) + text.slice(i + 1)).trim();
-        return { json: parsed, cleaned };
-      }
-    }
-  }
-  return { json: null, cleaned: text };
-}
+const SUGGESTIONS = [
+  'What are my top 3 micronutrient gaps right now?',
+  'Suggest one meal that closes my biggest deficit.',
+  'I just ate 3 eggs — add them.',
+  'How will adding 100g salmon change my rings?',
+];
 
 export default function AskScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [val, setVal] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loadingContext, setLoadingContext] = useState(true);
-  const [systemPrompt, setSystemPrompt] = useState('');
-  const [userId, setUserId] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
 
+  const [profile, setProfile] = useState<{ name: string; avatarLetter: string; sport: string; age: number; weight_kg: number; height_cm: number; gender: string; goal: string } | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [totals, setTotals] = useState<DailyTotals | null>(null);
+
   useEffect(() => {
-    (async () => {
-      const { userId: uid } = await ensureSession();
-      if (!uid) { setLoadingContext(false); return; }
-      setUserId(uid);
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) return;
+      setUserId(data.user.id);
 
-      const ctx = await buildContext();
-      if (ctx) {
-        setSystemPrompt(buildSystemPrompt(ctx));
-        const firstName = ctx.name.split(' ')[0];
-        const missing = [];
-        if (!ctx.morningTaken) missing.push('morning pack');
-        if (!ctx.recoveryTaken) missing.push('recovery pack');
-        const lowNutrients = ctx.protocolRows
-          .filter(r => r.status === 'gap' || (r.status === 'partial' && r.percent < 40))
-          .sort((a, b) => a.percent - b.percent)
-          .slice(0, 3)
-          .map(r => r.name);
+      const { data: p } = await supabase
+        .from('profiles')
+        .select('display_name, full_name, sport, age, weight_kg, height_cm, gender, goal, avatar_letter')
+        .eq('id', data.user.id)
+        .maybeSingle();
 
-        let intro = `Hi ${firstName}! I've analyzed your full profile, today's data, and ${ctx.memories.length} memories. `;
-        if (missing.length > 0) {
-          intro += `Your ${missing.join(' and ')} ${missing.length > 1 ? 'are' : 'is'} not taken yet today. `;
-        } else {
-          intro += `Both packs taken — great work! `;
-        }
-        if (lowNutrients.length > 0) {
-          intro += `Nutrients low: ${lowNutrients.join(', ')}. Ask me anything.`;
-        } else {
-          intro += `Ask me anything about your nutrition, recovery, or training.`;
-        }
+      let cachedName = '';
+      try { cachedName = (await AsyncStorage.getItem('lifecode.user_name')) || ''; } catch {}
+      const metaName = data.user.user_metadata?.display_name
+                    || data.user.user_metadata?.full_name
+                    || '';
+      const name =
+        p?.display_name || p?.full_name ||
+        metaName || cachedName ||
+        data.user.email?.split('@')[0] || 'Athlete';
+      const prof = {
+        name,
+        avatarLetter: (p?.avatar_letter || name.charAt(0) || 'A').toUpperCase(),
+        sport: p?.sport || '',
+        age: p?.age || 0,
+        weight_kg: p?.weight_kg || 0,
+        height_cm: p?.height_cm || 0,
+        gender: p?.gender || '',
+        goal: p?.goal || '',
+      };
+      setProfile(prof);
 
-        setMessages([{ id: 1, role: 'ai', text: intro }]);
-      } else {
-        setMessages([{ id: 1, role: 'ai', text: "Hi! I'm your LIFECODE AI coach. Complete your profile from the You tab to unlock personalized insights." }]);
-      }
-      setLoadingContext(false);
-    })();
+      // Prime today's nutrient snapshot
+      try { setTotals(await fetchDailyTotals(data.user.id)); } catch {}
+
+      setMessages([{
+        id: 1,
+        role: 'ai',
+        text: `Hi ${name}. Ask me how you're tracking today — I can see your packs, meals, and where you're short.`,
+      }]);
+    });
   }, []);
 
-  const send = async () => {
-    const text = val.trim();
+  const buildSystemPrompt = (p: typeof profile, t: DailyTotals | null) => {
+    const base = !p
+      ? `You are the LIFECODE AI — a precision performance nutrition coach for serious athletes. Keep answers short, confident, and science-based.`
+      : `You are the LIFECODE AI — the personal coach of ${p.name}, a ${p.age}yo ${p.gender} ${p.sport} athlete weighing ${p.weight_kg}kg at ${p.height_cm}cm. Their goal: ${p.goal}.`;
+
+    const supplements = `
+LIFECODE supplements:
+- Morning Pack: Vit A, C, D3, E, K2, B12, Zinc, Copper, Magnesium, Selenium.
+- Recovery Pack: EAA 7g, Creatine 5g, Glutamine 3g, Sodium.
+- Essentials (food only): Iron, Calcium, Omega-3, Potassium, Iodine, CoQ10, Choline, Vit B6, Folate.`;
+
+    const todayBlock = t
+      ? `\nTODAY'S DATA (use this to answer questions like "how am I doing", "am I deficient in...", "what should I eat"):\n${summariseDeficits(t)}`
+      : '';
+
+    return `${base}${supplements}${todayBlock}
+
+When the user asks how they feel, are deficient, or what to add: read TODAY'S DATA above and call out the specific low nutrients with their % numbers. Suggest concrete foods or a pack. Keep answers 2-4 sentences unless detail is requested. Always be specific with numbers when available.`;
+  };
+
+  const sendText = async (textArg?: string) => {
+    const text = (textArg ?? val).trim();
     if (!text || loading) return;
 
     const userMsg: Message = { id: Date.now(), role: 'user', text };
@@ -253,53 +139,174 @@ export default function AskScreen() {
     setLoading(true);
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
 
+    // Refresh today's data so the AI sees the most recent meal/pack state
+    let freshTotals = totals;
+    if (userId) {
+      try { freshTotals = await fetchDailyTotals(userId); setTotals(freshTotals); } catch {}
+    }
+
+    const history = [...messages.filter(m => m.id !== 1), userMsg]
+      .map(m => ({ role: m.role === 'ai' ? 'model' : 'user', parts: [{ text: m.text }] }));
+
+    // STRATEGY 1 (preferred): hit our own server at lifecodenutrition.com/api/chat
+    // — the Gemini key lives server-side, no env wiring on device needed.
+    // The server also returns `logFood` when the user mentions eating something —
+    // we then call /api/meal to save it with full micronutrient analysis.
+    type ChatResult =
+      | { ok: true; text: string; logFood: { meal: string; quantity_g: number } | null }
+      | { ok: false; error: string };
+    async function callServerChat(): Promise<ChatResult> {
+      try {
+        const { accessToken, userId: uid } = await ensureSession();
+        const res = await lifecodeFetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders(accessToken) },
+          body: JSON.stringify({
+            user_id: uid,
+            profile: profile ? {
+              name:   profile.name,
+              gender: profile.gender,
+              age:    profile.age,
+              height: profile.height_cm,
+              weight: profile.weight_kg,
+              sport:  profile.sport,
+              result: profile.sport,
+            } : null,
+            messages: [...messages.filter(m => m.id !== 1), userMsg]
+              .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', text: m.text })),
+            // Send ALL nutrients with category + pct so the AI can speak
+            // about ring impact and prioritize the lowest %.
+            micros: freshTotals?.rows
+              ?.filter(r => r.target > 0)
+              ?.map(r => ({
+                label:    r.name,
+                category: r.category,                       // 'morning' | 'essentials' | 'recovery'
+                current:  Math.round(r.consumed * 100) / 100,
+                target:   Math.round(r.target   * 100) / 100,
+                unit:     r.unit,
+                pct:      r.pct,
+              })) || [],
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          return { ok: false, error: data?.error || data?.text || `HTTP ${res.status}` };
+        }
+        if (typeof data.text === 'string' && data.text.trim().length > 0) {
+          return {
+            ok: true,
+            text: data.text,
+            logFood: data.logFood && data.logFood.meal ? data.logFood : null,
+          };
+        }
+        return { ok: false, error: 'Empty server response' };
+      } catch (e: any) {
+        return { ok: false, error: e?.message || 'network error' };
+      }
+    }
+
+    // STRATEGY 2 (fallback): hit Gemini directly with the device-side key.
+    const directBody = JSON.stringify({
+      system_instruction: { parts: [{ text: buildSystemPrompt(profile, freshTotals) }] },
+      contents: history,
+      generationConfig: { temperature: 0.7, maxOutputTokens: 512 },
+    });
+
+    async function callGemini(model: string): Promise<{ ok: true; text: string } | { ok: false; status: number; error: string }> {
+      try {
+        const res = await fetch(GEMINI_URL(model), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: directBody,
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          return { ok: false, status: res.status, error: data?.error?.message || `HTTP ${res.status}` };
+        }
+        const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!aiText) {
+          const blocked = data?.promptFeedback?.blockReason;
+          return { ok: false, status: 0, error: blocked ? `Response blocked: ${blocked}` : 'Empty response from AI.' };
+        }
+        return { ok: true, text: aiText };
+      } catch (e: any) {
+        return { ok: false, status: -1, error: e?.message || 'Network error' };
+      }
+    }
+
     try {
-      const history = messages
-        .filter(m => m.id !== 1)
-        .concat(userMsg)
-        .map(m => ({
-          role: m.role === 'ai' ? 'model' : 'user',
-          parts: [{ text: m.text }],
-        }));
-
-      const res = await fetch(GEMINI_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt }] },
-          contents: history,
-          generationConfig: {
-            temperature: 0.6,
-            maxOutputTokens: 2048,
-            thinkingConfig: { thinkingBudget: 0 },
-          },
-        }),
-      });
-
-      if (!res.ok) throw new Error(`Gemini ${res.status}`);
-      const data = await res.json();
-      let aiText: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'Unable to respond right now.';
-
-      // Extract LOG_FOOD → save via backend (Gemini computes nutrients server-side and
-      // adds them to today's progress bars)
-      const foodTag = extractTag(aiText, 'LOG_FOOD:');
-      aiText = foodTag.cleaned;
-      if (foodTag.json && foodTag.json.meal) {
-        const meal = String(foodTag.json.meal);
-        const qty = Number(foodTag.json.quantity_g) || 100;
-        await logMeal(meal, qty);
+      // 1) Try server endpoint
+      let aiText = '';
+      let logFood: { meal: string; quantity_g: number } | null = null;
+      const server = await callServerChat();
+      if (server.ok) {
+        aiText = server.text;
+        logFood = server.logFood;
+      } else {
+        console.log('[ask] server /api/chat failed:', server.error);
+        // 2) Fall back to direct Gemini (Pro → Flash) — text only, no meal logging here
+        if (!GEMINI_KEY) {
+          aiText = `⚠ Server unreachable (${server.error}) and no Gemini key on device. Check your internet connection.`;
+        } else {
+          let result = await callGemini(PREFERRED_MODEL);
+          if (!result.ok && (result.status === 403 || result.status === 404 || result.status === 429)) {
+            console.log('[ask] Pro failed, falling back to Flash:', result.error);
+            result = await callGemini(FALLBACK_MODEL);
+          }
+          aiText = result.ok ? result.text : `⚠ AI error: ${result.error}`;
+        }
       }
 
-      // Extract SAVE_MEMORY → save via backend
-      const memTag = extractTag(aiText, 'SAVE_MEMORY:');
-      aiText = memTag.cleaned;
-      if (memTag.json && memTag.json.memory) {
-        await saveMemory(String(memTag.json.memory), String(memTag.json.category || 'general'));
+      if (userId && aiText && !aiText.startsWith('⚠')) {
+        try {
+          await supabase.from('conversations').insert([
+            { user_id: userId, role: 'user',      content: text },
+            { user_id: userId, role: 'assistant', content: aiText },
+          ]);
+        } catch {}
       }
 
       setMessages(prev => [...prev, { id: Date.now() + 1, role: 'ai', text: aiText }]);
-    } catch {
-      setMessages(prev => [...prev, { id: Date.now() + 1, role: 'ai', text: 'Connection error — please try again.' }]);
+
+      // Server detected a meal mention — save it with full micronutrient analysis.
+      if (logFood && logFood.meal) {
+        setMessages(prev => [...prev, { id: Date.now() + 2, role: 'ai', text: `⏳ Logging ${logFood!.meal}…` }]);
+        try {
+          const r = await logMeal(logFood.meal, logFood.quantity_g || 100, undefined);
+          if (r.ok) {
+            const keys = Object.keys(r.nutrients || {}).filter(k => Number(r.nutrients?.[k]) > 0);
+            const summary = keys.length > 0
+              ? `✓ Logged ${logFood.meal} — ${keys.length} micronutrients added to today.`
+              : `✓ Logged ${logFood.meal}.`;
+            setMessages(prev => {
+              // Replace the "logging..." placeholder with the success message
+              const next = [...prev];
+              const idx = next.findIndex(m => m.text.startsWith('⏳ Logging'));
+              if (idx >= 0) next[idx] = { ...next[idx], text: summary };
+              else next.push({ id: Date.now() + 3, role: 'ai', text: summary });
+              return next;
+            });
+            // Refresh totals so the next message sees the new state
+            if (userId) {
+              try { const t = await fetchDailyTotals(userId); setTotals(t); } catch {}
+            }
+          } else {
+            setMessages(prev => {
+              const next = [...prev];
+              const idx = next.findIndex(m => m.text.startsWith('⏳ Logging'));
+              const errText = `⚠ Could not log meal: ${r.error || 'unknown error'}`;
+              if (idx >= 0) next[idx] = { ...next[idx], text: errText };
+              else next.push({ id: Date.now() + 3, role: 'ai', text: errText });
+              return next;
+            });
+          }
+        } catch (e: any) {
+          console.log('[ask] logMeal threw:', e?.message);
+        }
+      }
+    } catch (e: any) {
+      console.log('[ask] outer error:', e?.message);
+      setMessages(prev => [...prev, { id: Date.now() + 1, role: 'ai', text: `Connection error — ${e?.message || 'try again'}.` }]);
     } finally {
       setLoading(false);
       setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
@@ -310,9 +317,14 @@ export default function AskScreen() {
     <SafeAreaView style={s.safe} edges={['top']}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
 
-        <View style={s.greet}>
-          <Text style={s.day}>AI Coach</Text>
-          <Text style={s.h1}>Ask <Text style={s.h1Italic}>anything.</Text></Text>
+        <View style={s.head}>
+          <View style={{ flex: 1 }}>
+            <Text style={s.date}>AI COACH</Text>
+            <Text style={s.h1}>Ask <Text style={{ fontFamily: fonts.serifItalic }}>anything.</Text></Text>
+          </View>
+          <Pressable onPress={() => router.push('/profile')} hitSlop={10}>
+            <Avatar name={profile?.avatarLetter || 'A'} size={38} gradient={gradients.brand} border={2} borderColor="#fff" />
+          </Pressable>
         </View>
 
         <ScrollView
@@ -321,17 +333,19 @@ export default function AskScreen() {
           contentContainerStyle={s.stream}
           showsVerticalScrollIndicator={false}
         >
-          {loadingContext ? (
-            <View style={s.contextLoading}>
-              <ActivityIndicator color={colors.ink3} size="small" />
-              <Text style={s.contextLoadingText}>Loading your data...</Text>
-            </View>
-          ) : (
-            messages.map(msg => <Bubble key={msg.id} msg={msg} />)
-          )}
+          {messages.map(msg => <Bubble key={msg.id} msg={msg} />)}
           {loading && (
             <View style={b.aiBubble}>
               <ActivityIndicator size="small" color={colors.ink3} />
+            </View>
+          )}
+          {messages.length <= 1 && !loading && (
+            <View style={s.suggestions}>
+              {SUGGESTIONS.map(q => (
+                <TouchableOpacity key={q} style={s.suggestBtn} onPress={() => sendText(q)}>
+                  <Text style={s.suggestText}>{q}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           )}
         </ScrollView>
@@ -343,17 +357,17 @@ export default function AskScreen() {
             placeholderTextColor={colors.ink3}
             value={val}
             onChangeText={setVal}
-            onSubmitEditing={send}
+            onSubmitEditing={() => sendText()}
             returnKeyType="send"
             multiline
-            editable={!loading && !loadingContext}
+            editable={!loading}
           />
           <TouchableOpacity
             style={[s.sendBtn, { backgroundColor: val.trim() && !loading ? colors.ink : colors.ink4 }]}
-            onPress={send}
+            onPress={() => sendText()}
             disabled={!val.trim() || loading}
           >
-            <Icon name="send" size={15} color="#fff" />
+            <Icon name="arrow-up" size={16} color="#fff" strokeWidth={2.2} />
           </TouchableOpacity>
         </View>
 
@@ -364,14 +378,14 @@ export default function AskScreen() {
 
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  greet: { paddingHorizontal: 22, paddingTop: 16, paddingBottom: 12 },
-  day: { fontFamily: fonts.sansSemiBold, fontSize: 12, letterSpacing: 1, color: colors.ink3, textTransform: 'uppercase', marginBottom: 4 },
-  h1: { fontFamily: fonts.serif, fontSize: 40, color: colors.ink },
-  h1Italic: { fontFamily: fonts.serifItalic },
+  head: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', paddingHorizontal: 22, paddingTop: 10, paddingBottom: 14 },
+  date: { fontFamily: fonts.sansSemiBold, fontSize: 11, letterSpacing: 2.4, color: colors.ink3 },
+  h1: { fontFamily: fonts.serif, fontSize: 34, color: colors.ink, marginTop: 4 },
   stream: { paddingHorizontal: 22, paddingBottom: 16 },
-  contextLoading: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 16 },
-  contextLoadingText: { fontFamily: fonts.sans, fontSize: 14, color: colors.ink3 },
-  composer: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 22, paddingVertical: 12, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.bg },
+  suggestions: { gap: 8, marginTop: 12 },
+  suggestBtn: { borderWidth: 1, borderColor: colors.line2, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 10, alignSelf: 'flex-start' },
+  suggestText: { fontFamily: fonts.sans, fontSize: 13, color: colors.ink2 },
+  composer: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 22, paddingVertical: 12, paddingBottom: 100, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.bg },
   composerInput: { flex: 1, fontFamily: fonts.sans, fontSize: 15, color: colors.ink, maxHeight: 100, paddingTop: 0 },
   sendBtn: { width: 36, height: 36, borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center' },
 });
