@@ -3,6 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { INGREDIENT_INSTRUCTIONS, normalizeStrictNutrients } from '@/lib/nutrients';
 
+// Extend the serverless timeout. Default on Vercel Hobby is 10s; Gemini Vision
+// reliably needs 15-25s for image analysis. Without this, the function gets
+// killed mid-request and Vercel returns an HTML gateway timeout page instead
+// of JSON — the exact bug the user kept seeing.
+export const maxDuration = 60;
+
 const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
 async function resolveUserId(req: NextRequest): Promise<string | null> {
@@ -37,9 +43,12 @@ export async function POST(req: NextRequest) {
       inlineData: { data: imageBase64, mimeType: mimeType || 'image/jpeg' },
     };
 
-    // Try Pro first (more accurate at food recognition), Flash as fallback so the
-    // user never sees a complete failure when Pro is rate-limited or rejects an image.
-    async function runModel(modelId: 'gemini-2.5-pro' | 'gemini-2.5-flash') {
+    // Flash is the right choice for vision in a serverless context: 5-10x faster
+    // than Pro on image analysis, well under Vercel's timeout, and accurate
+    // enough for food identification (Pro's reasoning advantage doesn't show
+    // up on "what is in this photo" tasks). We keep Pro as a backup only if
+    // Flash truly fails — but in practice Flash succeeds.
+    async function runModel(modelId: 'gemini-2.5-flash' | 'gemini-2.5-pro') {
       const model = genAI.getGenerativeModel({
         model: modelId,
         generationConfig: {
@@ -55,11 +64,11 @@ export async function POST(req: NextRequest) {
 
     let text: string;
     try {
-      const result = await runModel('gemini-2.5-pro');
+      const result = await runModel('gemini-2.5-flash');
       text = result.response.text();
     } catch (e: any) {
-      console.warn('[scan-meal] Pro failed, falling back to Flash:', e?.message);
-      const result = await runModel('gemini-2.5-flash');
+      console.warn('[scan-meal] Flash failed, falling back to Pro:', e?.message);
+      const result = await runModel('gemini-2.5-pro');
       text = result.response.text();
     }
 

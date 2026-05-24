@@ -3,6 +3,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { STRICT_INSTRUCTIONS, normalizeStrictNutrients } from '@/lib/nutrients';
 
+export const maxDuration = 60;
+
 const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
 async function resolveUserId(req: NextRequest): Promise<string | null> {
@@ -45,14 +47,16 @@ Setează "isNutritionLabel": false. Setează "quantity_g": ${qty}. Calculează n
     return model.generateContent(prompt);
   }
 
+  // Flash first — text-to-nutrient is well within its capability AND it
+  // returns in 1-3s vs Pro's 5-10s, comfortably under any timeout.
   let text: string;
   try {
-    const result = await runModel('gemini-2.5-pro');
+    const result = await runModel('gemini-2.5-flash');
     text = result.response.text();
   } catch (e: any) {
-    console.warn('[meal] Pro failed, falling back to Flash:', e?.message);
+    console.warn('[meal] Flash failed, falling back to Pro:', e?.message);
     try {
-      const result = await runModel('gemini-2.5-flash');
+      const result = await runModel('gemini-2.5-pro');
       text = result.response.text();
     } catch {
       return {};
