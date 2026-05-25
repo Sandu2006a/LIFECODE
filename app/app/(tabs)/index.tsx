@@ -332,17 +332,17 @@ export default function SummaryScreen() {
             <PackRow
               done={morningTaken}
               gradient={gradients.morning}
-              name="Morning pack"
-              time="morning"
-              meta="B1·B2·B3·B5·B6·B7·B9·B12 · Caffeine · Theanine · Taurine · Rhodiola · Na·K"
+              name="code·charge"
+              time="AM"
+              meta="Vit A · C · D3 · E · K2 · B12 · B-Complex · Zn · Cu · Mg · Se"
               onPress={() => markTaken('morning')}
             />
             <PackRow
               done={recoveryTaken}
               gradient={gradients.recovery}
-              name="Recovery pack"
-              time="post-workout"
-              meta="EAA 7g · Creatine 5g · HMB · Tart Cherry · Mg · Na · K · AstraGin"
+              name="code·build"
+              time="PM"
+              meta="Malto 20g · EAA 7g · Creatine 5g · Glutamine 3g · HMB · Tart Cherry · Pink Salt · Mg · L-Theanine · AstraGin"
               onPress={() => markTaken('recovery')}
             />
           </View>

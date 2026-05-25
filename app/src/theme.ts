@@ -1,7 +1,7 @@
 // LIFECODE Design System v2 — Apple Fitness / Whoop inspired
-// Light bg, modern brand colors:
-//   • Morning   = indigo  (cool, focused, pre-workout clarity)
-//   • Recovery  = orange-red (warm, intense, post-workout fire)
+// Light bg, modern brand colors (matched to website code·charge / code·build):
+//   • Morning   = red-orange (warm, AM ignition, code·charge identity)
+//   • Recovery  = violet (deep, PM rebuild, code·build identity)
 //   • Essentials = ink (neutral, food-sourced)
 
 export const colors = {
@@ -22,37 +22,37 @@ export const colors = {
   ink4: 'rgba(10,10,11,0.28)',
   ink5: 'rgba(10,10,11,0.16)',
 
-  // Morning — INDIGO family
-  morning:  '#4F46E5',  // indigo-600 (primary)
-  morning2: '#312E81',  // indigo-900 (deep accent)
-  morning3: '#818CF8',  // indigo-400 (light glow)
+  // Morning — RED / ORANGE family (matches code·charge AM warmth)
+  morning:  '#EF4444',  // red-500 (primary)
+  morning2: '#B91C1C',  // red-700 (deep accent)
+  morning3: '#FB923C',  // orange-400 (light glow)
 
-  // Recovery — ORANGE-RED family
-  recovery:  '#EF4444',  // red-500 (primary)
-  recovery2: '#B91C1C',  // red-700 (deep accent)
-  recovery3: '#FB923C',  // orange-400 (warm glow)
+  // Recovery — VIOLET family (matches code·build PM rebuild)
+  recovery:  '#7C3AED',  // violet-600 (primary)
+  recovery2: '#4C1D95',  // violet-900 (deep accent)
+  recovery3: '#A78BFA',  // violet-400 (light glow)
 
   // Semantic
-  danger:   '#DC2626',  // distinct from recovery — used for errors / destructive actions
+  danger:   '#DC2626',  // distinct from recovery now (was sharing red)
   success:  '#10B981',  // emerald-500
   warning:  '#F59E0B',  // amber-500
 
   // Brand-light tints (used for soft card backgrounds, glow halos)
-  morningTint:  'rgba(79,70,229,0.08)',
-  recoveryTint: 'rgba(239,68,68,0.08)',
+  morningTint:  'rgba(239,68,68,0.08)',
+  recoveryTint: 'rgba(124,58,237,0.08)',
 };
 
 export const gradients = {
   // Vertical/horizontal brand gradients (deep → bright → light)
-  morning:  ['#312E81', '#4F46E5', '#818CF8'] as string[],
-  recovery: ['#B91C1C', '#EF4444', '#FB923C'] as string[],
+  morning:  ['#B91C1C', '#EF4444', '#FB923C'] as string[],
+  recovery: ['#4C1D95', '#7C3AED', '#A78BFA'] as string[],
 
   // Combined brand sweep — used for avatars, logo elements, anything brand-mixed
-  neutral:  ['#4F46E5', '#7C3AED', '#EF4444'] as string[],
-  brand:    ['#4F46E5', '#EF4444'] as string[],  // 2-stop avatar gradient
+  neutral:  ['#EF4444', '#7C3AED', '#1D4ED8'] as string[],
+  brand:    ['#EF4444', '#7C3AED'] as string[],  // 2-stop avatar gradient (red → violet)
 
   // Utility
-  hydration: ['#818CF8', '#A5B4FC'] as string[],
+  hydration: ['#A78BFA', '#C4B5FD'] as string[],
   ink:       ['#0A0A0B', '#0A0A0B'] as string[],
 };
 
