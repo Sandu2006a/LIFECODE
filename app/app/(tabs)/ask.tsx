@@ -56,6 +56,56 @@ const SUGGESTIONS = [
   'How will adding 100g salmon change my rings?',
 ];
 
+// Display labels + units for Gemini's food-scan keys. Used to format the
+// "✓ Logged ..." confirmation bubble so the user sees WHICH micronutrients
+// landed in today's totals, not just a count.
+const NUTRIENT_DISPLAY: Record<string, { label: string; unit: string }> = {
+  vitamin_a:   { label: 'Vit A',   unit: 'μg' },
+  vitamin_c:   { label: 'Vit C',   unit: 'mg' },
+  vitamin_d3:  { label: 'Vit D3',  unit: 'μg' },
+  vitamin_e:   { label: 'Vit E',   unit: 'mg' },
+  vitamin_k2:  { label: 'Vit K2',  unit: 'μg' },
+  vitamin_b12: { label: 'B12',     unit: 'μg' },
+  zinc:        { label: 'Zinc',    unit: 'mg' },
+  copper:      { label: 'Copper',  unit: 'mg' },
+  magnesium:   { label: 'Mg',      unit: 'mg' },
+  selenium:    { label: 'Selenium',unit: 'μg' },
+  omega_3:     { label: 'Omega-3', unit: 'mg' },
+  calcium:     { label: 'Calcium', unit: 'mg' },
+  potassium:   { label: 'K',       unit: 'mg' },
+  sodium:      { label: 'Na',      unit: 'mg' },
+  iodine:      { label: 'Iodine',  unit: 'μg' },
+  iron:        { label: 'Iron',    unit: 'mg' },
+  eaa:         { label: 'EAA',     unit: 'mg' },
+  glutamine:   { label: 'Glutamine', unit: 'mg' },
+  creatine:    { label: 'Creatine',unit: 'mg' },
+};
+
+function fmtAmount(v: number): string {
+  if (v === 0) return '0';
+  if (v < 1)   return v.toFixed(2).replace(/\.?0+$/, '');
+  if (v < 10)  return v.toFixed(1).replace(/\.0$/, '');
+  return String(Math.round(v));
+}
+
+function formatLoggedSummary(meal: string, qty: number, nutrients: Record<string, number>): string {
+  const entries = Object.entries(nutrients)
+    .map(([k, v]) => ({ k, v: Number(v) || 0 }))
+    .filter(e => e.v > 0 && NUTRIENT_DISPLAY[e.k])
+    // Rank by "interestingness": higher relative weight to vitamins/minerals
+    // that typically show up in micrograms (D3, B12, K2, Iodine, Selenium).
+    .sort((a, b) => b.v - a.v);
+
+  if (entries.length === 0) return `✓ Logged ${meal} (${qty}g).`;
+
+  const top = entries.slice(0, 4).map(({ k, v }) => {
+    const d = NUTRIENT_DISPLAY[k];
+    return `+${d.label} ${fmtAmount(v)}${d.unit}`;
+  });
+  const extra = entries.length > 4 ? ` · +${entries.length - 4} more` : '';
+  return `✓ Logged ${meal} (${qty}g)\n${top.join(' · ')}${extra}`;
+}
+
 export default function AskScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [val, setVal] = useState('');
@@ -274,21 +324,23 @@ When the user asks how they feel, are deficient, or what to add: read TODAY'S DA
         try {
           const r = await logMeal(logFood.meal, logFood.quantity_g || 100, undefined);
           if (r.ok) {
-            const keys = Object.keys(r.nutrients || {}).filter(k => Number(r.nutrients?.[k]) > 0);
-            const summary = keys.length > 0
-              ? `✓ Logged ${logFood.meal} — ${keys.length} micronutrients added to today.`
-              : `✓ Logged ${logFood.meal}.`;
+            // Build a human-readable top-3 list — same format the photo-scan
+            // review screen uses. Makes the "logged" confirmation feel real:
+            // the user can see WHICH micronutrients hit their day.
+            const summary = formatLoggedSummary(logFood.meal, logFood.quantity_g || 100, r.nutrients || {});
             setMessages(prev => {
-              // Replace the "logging..." placeholder with the success message
               const next = [...prev];
               const idx = next.findIndex(m => m.text.startsWith('⏳ Logging'));
               if (idx >= 0) next[idx] = { ...next[idx], text: summary };
               else next.push({ id: Date.now() + 3, role: 'ai', text: summary });
               return next;
             });
-            // Refresh totals so the next message sees the new state
+            // Refresh totals locally so the next message sees the new state,
+            // AND drop a flag so the home tab's useFocusEffect knows to reload
+            // (otherwise the rings wouldn't update until app restart).
             if (userId) {
               try { const t = await fetchDailyTotals(userId); setTotals(t); } catch {}
+              try { await AsyncStorage.setItem('lifecode.last_meal_logged_at', String(Date.now())); } catch {}
             }
           } else {
             setMessages(prev => {
