@@ -96,6 +96,19 @@ export async function logIntake(pack: 'morning' | 'recovery'): Promise<{ ok: boo
   }
 }
 
+// Reverse a pack tick. Direct Supabase delete is blocked by RLS, so we go
+// through the server which uses service role to remove today's intake row.
+export async function untakeIntake(pack: 'morning' | 'recovery'): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const res = await authFetch(`/api/intake?pack=${encodeURIComponent(pack)}`, { method: 'DELETE' });
+    const json = await res.json();
+    if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
+    return { ok: true };
+  } catch (e: any) {
+    return { ok: false, error: e.message || 'network error' };
+  }
+}
+
 // Same architecture as scanMeal: call Gemini directly for the slow analysis
 // step, then post-save with pre-computed nutrients so /api/meal doesn't have
 // to call Gemini itself (which is what was timing out → 'HTML on /api/meal').

@@ -11,7 +11,7 @@ import { colors, fonts, gradients, radii, shadows } from '../../src/theme';
 import { supabase } from '../../src/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchDailyTotals, recomputeWithPacks, fetchWeekPcts, DailyTotals } from '../../src/lib/dailyTotals';
-import { logIntake } from '../../src/lib/api';
+import { logIntake, untakeIntake } from '../../src/lib/api';
 import { ensureSession } from '../../src/lib/session';
 
 const DAYS_SHORT  = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -182,16 +182,11 @@ export default function SummaryScreen() {
 
     try {
       if (already) {
-        // Untoggle: direct Supabase delete (no server endpoint for delete yet).
-        // If RLS blocks this, the optimistic UI still reflects the toggle.
-        const startIso = todayIso + 'T00:00:00.000Z';
-        const endIso   = todayIso + 'T23:59:59.999Z';
-        const { error } = await supabase.from('intake_logs').delete()
-          .eq('user_id', userId).eq('pack', pack)
-          .gte('taken_at', startIso).lte('taken_at', endIso);
-        if (error) console.log('[home] intake delete error:', error.message);
+        // Untick: server-side DELETE so RLS doesn't block us.
+        const r = await untakeIntake(pack);
+        if (!r.ok) console.log('[home] intake un-take server error:', r.error);
       } else {
-        // Take pack: use server endpoint /api/intake (service role, bypasses RLS).
+        // Take pack: server-side POST (service role, bypasses RLS).
         const r = await logIntake(pack);
         if (!r.ok) console.log('[home] intake server error:', r.error);
       }
