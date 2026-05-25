@@ -49,6 +49,9 @@ export default function SummaryScreen() {
   // real name from profiles / user_metadata / a non-'Athlete' cache.
   const [askName, setAskName] = useState(false);
   const [draftName, setDraftName] = useState('');
+  // Synchronous gate — guarantees the modal cannot re-open after Save/Skip
+  // even if useFocusEffect re-fires before AsyncStorage.setItem resolves.
+  const namePromptHandled = useRef(false);
 
   const today    = new Date();
   const dateLbl  = `${DAYS_SHORT[today.getDay()]} · ${MONTHS[today.getMonth()]} ${today.getDate()}`;
@@ -91,14 +94,19 @@ export default function SummaryScreen() {
         setName(displayName);
         setAvatarLetter((p?.avatar_letter || displayName.charAt(0) || 'A').toUpperCase());
 
-        // If we don't have a STRONG name (only email-derived guess), prompt once
-        // so the user can confirm/correct it. Stored "asked" flag means we only
-        // ever ask one time per device — never nags after that.
-        if (!strongName) {
+        // Prompt for a name ONCE if we couldn't resolve a strong one.
+        // Multiple gates so the modal never spams:
+        //  1. namePromptHandled.current — synchronous, blocks further opens
+        //     this session even before any async write completes.
+        //  2. lifecode.name_prompt_done in AsyncStorage — persists across
+        //     app restarts.
+        if (!strongName && !namePromptHandled.current) {
           let asked = '';
           try { asked = (await AsyncStorage.getItem('lifecode.name_prompt_done')) || ''; } catch {}
-          if (!asked) {
-            setDraftName(emailName);  // pre-fill with our best guess
+          if (asked) {
+            namePromptHandled.current = true;  // sync up the ref for this session
+          } else {
+            setDraftName(emailName);
             setAskName(true);
           }
         }
@@ -364,9 +372,10 @@ export default function SummaryScreen() {
 
       {/* One-time name setup. Shown only when we couldn't resolve a strong
           name from the user's account; dismissible and never shown again. */}
-      <Modal visible={askName} animationType="fade" transparent onRequestClose={async () => {
-        try { await AsyncStorage.setItem('lifecode.name_prompt_done', '1'); } catch {}
+      <Modal visible={askName} animationType="fade" transparent onRequestClose={() => {
+        namePromptHandled.current = true;
         setAskName(false);
+        AsyncStorage.setItem('lifecode.name_prompt_done', '1').catch(() => {});
       }}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={ns.backdrop}>
           <View style={ns.card}>
@@ -387,9 +396,10 @@ export default function SummaryScreen() {
             <View style={ns.row}>
               <TouchableOpacity
                 style={[ns.btn, ns.btnGhost]}
-                onPress={async () => {
-                  try { await AsyncStorage.setItem('lifecode.name_prompt_done', '1'); } catch {}
+                onPress={() => {
+                  namePromptHandled.current = true;
                   setAskName(false);
+                  AsyncStorage.setItem('lifecode.name_prompt_done', '1').catch(() => {});
                 }}
               >
                 <Text style={ns.btnGhostText}>Skip</Text>
@@ -405,13 +415,19 @@ export default function SummaryScreen() {
   );
 
   async function saveAskedName(value: string) {
-    const trimmed = value.trim();
-    try { await AsyncStorage.setItem('lifecode.name_prompt_done', '1'); } catch {}
+    // Set the synchronous gate FIRST. Even if the user is mashing buttons
+    // and useFocusEffect re-runs loadData immediately, the ref already
+    // blocks the modal from re-opening this session.
+    namePromptHandled.current = true;
     setAskName(false);
+
+    const trimmed = value.trim();
+    AsyncStorage.setItem('lifecode.name_prompt_done', '1').catch(() => {});
     if (!trimmed) return;
+
     setName(trimmed);
     setAvatarLetter((trimmed.charAt(0) || 'A').toUpperCase());
-    try { await AsyncStorage.setItem('lifecode.user_name', trimmed); } catch {}
+    AsyncStorage.setItem('lifecode.user_name', trimmed).catch(() => {});
     if (userId) {
       try {
         await supabase.from('profiles').upsert(
