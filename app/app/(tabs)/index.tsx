@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Pressable } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Pressable, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -45,6 +45,11 @@ export default function SummaryScreen() {
   const [mealsScanned, setMealsScanned] = useState(0);
   const [streak, setStreak] = useState(0);
 
+  // One-time name setup. Shows on first home load if we couldn't resolve a
+  // real name from profiles / user_metadata / a non-'Athlete' cache.
+  const [askName, setAskName] = useState(false);
+  const [draftName, setDraftName] = useState('');
+
   const today    = new Date();
   const dateLbl  = `${DAYS_SHORT[today.getDay()]} · ${MONTHS[today.getMonth()]} ${today.getDate()}`;
   const todayIso = today.toISOString().split('T')[0];
@@ -80,15 +85,26 @@ export default function SummaryScreen() {
         const localPart = (userEmail.split('@')[0] || '').split(/[^a-zA-Z]+/).find(s => s.length > 0) || '';
         const emailName = localPart ? localPart.charAt(0).toUpperCase() + localPart.slice(1).toLowerCase() : '';
 
-        const displayName =
-          p?.display_name || p?.full_name ||
-          metaName || goodCached ||
-          emailName || 'You';
+        // Strong name sources first: the user explicitly set this somewhere.
+        const strongName = p?.display_name || p?.full_name || metaName || goodCached || '';
+        const displayName = strongName || emailName || 'You';
         setName(displayName);
         setAvatarLetter((p?.avatar_letter || displayName.charAt(0) || 'A').toUpperCase());
-        // Persist a *real* name so other screens (welcome bubble) see it
-        if (displayName && displayName !== 'You') {
-          try { await AsyncStorage.setItem('lifecode.user_name', displayName); } catch {}
+
+        // If we don't have a STRONG name (only email-derived guess), prompt once
+        // so the user can confirm/correct it. Stored "asked" flag means we only
+        // ever ask one time per device — never nags after that.
+        if (!strongName) {
+          let asked = '';
+          try { asked = (await AsyncStorage.getItem('lifecode.name_prompt_done')) || ''; } catch {}
+          if (!asked) {
+            setDraftName(emailName);  // pre-fill with our best guess
+            setAskName(true);
+          }
+        }
+
+        if (strongName) {
+          try { await AsyncStorage.setItem('lifecode.user_name', strongName); } catch {}
         }
       } catch (e: any) { console.log('[home] profile read failed:', e?.message); }
 
@@ -345,8 +361,66 @@ export default function SummaryScreen() {
       </ScrollView>
 
       <MealScanOverlay visible={scanOpen} onClose={() => setScanOpen(false)} onSaved={loadData} totals={totals} />
+
+      {/* One-time name setup. Shown only when we couldn't resolve a strong
+          name from the user's account; dismissible and never shown again. */}
+      <Modal visible={askName} animationType="fade" transparent onRequestClose={async () => {
+        try { await AsyncStorage.setItem('lifecode.name_prompt_done', '1'); } catch {}
+        setAskName(false);
+      }}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={ns.backdrop}>
+          <View style={ns.card}>
+            <Text style={ns.title}>What should we call you?</Text>
+            <Text style={ns.sub}>Used in your dashboard, AI coach, and welcome screen.</Text>
+            <TextInput
+              style={ns.input}
+              value={draftName}
+              onChangeText={setDraftName}
+              placeholder="Your name"
+              placeholderTextColor={colors.ink3}
+              autoFocus
+              autoCapitalize="words"
+              returnKeyType="done"
+              onSubmitEditing={() => saveAskedName(draftName)}
+              maxLength={40}
+            />
+            <View style={ns.row}>
+              <TouchableOpacity
+                style={[ns.btn, ns.btnGhost]}
+                onPress={async () => {
+                  try { await AsyncStorage.setItem('lifecode.name_prompt_done', '1'); } catch {}
+                  setAskName(false);
+                }}
+              >
+                <Text style={ns.btnGhostText}>Skip</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[ns.btn, ns.btnPrimary]} onPress={() => saveAskedName(draftName)}>
+                <Text style={ns.btnPrimaryText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
+
+  async function saveAskedName(value: string) {
+    const trimmed = value.trim();
+    try { await AsyncStorage.setItem('lifecode.name_prompt_done', '1'); } catch {}
+    setAskName(false);
+    if (!trimmed) return;
+    setName(trimmed);
+    setAvatarLetter((trimmed.charAt(0) || 'A').toUpperCase());
+    try { await AsyncStorage.setItem('lifecode.user_name', trimmed); } catch {}
+    if (userId) {
+      try {
+        await supabase.from('profiles').upsert(
+          { id: userId, display_name: trimmed },
+          { onConflict: 'id' },
+        );
+      } catch {}
+    }
+  }
 }
 
 function LegendCol({ pct, name, gradient, color }: { pct: number; name: string; gradient?: string[]; color?: string }) {
@@ -461,4 +535,22 @@ const s = StyleSheet.create({
   packName: { fontFamily: fonts.sansSemiBold, fontSize: 14, color: colors.ink },
   packMeta: { fontFamily: fonts.sans, fontSize: 11, color: colors.ink3, marginTop: 2 },
   checkCircle: { width: 26, height: 26, borderRadius: 13, borderWidth: 1.5, borderColor: colors.line2, alignItems: 'center', justifyContent: 'center' },
+});
+
+const ns = StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: 'rgba(10,10,11,0.55)', justifyContent: 'center', paddingHorizontal: 22 },
+  card: { backgroundColor: colors.surf, borderRadius: radii.card, padding: 22, gap: 14 },
+  title: { fontFamily: fonts.serifItalic, fontSize: 24, color: colors.ink, letterSpacing: -0.5 },
+  sub: { fontFamily: fonts.sans, fontSize: 13, color: colors.ink3, marginTop: -6 },
+  input: {
+    fontFamily: fonts.sansSemiBold, fontSize: 18, color: colors.ink,
+    borderBottomWidth: 1.5, borderBottomColor: colors.line2,
+    paddingVertical: 10, marginTop: 6,
+  },
+  row: { flexDirection: 'row', gap: 10, marginTop: 8 },
+  btn: { flex: 1, paddingVertical: 14, borderRadius: 999, alignItems: 'center' },
+  btnGhost: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.line2 },
+  btnGhostText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.ink3, letterSpacing: 1.2 },
+  btnPrimary: { backgroundColor: colors.ink },
+  btnPrimaryText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: '#fff', letterSpacing: 1.2 },
 });
