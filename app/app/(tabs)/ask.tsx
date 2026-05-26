@@ -224,8 +224,9 @@ When the user asks how they feel, are deficient, or what to add: read TODAY'S DA
             } : null,
             messages: [...messages.filter(m => m.id !== 1), userMsg]
               .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', text: m.text })),
-            // Send ALL nutrients with category + pct so the AI can speak
-            // about ring impact and prioritize the lowest %.
+            // Send ALL nutrients with category + pct + food sources so the AI
+            // can speak about ring impact, prioritize the lowest %, and
+            // recommend specific foods to close each gap.
             micros: freshTotals?.rows
               ?.filter(r => r.target > 0)
               ?.map(r => ({
@@ -235,6 +236,7 @@ When the user asks how they feel, are deficient, or what to add: read TODAY'S DA
                 target:   Math.round(r.target   * 100) / 100,
                 unit:     r.unit,
                 pct:      r.pct,
+                foodTip:  r.foodTip || '',
               })) || [],
           }),
         });
