@@ -27,11 +27,21 @@ export async function GET(req: NextRequest) {
     if (!admin) return NextResponse.json({ error: 'server not configured' }, { status: 500 });
 
     const date = req.nextUrl.searchParams.get('date') || new Date().toISOString().split('T')[0];
-    const startISO = `${date}T00:00:00.000Z`;
-    const endISO = `${date}T23:59:59.999Z`;
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    sevenDaysAgo.setHours(0, 0, 0, 0);
+    // tzOffset = minutes WEST of UTC (matches JS Date.getTimezoneOffset).
+    // Romania/Moldova in summer (EEST) is UTC+3 → offset is -180.
+    // We use it to build the day's bounds in the USER'S local timezone, so the
+    // Today rings reset at local 00:00 and intake stamps from 22:00-23:59 local
+    // (which fall on UTC yesterday in some zones) still belong to the right day.
+    const tzOffsetParam = req.nextUrl.searchParams.get('tz');
+    const tzOffsetMin = tzOffsetParam != null && !Number.isNaN(Number(tzOffsetParam))
+      ? Number(tzOffsetParam) : 0;
+    const dayStart = new Date(`${date}T00:00:00.000Z`);
+    dayStart.setTime(dayStart.getTime() + tzOffsetMin * 60_000);
+    const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000 - 1);
+    const startISO = dayStart.toISOString();
+    const endISO   = dayEnd.toISOString();
+
+    const sevenDaysAgo = new Date(dayStart.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     const [profileRes, todayIntake, todayMeals, memories, weekIntake, weekMeals] = await Promise.all([
       admin.from('profiles').select('*').eq('id', userId).maybeSingle(),

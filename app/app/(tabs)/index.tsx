@@ -10,8 +10,8 @@ import MealScanOverlay from '../../src/components/MealScanOverlay';
 import { colors, fonts, gradients, radii, shadows } from '../../src/theme';
 import { supabase } from '../../src/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchDailyTotals, recomputeWithPacks, fetchWeekPcts, DailyTotals } from '../../src/lib/dailyTotals';
-import { logIntake, untakeIntake } from '../../src/lib/api';
+import { fetchDailyTotals, recomputeWithPacks, fetchWeekPcts, localDateIso, DailyTotals } from '../../src/lib/dailyTotals';
+import { logIntake, untakeIntake, saveProfileName } from '../../src/lib/api';
 import { ensureSession } from '../../src/lib/session';
 
 const DAYS_SHORT  = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -55,7 +55,9 @@ export default function SummaryScreen() {
 
   const today    = new Date();
   const dateLbl  = `${DAYS_SHORT[today.getDay()]} · ${MONTHS[today.getMonth()]} ${today.getDate()}`;
-  const todayIso = today.toISOString().split('T')[0];
+  // Local date — must match what /api/me/state filters by, otherwise the ring
+  // and the date header drift apart between local 00:00 and UTC 00:00.
+  const todayIso = localDateIso(today);
 
   const loadData = async () => {
     try {
@@ -94,13 +96,18 @@ export default function SummaryScreen() {
         setName(displayName);
         setAvatarLetter((p?.avatar_letter || displayName.charAt(0) || 'A').toUpperCase());
 
-        // Prompt for a name ONCE if we couldn't resolve a strong one.
-        // Multiple gates so the modal never spams:
-        //  1. namePromptHandled.current — synchronous, blocks further opens
-        //     this session even before any async write completes.
-        //  2. lifecode.name_prompt_done in AsyncStorage — persists across
-        //     app restarts.
-        if (!strongName && !namePromptHandled.current) {
+        // If profiles.display_name is missing but we have a strong name from
+        // elsewhere (user_metadata / cache), backfill via server (RLS blocks
+        // direct profile writes from the app). Fire-and-forget — we already
+        // have the name in local state.
+        if (!p?.display_name && strongName) {
+          saveProfileName(strongName).catch(() => {});
+        }
+
+        // Prompt for a name ONCE if we couldn't resolve ANY name at all —
+        // not even from the email prefix. Previously this fired even when the
+        // user had a usable email-derived name, which felt like spam.
+        if (!strongName && !emailName && !namePromptHandled.current) {
           let asked = '';
           try { asked = (await AsyncStorage.getItem('lifecode.name_prompt_done')) || ''; } catch {}
           if (asked) {
@@ -170,12 +177,13 @@ export default function SummaryScreen() {
 
   useFocusEffect(useCallback(() => { loadData(); }, []));
 
-  // Midnight rollover: poll every 30s, reload when the calendar day changes
-  // so the rings reset and a fresh week-cell appears.
+  // Midnight rollover: poll every 30s and reload when the LOCAL calendar day
+  // changes. Previously this checked UTC date — in EET/EEST that meant the
+  // rings stayed on yesterday's values for the first 2-3 hours of each day.
   const lastDateRef = useRef(todayIso);
   useEffect(() => {
     const tick = setInterval(() => {
-      const now = new Date().toISOString().split('T')[0];
+      const now = localDateIso(new Date());
       if (now !== lastDateRef.current) {
         lastDateRef.current = now;
         loadData();
@@ -217,8 +225,11 @@ export default function SummaryScreen() {
     } catch (e: any) {
       console.log('[home] markTaken threw:', e?.message);
     }
-    // Re-sync with the DB in the background so week/streak counters stay accurate
-    loadData();
+    // Do NOT call loadData() here. It re-fetches /api/me/state which can be
+    // CDN-stale or arrive before the DELETE row is gone — in either case it
+    // would flip the rings back to "taken", which is exactly the bug the user
+    // reported ("apas a doua oara si se pun la loc"). The optimistic state
+    // above is authoritative; the next pull-to-refresh or focus event syncs.
   };
 
   const morningPct    = totals?.morningPct    ?? 0;
@@ -428,14 +439,9 @@ export default function SummaryScreen() {
     setName(trimmed);
     setAvatarLetter((trimmed.charAt(0) || 'A').toUpperCase());
     AsyncStorage.setItem('lifecode.user_name', trimmed).catch(() => {});
-    if (userId) {
-      try {
-        await supabase.from('profiles').upsert(
-          { id: userId, display_name: trimmed },
-          { onConflict: 'id' },
-        );
-      } catch {}
-    }
+    // Server upsert — RLS-safe and works even when AsyncStorage is broken
+    // (then the name still persists in the database for next session).
+    if (userId) saveProfileName(trimmed).catch(() => {});
   }
 }
 

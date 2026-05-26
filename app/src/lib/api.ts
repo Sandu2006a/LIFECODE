@@ -85,10 +85,19 @@ async function authFetch(path: string, init?: RequestInit) {
   return lifecodeFetch(path, { ...init, headers });
 }
 
+// Defensive JSON parse — some Vercel/CDN edges return an empty body on DELETE
+// even when the operation succeeded. Treat empty body on a 2xx response as ok.
+async function readJsonSafe(res: Response): Promise<any> {
+  const text = await res.text();
+  if (!text) return {};
+  try { return JSON.parse(text); }
+  catch { return { _raw: text }; }
+}
+
 export async function logIntake(pack: 'morning' | 'recovery'): Promise<{ ok: boolean; error?: string }> {
   try {
     const res = await authFetch('/api/intake', { method: 'POST', body: JSON.stringify({ pack }) });
-    const json = await res.json();
+    const json = await readJsonSafe(res);
     if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
     return { ok: true };
   } catch (e: any) {
@@ -101,7 +110,28 @@ export async function logIntake(pack: 'morning' | 'recovery'): Promise<{ ok: boo
 export async function untakeIntake(pack: 'morning' | 'recovery'): Promise<{ ok: boolean; error?: string }> {
   try {
     const res = await authFetch(`/api/intake?pack=${encodeURIComponent(pack)}`, { method: 'DELETE' });
-    const json = await res.json();
+    const json = await readJsonSafe(res);
+    if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
+    return { ok: true };
+  } catch (e: any) {
+    return { ok: false, error: e.message || 'network error' };
+  }
+}
+
+// Server-side write for profiles.display_name. RLS blocks direct supabase
+// writes from the app, so AsyncStorage + this endpoint together are the only
+// way to make a chosen name stick across screens and restarts.
+export async function saveProfileName(name: string): Promise<{ ok: boolean; error?: string }> {
+  const trimmed = (name || '').trim();
+  if (!trimmed) return { ok: false, error: 'empty name' };
+  try {
+    const { userId } = await (await import('./session')).ensureSession();
+    if (!userId) return { ok: false, error: 'not authenticated' };
+    const res = await authFetch('/api/save-profile', {
+      method: 'POST',
+      body: JSON.stringify({ user_id: userId, display_name: trimmed }),
+    });
+    const json = await readJsonSafe(res);
     if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
     return { ok: true };
   } catch (e: any) {

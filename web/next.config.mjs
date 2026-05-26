@@ -23,15 +23,26 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        // Marketing site only — every non-API path. Caching /api/* at the edge
+        // was breaking the app: after a pack un-tick, GET /api/me/state served
+        // a stale (still-taken) snapshot from cache for 5 min, so the rings
+        // re-filled themselves moments after the user un-ticked the pack.
+        source: '/:path((?!api/).*)',
         headers: [
-          // Hint to Cloudflare that this is a normal HTML page (not bot-API)
           { key: 'Cache-Control', value: 'public, s-maxage=300, stale-while-revalidate=600' },
           { key: 'Vary', value: 'Accept-Encoding' },
-          // Permissions-Policy that Cloudflare's bot detector recognizes
           { key: 'Permissions-Policy', value: 'interest-cohort=()' },
-          // Allow framing from same origin (some captive portals embed)
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+        ],
+      },
+      {
+        // All API routes: never cache. Reads must reflect the user's latest
+        // writes (intake taken/un-taken, meal logged, profile updated).
+        source: '/api/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'no-store' },
         ],
       },
       {

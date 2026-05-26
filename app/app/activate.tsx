@@ -9,7 +9,7 @@ import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../src/lib/supabase';
 import { cacheAuth, checkOnboardingDone } from '../src/lib/auth-cache';
-import { lifecodeFetch, API_URL } from '../src/lib/api';
+import { lifecodeFetch, API_URL, saveProfileName } from '../src/lib/api';
 import { colors, fonts, radii, gradients } from '../src/theme';
 
 const CODE_LEN = 5;
@@ -99,9 +99,22 @@ export default function ActivateScreen() {
         // Only overwrite cache with a *real* name — never downgrade to 'Athlete'
         if (fullName !== 'Athlete') {
           await AsyncStorage.setItem('lifecode.user_name', fullName);
+          // Also clear the "ask for name" flag — we have a real name now,
+          // so the one-time setup modal on home must never appear.
+          await AsyncStorage.setItem('lifecode.name_prompt_done', '1');
         }
         console.log('[activate] flags set, name persisted:', fullName);
       } catch (e: any) { console.log('[activate] flag save failed:', e?.message); }
+
+      // Backfill profiles.display_name via the server (RLS blocks direct app
+      // writes). The /api/app/activate route already self-heals user_metadata
+      // → profiles, but only when user_metadata has a name. This call covers
+      // the case where neither metadata nor profile had it before — and works
+      // even when AsyncStorage is broken in the current Expo Go session.
+      if (uid && fullName && fullName !== 'Athlete') {
+        const r = await saveProfileName(fullName);
+        if (!r.ok) console.log('[activate] profile name backfill failed:', r.error);
+      }
 
       setUserId(uid);
       setUserName(fullName.split(' ')[0]);

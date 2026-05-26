@@ -103,12 +103,26 @@ export async function POST(req: NextRequest) {
 
     const model = getGenAI().getGenerativeModel({ model: 'gemini-2.5-pro' });
 
-    const microsContext = micros
-      ? micros.map((m: { label: string; current: number; target: number; unit: string }) =>
-          `  ${m.label}: ${m.current}/${m.target}${m.unit}`).join('\n')
+    type Micro = { label: string; current: number; target: number; unit: string; pct?: number; category?: string };
+    const microList: Micro[] = Array.isArray(micros) ? micros : [];
+
+    // Sort low → high so the AI sees the WORST deficits first; show pct + category
+    // so it can speak in the same terms as the rings (Morning / Essentials / Recovery).
+    const sortedMicros = [...microList].sort((a, b) => (a.pct ?? 100) - (b.pct ?? 100));
+    const microsContext = sortedMicros.length > 0
+      ? sortedMicros.map(m => {
+          const pct = typeof m.pct === 'number' ? m.pct : (m.target > 0 ? Math.round((m.current / m.target) * 100) : 0);
+          const cat = m.category ? ` [${m.category}]` : '';
+          return `  ${m.label}${cat}: ${m.current}/${m.target}${m.unit} — ${pct}%`;
+        }).join('\n')
       : '  No micro data.';
 
-    const systemContext = `You are LIFECODE AI — an elite sports scientist and nutritionist with long-term memory.
+    const lowMicros = sortedMicros.filter(m => (typeof m.pct === 'number' ? m.pct : 0) < 60).slice(0, 6);
+    const lowSummary = lowMicros.length > 0
+      ? lowMicros.map(m => `${m.label} ${m.pct ?? 0}%`).join(', ')
+      : 'no notable deficits';
+
+    const systemContext = `You are LIFECODE AI — an elite sports scientist and nutritionist with long-term memory. Reply in the language the athlete writes to you (Romanian or English).
 
 ATHLETE: ${profile?.name}, ${profile?.gender}, ${profile?.age}y, ${profile?.height}cm, ${profile?.weight}kg
 SPORT: ${profile?.sport || 'General'} — Best: ${profile?.result || 'n/a'}
@@ -122,18 +136,35 @@ ${foodSummary}
 ═══ TODAY'S WORKOUT SCHEDULE ═══
 ${workoutSummary}
 
-═══ MICRONUTRIENT TRACKING ═══
+═══ TODAY'S PROGRESS RINGS (current/target — % filled) ═══
 ${microsContext}
+
+CURRENT LOW NUTRIENTS (<60%): ${lowSummary}
+
+═══ DEFICIT → SYMPTOM MAP (use when the athlete describes how they feel) ═══
+- Vitamin D3 low → low mood, slow recovery, frequent colds, weak bones
+- Vitamin B12 / B-Complex low → fatigue, brain fog, poor concentration, low energy in training
+- Iron / Vitamin C low → tiredness, breathlessness, pale skin, slow endurance recovery
+- Magnesium low → muscle cramps, twitches, restless sleep, anxiety, headaches
+- Zinc low → slow wound healing, weak immunity, hormonal dips
+- Omega-3 low → joint stiffness, persistent inflammation, mood swings
+- Potassium / Sodium low → cramps, dizziness on standing, weak pumps in training
+- Calcium / Vitamin K2 low → weaker bones, slower recovery from impact training
+- EAA / Creatine / HMB low (no Recovery Pack) → poor muscle recovery, soreness lingers, less strength next session
+- Maltodextrin / Tart Cherry low (no Recovery Pack) → glycogen not replenished, more next-day soreness
 
 ═══ RULES ═══
 1. Keep responses 2-4 sentences unless detail requested.
-2. Always apply long-term memory in advice.
-3. When the user mentions eating/drinking, append on a new line:
+2. When the athlete says they feel tired / sore / weak / foggy / can't sleep / cramping / "ma simt rau" / "obosit" / etc. → ALWAYS open by naming the 1-3 LOWEST progress rings above and connect them to the symptom. Quote the exact % (e.g. "B12 is only at 18% today — that's why the fog").
+3. When the athlete asks "how am I doing" / "ce-mi lipseste" → list the 3 lowest rings with % and one concrete food OR pack action to close each gap.
+4. Reference the rings by their category names: Morning ring, Essentials ring, Recovery ring. Tell them which pack (code·charge AM = Morning Pack, code·build PM = Recovery Pack) would close gaps fastest.
+5. Always apply long-term memory in advice.
+6. When the user mentions eating/drinking, append on a new line:
    LOG_FOOD:{"meal":"<name>","quantity_g":<grams>}
    Use realistic gram estimates (orange ~150g, apple ~180g, eggs ~50g each, chicken ~150g).
-4. When the user shares a personal insight, preference, allergy, or training fact, append:
+7. When the user shares a personal insight, preference, allergy, or training fact, append:
    SAVE_MEMORY:{"memory":"<fact in 3rd person>","category":"nutrition|training|recovery|preference|schedule|health"}
-5. Never mention the LOG_FOOD or SAVE_MEMORY tags in human-readable text.`;
+8. Never mention the LOG_FOOD or SAVE_MEMORY tags in human-readable text.`;
 
     const history = messages.slice(0, -1).map((m: { role: string; text: string }) => ({
       role: m.role === 'user' ? 'user' : 'model',
