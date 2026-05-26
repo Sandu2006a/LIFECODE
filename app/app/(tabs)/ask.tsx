@@ -210,6 +210,10 @@ When the user asks how they feel, are deficient, or what to add: read TODAY'S DA
         const { accessToken, userId: uid } = await ensureSession();
         const res = await lifecodeFetch('/api/chat', {
           method: 'POST',
+          // Gemini 2.5 Pro with the deficit-analysis prompt routinely takes
+          // 15-30s. Default 10s timeout aborted the request before the server
+          // could respond, which surfaced as "AbortError: Aborted" in the UI.
+          timeoutMs: 55_000,
           headers: { 'Content-Type': 'application/json', ...authHeaders(accessToken) },
           body: JSON.stringify({
             user_id: uid,

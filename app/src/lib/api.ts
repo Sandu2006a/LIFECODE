@@ -23,7 +23,7 @@ function withTimeout(ms: number, signal?: AbortSignal): { signal: AbortSignal; c
 }
 
 // Drop-in replacement for fetch that:
-//  • adds a 10s timeout (otherwise blocked WiFi hangs forever),
+//  • adds a configurable timeout (default 10s; long Gemini calls need 55s),
 //  • retries each fallback URL until one succeeds,
 //  • detects HTML responses from captive portals / proxies / 404 pages
 //    and treats them as failures (so we retry the next fallback URL
@@ -31,16 +31,19 @@ function withTimeout(ms: number, signal?: AbortSignal): { signal: AbortSignal; c
 //  • caches which hosts are dead for the session.
 //
 // Pass `expectJson: false` for endpoints that legitimately return non-JSON.
+// Pass `timeoutMs` to override the default 10s — required for /api/chat and
+// other Gemini-backed routes that take 15-30s on Vercel Hobby.
 export async function lifecodeFetch(
   path: string,
-  init?: RequestInit & { expectJson?: boolean },
+  init?: RequestInit & { expectJson?: boolean; timeoutMs?: number },
 ): Promise<Response> {
   const expectJson = init?.expectJson !== false;
+  const timeoutMs  = init?.timeoutMs ?? 10_000;
   let lastError: any = null;
   for (const base of API_FALLBACKS) {
     if (_deadHosts.has(base)) continue;
     const url = `${base}${path}`;
-    const { signal, cancel } = withTimeout(10_000);
+    const { signal, cancel } = withTimeout(timeoutMs);
     try {
       const res = await fetch(url, { ...init, signal });
       cancel();
