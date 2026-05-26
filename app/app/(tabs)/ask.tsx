@@ -117,25 +117,45 @@ export default function AskScreen() {
   const [totals, setTotals] = useState<DailyTotals | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) return;
-      setUserId(data.user.id);
+    (async () => {
+      // supabase.auth.getUser() returns null in Expo Go even when authenticated
+      // (per CLAUDE.md). ensureSession() combines live session + cached tokens
+      // and is the only reliable way to get a userId in this environment.
+      // Without this, totals stayed null → micros = [] → AI replied "I don't
+      // have specific micronutrient data" which is the bug the user reported.
+      const { userId: uid } = await ensureSession();
+      if (!uid) { console.log('[ask] no auth session'); return; }
+      setUserId(uid);
 
-      const { data: p } = await supabase
-        .from('profiles')
-        .select('display_name, full_name, sport, age, weight_kg, height_cm, gender, goal, avatar_letter')
-        .eq('id', data.user.id)
-        .maybeSingle();
+      let p: any = null;
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('display_name, full_name, sport, age, weight_kg, height_cm, gender, goal, avatar_letter, email')
+          .eq('id', uid)
+          .maybeSingle();
+        p = data;
+      } catch {}
+
+      let userEmail = '';
+      let metaName = '';
+      try {
+        const { data: ud } = await supabase.auth.getUser();
+        userEmail = ud?.user?.email || '';
+        metaName  = ud?.user?.user_metadata?.display_name
+                 || ud?.user?.user_metadata?.full_name
+                 || '';
+      } catch {}
 
       let cachedName = '';
       try { cachedName = (await AsyncStorage.getItem('lifecode.user_name')) || ''; } catch {}
-      const metaName = data.user.user_metadata?.display_name
-                    || data.user.user_metadata?.full_name
-                    || '';
+      const goodCached = cachedName && cachedName !== 'Athlete' ? cachedName : '';
+
       const name =
         p?.display_name || p?.full_name ||
-        metaName || cachedName ||
-        data.user.email?.split('@')[0] || 'Athlete';
+        metaName || goodCached ||
+        (userEmail || p?.email || '').split('@')[0] || 'Athlete';
+
       const prof = {
         name,
         avatarLetter: (p?.avatar_letter || name.charAt(0) || 'A').toUpperCase(),
@@ -148,15 +168,20 @@ export default function AskScreen() {
       };
       setProfile(prof);
 
-      // Prime today's nutrient snapshot
-      try { setTotals(await fetchDailyTotals(data.user.id)); } catch {}
+      // Prime today's nutrient snapshot — this is what feeds the AI's micros
+      // payload. Without it, the AI answers "no data" to every deficit question.
+      try {
+        const t = await fetchDailyTotals(uid);
+        setTotals(t);
+        console.log('[ask] totals loaded:', t?.rows?.length || 0, 'rows');
+      } catch (e: any) { console.log('[ask] fetchDailyTotals failed:', e?.message); }
 
       setMessages([{
         id: 1,
         role: 'ai',
         text: `Hi ${name}. Ask me how you're tracking today — I can see your packs, meals, and where you're short.`,
       }]);
-    });
+    })();
   }, []);
 
   const buildSystemPrompt = (p: typeof profile, t: DailyTotals | null) => {
@@ -189,10 +214,18 @@ When the user asks how they feel, are deficient, or what to add: read TODAY'S DA
     setLoading(true);
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
 
-    // Refresh today's data so the AI sees the most recent meal/pack state
+    // Refresh today's data so the AI sees the most recent meal/pack state.
+    // If userId is missing, also try ensureSession once more — this is the
+    // path that caused the "I don't have specific micronutrient data" reply
+    // when supabase.auth.getUser() returned null in Expo Go on first ask.
     let freshTotals = totals;
-    if (userId) {
-      try { freshTotals = await fetchDailyTotals(userId); setTotals(freshTotals); } catch {}
+    let uid = userId;
+    if (!uid) {
+      try { uid = (await ensureSession()).userId || null; if (uid) setUserId(uid); } catch {}
+    }
+    if (uid) {
+      try { freshTotals = await fetchDailyTotals(uid); setTotals(freshTotals); }
+      catch (e: any) { console.log('[ask] sendText fetchDailyTotals failed:', e?.message); }
     }
 
     const history = [...messages.filter(m => m.id !== 1), userMsg]
