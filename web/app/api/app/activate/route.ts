@@ -71,25 +71,29 @@ export async function POST(req: NextRequest) {
 
     const metaName = user.user_metadata?.display_name || user.user_metadata?.full_name || null;
 
-    // Self-healing migration: if the user signed up via a path that wrote the
-    // name only into user_metadata (not profiles), backfill profiles now so
-    // every subsequent read sees a consistent name. This also handles users
-    // who had no profiles row at all yet.
-    if (!profileName && metaName) {
+    // Self-healing migration: ensure profiles ALWAYS has a display_name after
+    // activate, even if the only thing we have is the email prefix. Without
+    // this, users who signed up via paths that skipped user_metadata kept
+    // seeing "You" / "Athlete" in the app no matter how many times they logged
+    // in (the app-side fallback couldn't reach this row, and supabase.auth.
+    // getUser() is unreliable in Expo Go).
+    const emailPrefix = user.email?.split('@')[0] || '';
+    const prettyEmailName = emailPrefix
+      ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1).toLowerCase()
+      : '';
+    const bestName = profileName || metaName || prettyEmailName || 'Athlete';
+
+    if (!profileName && bestName && bestName !== 'Athlete') {
       try {
         await admin.from('profiles').upsert(
-          { id: user.id, display_name: metaName },
+          { id: user.id, display_name: bestName, full_name: bestName },
           { onConflict: 'id' },
         );
-        profileName = metaName;
+        profileName = bestName;
       } catch {}
     }
 
-    const name =
-      profileName ||
-      metaName ||
-      user.email?.split('@')[0] ||
-      'Athlete';
+    const name = bestName;
 
     return NextResponse.json({
       email: user.email,

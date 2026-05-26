@@ -154,7 +154,10 @@ export async function fetchWeekPcts(): Promise<DayPct[]> {
   const week: { iso: string; start: Date; end: Date }[] = [];
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday); d.setDate(monday.getDate() + i);
-    const iso = d.toISOString().split('T')[0];
+    // Local ISO — toISOString() gives UTC date which can differ from the
+    // user's calendar day by 2-3h in EET/EEST and the Today cell of the week
+    // strip would drift out of sync with the Life Ring at midnight.
+    const iso = localDateIso(d);
     const start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
     const end   = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
     week.push({ iso, start, end });
@@ -162,6 +165,13 @@ export async function fetchWeekPcts(): Promise<DayPct[]> {
 
   const server = await fetchServerState();
   const profile = server?.profile ? profileFromDb(server.profile) : DEFAULT_PROFILE;
+  // SAME micro_targets override as fetchDailyTotals — without this, the week
+  // strip and Today's Life Ring compute different denominators and the
+  // percentages diverge (this was the user's bug: "ringurile de la this week
+  // nu sunt sincronizate cu cele de la today").
+  const microTargets = (server?.profile?.micro_targets && typeof server.profile.micro_targets === 'object')
+    ? server.profile.micro_targets as Record<string, number>
+    : null;
 
   for (const day of week) {
     const startMs = day.start.getTime();
@@ -188,7 +198,10 @@ export async function fetchWeekPcts(): Promise<DayPct[]> {
       }
     });
 
-    const rows = computeDailyTargets(profile, morningTaken, recoveryTaken, foodTotals);
+    const rows = applyMicroTargetsOverride(
+      computeDailyTargets(profile, morningTaken, recoveryTaken, foodTotals),
+      microTargets,
+    );
     out.push({
       iso: day.iso,
       morningPct:    sectionAverage(rows, 'morning'),

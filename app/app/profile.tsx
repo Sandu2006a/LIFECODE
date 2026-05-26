@@ -130,19 +130,31 @@ export default function ProfileScreen() {
     try { cachedName = (await AsyncStorage.getItem('lifecode.user_name')) || ''; } catch {}
     const goodCached = cachedName && cachedName !== 'Athlete' ? cachedName : '';
 
+    // Build the email pool — supabase.auth.getUser() is unreliable in Expo Go,
+    // but /api/me/state's profile row carries the email column. Use whichever
+    // we managed to get; nameFromEmail handles empty input by returning ''.
+    const bestEmail = userEmail || p?.email || '';
+
     const resolvedName =
       p?.display_name ||
       p?.full_name ||
       userMetaName ||
       goodCached ||
-      nameFromEmail(userEmail) ||
+      nameFromEmail(bestEmail) ||
       'You';
 
     setName(resolvedName);
-    // Persist whatever we resolved so other screens (home, activate welcome)
-    // see the same name from cache. Never persist the 'You' fallback.
+    // Persist whatever we resolved so other screens see it next time, AND
+    // backfill profiles.display_name on the server so future sessions never
+    // need any of these fallbacks. This is the canonical fix for "profilul
+    // arata oricum You sau Athlete" — without it, every reload re-derives
+    // the name from scratch and lands on the same wrong fallback.
     if (resolvedName && resolvedName !== 'You') {
       try { await AsyncStorage.setItem('lifecode.user_name', resolvedName); } catch {}
+      if (!p?.display_name) {
+        const { saveProfileName } = await import('../src/lib/api');
+        saveProfileName(resolvedName).catch(() => {});
+      }
     }
     setEmail(p?.email || userEmail || '');
     setSport(p?.sport || p?.goal || '');
