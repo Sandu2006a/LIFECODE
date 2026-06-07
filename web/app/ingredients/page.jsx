@@ -79,7 +79,7 @@ const MORNING = [
   {
     name: 'Magnesium Citrate',
     form: 'Magnesium Citrate',
-    dose: '350 mg',
+    dose: '200 mg',
     img: '/ingrediente/magnesium.png',
     desc: 'The most consistently depleted mineral in hard-training athletes. Governs over 300 enzymatic reactions including muscle relaxation, ATP synthesis, nervous system recovery, and sleep architecture. Citrate form absorbs without digestive disruption.',
   },

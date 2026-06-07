@@ -119,7 +119,7 @@ const MORNING = [
   },
   {
     name: 'Magnesium Citrate',
-    dose: '350 mg',
+    dose: '200 mg',
     form: true,
     formText: 'Magnesium citrate has ~30% bioavailability — significantly higher than magnesium oxide (4%). Most supplements use oxide because it\'s cheap. We use citrate because it works.',
     science: 'Magnesium is a cofactor in over 300 enzymatic reactions. Clinical research shows magnesium supplementation reduces fatigue, supports muscle function, and improves sleep quality. Subclinical deficiency is estimated at 50–80% of the general population on Western diets.',

@@ -24,7 +24,7 @@ const MORNING_ADVANTAGE = [
   { ingredient: 'Vitamin D3',           advantage: ['Full ', '1000 IU of D3', ' — the form your body actually uses. Most products use D2, which is ', '3x less effective', '.'] },
   { ingredient: 'Vitamin K2 (MK-7)',    advantage: ['Paired with D3 to direct calcium into ', 'bones, not arteries', '. Competitors rarely include this — we consider it non-negotiable.'] },
   { ingredient: 'Vitamin C',            advantage: ['Calcium Ascorbate — ', 'buffered, stomach-friendly, fully absorbed', '. Not the cheap acidic form.'] },
-  { ingredient: 'Magnesium',            advantage: ['Citrate form absorbs ', '4x better than Oxide', '. 350mg covers your full daily need — not a token dose.'] },
+  { ingredient: 'Magnesium',            advantage: ['Citrate form absorbs ', '4x better than Oxide', '. 200mg, a clinically dosed amount — not a token dose.'] },
   { ingredient: 'Zinc',                 advantage: ['Bisglycinate form — ', '43% better absorption', ', no interference with other minerals.'] },
   { ingredient: 'Iodine + Selenium',    advantage: ['Both at full NRV. The thyroid needs ', 'both together', ' — one without the other doesn\'t work properly.'] },
   { ingredient: 'Adaptogens',           advantage: ['150mg Rhodiola standardised to ', '3% Rosavins', ' — the clinical concentration. Unstandardised extracts are just filler.'] },

@@ -1,4 +1,4 @@
-﻿export const PRODUCTS_DATA = {
+export const PRODUCTS_DATA = {
   morning: {
     slug: 'morning',
     phase: '01',
@@ -85,7 +85,7 @@
       {
         name: 'Magnesium',
         form: 'Magnesium Citrate',
-        dose: '350 mg',
+        dose: '200 mg',
         image: '/ingrediente/magnesium.png',
         what: 'ATP Production & Muscle Function',
         why: 'Magnesium is a cofactor in over 300 enzymatic reactions, including every step of ATP synthesis. Without sufficient intracellular magnesium, energy production stalls. Citrate form is selected for its superior absorption and gentle gastrointestinal profile. Athletes lose up to 20% more magnesium through sweat than sedentary individuals, making deficiency the most common performance-limiting micronutrient deficit.',
