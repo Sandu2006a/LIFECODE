@@ -47,8 +47,8 @@ const PRINCIPLES = [
 ];
 
 const PHASES = [
-  { name: 'Morning Pak',       desc: 'Sets the day. Clinically dosed vitamins, minerals, and methylated B-complex for performance and immune function.', color: ORANGE },
-  { name: 'Anabolic Recovery', desc: 'Rebuilds it. EAAs, creatine, HMB, tart cherry — everything the body needs post-training.', color: VIOLET },
+  { name: 'code·charge',  desc: 'Sets the day. Clinically dosed vitamins, minerals, and methylated B-complex for performance and immune function.', color: ORANGE },
+  { name: 'code·build',   desc: 'Rebuilds it. EAAs, creatine, HMB, tart cherry — everything the body needs post-training.', color: VIOLET },
 ];
 
 const LIES = [
