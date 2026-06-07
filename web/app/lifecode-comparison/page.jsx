@@ -179,7 +179,7 @@ export default function ComparisonPage() {
             <div className="flex gap-1.5 mb-12 p-1 rounded-full border border-[#eee] w-fit bg-[#fafafa]">
               {[
                 { key: 'morning',  label: 'code·charge' },
-                { key: 'recovery', label: 'Anabolic Recovery' },
+                { key: 'recovery', label: 'code·rebuild' },
               ].map(({ key, label }) => (
                 <button key={key} onClick={() => setTab(key)}
                   className="px-5 py-2.5 rounded-full font-sans font-700 text-[11px] tracking-[0.18em] uppercase transition-all duration-300"
@@ -239,7 +239,7 @@ export default function ComparisonPage() {
               </div>
             )}
 
-            {/* Anabolic Recovery */}
+            {/* code·rebuild */}
             {tab === 'recovery' && (
               <div>
                 <h2 className="font-sans font-700 text-[#111] text-xl md:text-2xl tracking-tight mb-1">
@@ -265,7 +265,7 @@ export default function ComparisonPage() {
                           <div style={{ padding: '1.5px', borderRadius: '12px', background: PURPLE }}>
                             <div className="bg-white py-3 px-3 text-center" style={{ borderRadius: '10.5px' }}>
                               <p className="font-sans font-700 text-sm" style={{ color: PURPLE }}>Life Code</p>
-                              <p className="font-body text-[11px] text-[#999] tracking-wide uppercase mt-0.5">Anabolic Recovery</p>
+                              <p className="font-body text-[11px] text-[#999] tracking-wide uppercase mt-0.5">code·rebuild</p>
                             </div>
                           </div>
                         </th>
