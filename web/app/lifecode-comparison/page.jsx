@@ -329,7 +329,7 @@ export default function ComparisonPage() {
             <nav className="flex flex-wrap items-center justify-center gap-6">
               {[
                 ['code·charge',      '/products/morning'],
-                ['code·build',     '/products/recovery'],
+                ['code·rebuild',     '/products/recovery'],
                 ['Ingredients',       '/ingredients'],
                 ['Comparisons',       '/lifecode-comparison'],
                 ['Ecosystem',         '/#ecosystem'],

@@ -206,7 +206,7 @@ const ACTIVE = [
   {
     slug: 'recovery',
     phase: '04',
-    title: 'code·build',
+    title: 'code·rebuild',
     tagline: 'Rebuild.',
     accentColor: '#E8631A',
     image: '/Recov_deschis.png',

@@ -29,7 +29,7 @@ const BLACK  = '#0F172A';
 
 const NAV_LINKS = [
   ['code·charge',  '/products/morning'],
-  ['code·build',   '/products/recovery'],
+  ['code·rebuild',   '/products/recovery'],
   ['The Science',  '/science'],
   ['Ingredients',  '/ingredients'],
   ['Comparisons',  '/lifecode-comparison'],

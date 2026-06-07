@@ -104,7 +104,7 @@
   recovery: {
     slug: 'recovery',
     phase: '04',
-    title: 'code·build',
+    title: 'code·rebuild',
     tagline: 'Rebuild.',
     accentColor: '#E8631A',
     accentLight: '#FFF3EC',

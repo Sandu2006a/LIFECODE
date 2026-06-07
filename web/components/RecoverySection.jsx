@@ -54,7 +54,7 @@ export default function RecoverySection() {
                 className="font-sans font-700 leading-[0.88] tracking-tight uppercase"
                 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 4.6rem)', color: PURPLE, letterSpacing: '0.02em' }}
               >
-                code·build
+                code·rebuild
               </h2>
             </div>
 
@@ -116,7 +116,7 @@ export default function RecoverySection() {
               }} />
             <Image
               src="/code-rebuild-sachet.png"
-              alt="code·build"
+              alt="code·rebuild"
               width={900}
               height={1100}
               className="relative w-full h-auto object-contain"

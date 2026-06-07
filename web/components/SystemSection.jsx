@@ -17,7 +17,7 @@ const BLOCKS = [
     gradient: MG,
   },
   {
-    tag: 'PM · code·build',
+    tag: 'PM · code·rebuild',
     title: 'Post-effort repair.',
     body: '10 targeted compounds. EAA, creatine, magnesium. Cellular rebuild starts within the 45-minute window.',
     gradient: RG,
