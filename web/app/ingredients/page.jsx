@@ -263,8 +263,8 @@ export default function IngredientsPage() {
         <section className="px-8 md:px-16 max-w-[1200px] mx-auto pt-10 pb-6">
           <div className="flex gap-3 flex-wrap">
             {[
-              { id: 'morning',  label: 'Morning Pak',       count: MORNING.length },
-              { id: 'recovery', label: 'Anabolic Recovery', count: RECOVERY.length },
+              { id: 'morning',  label: 'code·charge',  count: MORNING.length },
+              { id: 'recovery', label: 'code·rebuild', count: RECOVERY.length },
             ].map(({ id, label, count }) => (
               <button
                 key={id}
@@ -295,7 +295,7 @@ export default function IngredientsPage() {
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
               <h2 className="font-sans font-700 text-[28px] md:text-[36px] leading-tight" style={{ color: INK }}>
-                {tab === 'morning' ? 'Morning Pak' : 'Anabolic Recovery'}
+                {tab === 'morning' ? 'code·charge' : 'code·rebuild'}
               </h2>
               <p className="font-body text-[14px] mt-1" style={{ color: INK2 }}>
                 {tab === 'morning'
