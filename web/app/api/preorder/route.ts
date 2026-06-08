@@ -163,13 +163,19 @@ function welcomeEmailHtml(email: string) {
         <table cellpadding="0" cellspacing="0" align="center" style="margin:0 auto 16px;">
           <tr>
             <td style="padding:0 6px;">
-              <a href="https://www.instagram.com/lifecodenutrition" style="display:inline-block;width:36px;height:36px;line-height:36px;text-align:center;border-radius:50%;background:linear-gradient(135deg,#FF8A00,#C62828,#7C3AED);color:#fff;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;">IG</a>
+              <a href="https://www.instagram.com/lifecodenutrition" style="display:inline-block;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FF8A00,#C62828,#7C3AED);text-decoration:none;text-align:center;">
+                <img src="https://cdn.simpleicons.org/instagram/white" width="16" height="16" alt="Instagram" style="display:inline-block;margin-top:10px;vertical-align:middle;"/>
+              </a>
             </td>
             <td style="padding:0 6px;">
-              <a href="https://www.facebook.com/lifecodenutrition" style="display:inline-block;width:36px;height:36px;line-height:36px;text-align:center;border-radius:50%;background:linear-gradient(135deg,#FF8A00,#C62828,#7C3AED);color:#fff;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;">FB</a>
+              <a href="https://www.facebook.com/lifecodenutrition" style="display:inline-block;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FF8A00,#C62828,#7C3AED);text-decoration:none;text-align:center;">
+                <img src="https://cdn.simpleicons.org/facebook/white" width="16" height="16" alt="Facebook" style="display:inline-block;margin-top:10px;vertical-align:middle;"/>
+              </a>
             </td>
             <td style="padding:0 6px;">
-              <a href="https://www.tiktok.com/@lifecode.nutrition" style="display:inline-block;width:36px;height:36px;line-height:36px;text-align:center;border-radius:50%;background:linear-gradient(135deg,#FF8A00,#C62828,#7C3AED);color:#fff;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;">TT</a>
+              <a href="https://www.tiktok.com/@lifecode.nutrition" style="display:inline-block;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FF8A00,#C62828,#7C3AED);text-decoration:none;text-align:center;">
+                <img src="https://cdn.simpleicons.org/tiktok/white" width="16" height="16" alt="TikTok" style="display:inline-block;margin-top:10px;vertical-align:middle;"/>
+              </a>
             </td>
           </tr>
         </table>
