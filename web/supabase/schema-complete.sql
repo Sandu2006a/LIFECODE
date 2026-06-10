@@ -79,6 +79,19 @@ create table if not exists public.conversations (
   created_at  timestamptz default now()
 );
 
+-- ── workouts (training-week planner, used by /api/workouts) ──
+create table if not exists public.workouts (
+  id            bigserial primary key,
+  user_id       uuid not null references auth.users on delete cascade,
+  date          date not null,
+  type          text not null check (type in ('strength','cardio','mobility','class')),
+  name          text,
+  start_time    text,
+  duration_min  integer not null default 60,
+  created_at    timestamptz default now(),
+  updated_at    timestamptz default now()
+);
+
 -- ── workout_events (used by /api/chat) ───────────────────────
 create table if not exists public.workout_events (
   id            bigserial primary key,
@@ -99,12 +112,13 @@ alter table public.meal_logs      enable row level security;
 alter table public.user_memories  enable row level security;
 alter table public.conversations  enable row level security;
 alter table public.workout_events enable row level security;
+alter table public.workouts       enable row level security;
 
 -- Drop old policies on these tables and re-create cleanly
 do $$ declare r record; begin
   for r in select policyname, tablename from pg_policies
     where schemaname = 'public'
-    and tablename in ('profiles','intake_logs','meal_logs','user_memories','conversations','workout_events')
+    and tablename in ('profiles','intake_logs','meal_logs','user_memories','conversations','workout_events','workouts')
   loop
     execute format('drop policy if exists %I on public.%I', r.policyname, r.tablename);
   end loop;
@@ -119,6 +133,7 @@ create policy "meal all"     on public.meal_logs      for all using (auth.uid() 
 create policy "memory all"   on public.user_memories  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "convo all"    on public.conversations  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "workout all"  on public.workout_events for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "workouts all" on public.workouts       for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ============================================================
 -- Indexes for fast date-range queries
@@ -128,5 +143,6 @@ create index if not exists idx_meal_logs_user_date   on public.meal_logs (user_i
 create index if not exists idx_user_memories_user    on public.user_memories (user_id, created_at desc);
 create index if not exists idx_conversations_user    on public.conversations (user_id, created_at desc);
 create index if not exists idx_workout_events_user   on public.workout_events (user_id, event_date desc);
+create index if not exists idx_workouts_user_date    on public.workouts (user_id, date desc);
 
 -- Done. You should see "Success. No rows returned."
