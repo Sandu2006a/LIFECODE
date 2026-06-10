@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Pressable, Modal, TextInput, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Pressable, Modal, TextInput, Platform, KeyboardAvoidingView, Alert, ActivityIndicator, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,7 +8,12 @@ import { colors, fonts, gradients, radii, shadows } from '../src/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../src/lib/supabase';
 import { ensureSession, authHeaders } from '../src/lib/session';
-import { lifecodeFetch } from '../src/lib/api';
+import {
+  lifecodeFetch, saveProfile, saveProfileName,
+  listWorkouts, createWorkout, updateWorkout, deleteWorkout as apiDeleteWorkout,
+} from '../src/lib/api';
+import { clearCache } from '../src/lib/auth-cache';
+import { loadPrefs, savePrefs, DEFAULT_PREFS, type Prefs } from '../src/lib/prefs';
 
 const WEEK_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
@@ -35,6 +40,22 @@ function getThisWeek(): { d: number; today: boolean }[] {
 }
 
 const DUR_OPTIONS = [20, 30, 45, 60, 75, 90, 120];
+
+// ISO dates (local) for Monday..Sunday of the current week — needed to map
+// the day-pill index to the `date` column in the workouts table.
+function weekIsoDates(): string[] {
+  const today = new Date();
+  const offset = (today.getDay() + 6) % 7;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - offset);
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${m}-${day}`;
+  });
+}
 
 // Email-prefix → display name. alex.smith@gmail.com → "Alex". Strips digits and
 // punctuation, takes the first alpha chunk, capitalizes. Better fallback than
@@ -67,52 +88,72 @@ export default function ProfileScreen() {
   const [workoutParsing, setWorkoutParsing] = useState(false);
   const [workoutError, setWorkoutError] = useState('');
 
-  // Settings preferences (local UI state — operations wired in a later pass)
-  const [weightUnit, setWeightUnit]               = useState<'kg' | 'lb'>('kg');
-  const [heightUnit, setHeightUnit]               = useState<'cm' | 'ft'>('cm');
-  const [pushEnabled, setPushEnabled]             = useState(true);
-  const [shareEnabled, setShareEnabled]           = useState(true);
-  const [leaderboardVisible, setLeaderboardVisible] = useState(true);
-  const [codeRevealed, setCodeRevealed]           = useState(false);
-  const [morningTime]                              = useState('07:00');
-  const [recoveryTime]                             = useState('19:00');
-  const [summaryTime]                              = useState('21:00');
+  // Settings preferences — persisted to AsyncStorage via prefs.ts
+  const [prefs, setPrefsState] = useState<Prefs>(DEFAULT_PREFS);
+  const setPref = (patch: Partial<Prefs>) => {
+    setPrefsState(p => ({ ...p, ...patch }));
+    savePrefs(patch).catch(() => {});
+  };
+
+  // Profile fields for the Edit Profile sheet
+  const [age, setAge]           = useState<number | null>(null);
+  const [weightKg, setWeightKg] = useState<number | null>(null);
+  const [heightCm, setHeightCm] = useState<number | null>(null);
+  const [gender, setGender]     = useState<string | null>(null);
+  const [goal, setGoal]         = useState<string | null>(null);
+
+  // Sheets
+  const [editOpen, setEditOpen] = useState(false);
+  const [passOpen, setPassOpen] = useState(false);
+  const [timeEdit, setTimeEdit] = useState<null | { key: 'morningTime' | 'recoveryTime' | 'summaryTime'; label: string }>(null);
 
   useEffect(() => { load(); }, []);
 
   async function load() {
+    // Instant paint from local cache while the network round-trips run.
+    try {
+      const [cn, ce] = await Promise.all([
+        AsyncStorage.getItem('lifecode.user_name'),
+        AsyncStorage.getItem('lifecode.user_email'),
+      ]);
+      if (cn && cn !== 'Athlete') setName(n => n || cn);
+      if (ce) setEmail(e => e || ce);
+    } catch {}
+    loadPrefs().then(setPrefsState).catch(() => {});
+
     const { userId, accessToken } = await ensureSession();
     if (!userId) { console.log('[profile] no auth'); return; }
 
-    // Read profile via server (service role → bypasses RLS)
-    let p: any = null;
-    let userEmail = '';
-    let userMetaName = '';
-    try {
-      if (accessToken) {
-        const res = await lifecodeFetch('/api/me/state', {
-          headers: { 'Content-Type': 'application/json', ...authHeaders(accessToken) },
-        });
-        if (res.ok) {
-          const json = await res.json();
-          p = json?.profile || null;
-        }
-      }
-      // Pull email + user_metadata name from supabase auth (the activate response
-      // wrote the display_name into user_metadata).
-      const { data: ud } = await supabase.auth.getUser();
-      userEmail    = ud?.user?.email || '';
-      userMetaName = ud?.user?.user_metadata?.display_name
-                  || ud?.user?.user_metadata?.full_name
-                  || '';
-    } catch (e: any) { console.log('[profile] server fetch failed:', e?.message); }
+    const thirtyAgo = new Date(); thirtyAgo.setDate(thirtyAgo.getDate() - 30);
+    const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+    const wk = weekIsoDates();
+
+    // All independent reads fire in parallel — profile/state, auth user,
+    // 30-day intake logs, month meal count, this week's workouts.
+    const [stateJson, authUserRes, logsRes, mealsRes, workoutsRes] = await Promise.all([
+      accessToken
+        ? lifecodeFetch('/api/me/state', {
+            headers: { 'Content-Type': 'application/json', ...authHeaders(accessToken) },
+          }).then(r => (r.ok ? r.json() : null)).catch(() => null)
+        : Promise.resolve(null),
+      supabase.auth.getUser(),
+      supabase.from('intake_logs').select('pack, taken_at').eq('user_id', userId).gte('taken_at', thirtyAgo.toISOString()),
+      supabase.from('meal_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).gte('logged_at', monthStart),
+      listWorkouts(wk[0], wk[6]),
+    ]);
+
+    let p: any = stateJson?.profile || null;
+    const userEmail    = authUserRes?.data?.user?.email || '';
+    const userMetaName = authUserRes?.data?.user?.user_metadata?.display_name
+                      || authUserRes?.data?.user?.user_metadata?.full_name
+                      || '';
 
     // Fallback to direct supabase if server didn't return profile
     if (!p) {
       try {
         const { data } = await supabase
           .from('profiles')
-          .select('display_name, full_name, email, sport, goal')
+          .select('display_name, full_name, email, sport, goal, age, gender, weight_kg, height_cm')
           .eq('id', userId)
           .maybeSingle();
         p = data;
@@ -151,22 +192,39 @@ export default function ProfileScreen() {
     // the name from scratch and lands on the same wrong fallback.
     if (resolvedName && resolvedName !== 'You') {
       try { await AsyncStorage.setItem('lifecode.user_name', resolvedName); } catch {}
-      if (!p?.display_name) {
-        const { saveProfileName } = await import('../src/lib/api');
-        saveProfileName(resolvedName).catch(() => {});
-      }
+      if (!p?.display_name) saveProfileName(resolvedName).catch(() => {});
     }
-    setEmail(p?.email || userEmail || '');
+    const bestEmailFinal = p?.email || userEmail || '';
+    setEmail(bestEmailFinal);
+    if (bestEmailFinal) { try { await AsyncStorage.setItem('lifecode.user_email', bestEmailFinal); } catch {} }
     setSport(p?.sport || p?.goal || '');
 
-    // 30 days for streak + chart
-    const thirtyAgo = new Date(); thirtyAgo.setDate(thirtyAgo.getDate() - 30);
-    const { data: logs } = await supabase
-      .from('intake_logs')
-      .select('pack, taken_at')
-      .eq('user_id', userId)
-      .gte('taken_at', thirtyAgo.toISOString());
+    // Editable profile fields for the Edit Profile sheet
+    setAge(p?.age ?? null);
+    setWeightKg(p?.weight_kg ?? null);
+    setHeightCm(p?.height_cm ?? null);
+    setGender(p?.gender ?? null);
+    setGoal(p?.goal ?? null);
 
+    // This week's workouts from the server (persisted across devices/restarts)
+    if (workoutsRes.ok) {
+      const grouped: Record<number, Workout[]> = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+      for (const w of workoutsRes.workouts) {
+        const idx = wk.indexOf(String(w.date).slice(0, 10));
+        if (idx < 0) continue;
+        grouped[idx].push({
+          id: String(w.id),
+          type: (WORKOUT_TYPES.some(t => t.id === (w.type as any)) ? w.type : 'strength') as WorkoutType,
+          name: w.name || 'Workout',
+          time: (w.start_time || '07:30').slice(0, 5),
+          dur: w.duration_min || 45,
+        });
+      }
+      Object.values(grouped).forEach(list => list.sort((a, b) => a.time.localeCompare(b.time)));
+      setWorkouts(grouped);
+    }
+
+    const logs = logsRes?.data || [];
     const byDate: Record<string, Set<string>> = {};
     (logs || []).forEach((l: any) => {
       const d = l.taken_at.split('T')[0];
@@ -199,19 +257,40 @@ export default function ProfileScreen() {
     });
     setScoreData(week);
 
-    // Meals this month
-    const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
-    const { count } = await supabase
-      .from('meal_logs')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .gte('logged_at', monthStart);
-    setMeals(count || 0);
+    // Meals this month (query already ran in the parallel batch above)
+    setMeals(mealsRes?.count || 0);
   }
 
   async function signOut() {
-    await supabase.auth.signOut();
-    router.replace('/activate');
+    try {
+      await Promise.all([
+        'lifecode.activated_once', 'lifecode.onboarding_done',
+        'lifecode.last_uid', 'lifecode.user_name', 'lifecode.user_email',
+        'lifecode.name_prompt_done',
+      ].map(k => AsyncStorage.removeItem(k)));
+    } catch {}
+    clearCache();
+    try { await supabase.auth.signOut(); } catch {}
+    router.replace('/login');
+  }
+
+  function confirmResetData() {
+    Alert.alert(
+      'Reset all data',
+      'This clears the app data on this device and signs you out. Your account and logs on the server are kept.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset', style: 'destructive',
+          onPress: async () => {
+            try { await AsyncStorage.clear(); } catch {}
+            clearCache();
+            try { await supabase.auth.signOut(); } catch {}
+            router.replace('/login');
+          },
+        },
+      ],
+    );
   }
 
   const dayWorkouts = workouts[selectedDay] || [];
@@ -293,16 +372,35 @@ User text: "${text}"`;
       }
     }
 
-    // Add to selected day
+    // Add to selected day (optimistic), then persist to the server
     setWorkouts(prev => {
       const list = prev[selectedDay] || [];
       return { ...prev, [selectedDay]: [...list, parsed].sort((a, b) => a.time.localeCompare(b.time)) };
     });
     setWorkoutInput('');
     setWorkoutParsing(false);
+    persistNewWorkout(parsed, selectedDay);
+  }
+
+  // Server write for a locally-added workout: swap the temp id for the DB id
+  // on success so later edit/delete calls target the right row.
+  async function persistNewWorkout(w: Workout, dayIdx: number) {
+    const date = weekIsoDates()[dayIdx];
+    const r = await createWorkout({ date, type: w.type, name: w.name, start_time: w.time, duration_min: w.dur });
+    if (r.ok && r.workout) {
+      const serverId = String(r.workout.id);
+      setWorkouts(prev => ({
+        ...prev,
+        [dayIdx]: (prev[dayIdx] || []).map(x => x.id === w.id ? { ...x, id: serverId } : x),
+      }));
+    } else {
+      console.log('[workout] save failed:', r.error);
+      setWorkoutError('Saved locally — could not reach the server.');
+    }
   }
 
   function saveWorkout(w: Workout) {
+    const isNew = !sheet?.initial;
     setWorkouts(prev => {
       const list = prev[selectedDay] || [];
       const idx = list.findIndex(x => x.id === w.id);
@@ -310,11 +408,36 @@ User text: "${text}"`;
       return { ...prev, [selectedDay]: next.sort((a, b) => a.time.localeCompare(b.time)) };
     });
     setSheet(null);
+    if (isNew) {
+      persistNewWorkout(w, selectedDay);
+    } else {
+      updateWorkout(w.id, { type: w.type, name: w.name, start_time: w.time, duration_min: w.dur })
+        .then(r => { if (!r.ok) console.log('[workout] update failed:', r.error); });
+    }
   }
   function deleteWorkout() {
     if (!sheet?.initial) return;
-    setWorkouts(prev => ({ ...prev, [selectedDay]: prev[selectedDay].filter(x => x.id !== sheet.initial!.id) }));
+    const id = sheet.initial.id;
+    setWorkouts(prev => ({ ...prev, [selectedDay]: prev[selectedDay].filter(x => x.id !== id) }));
     setSheet(null);
+    apiDeleteWorkout(id).then(r => { if (!r.ok) console.log('[workout] delete failed:', r.error); });
+  }
+
+  // Edit Profile sheet save: optimistic local update + server write through
+  // /api/save-profile (service role — the only path RLS allows from the app).
+  async function handleProfileSave(f: { name: string; age: number | null; weight_kg: number | null; height_cm: number | null; sport: string }) {
+    if (f.name) setName(f.name);
+    setAge(f.age); setWeightKg(f.weight_kg); setHeightCm(f.height_cm); setSport(f.sport);
+    setEditOpen(false);
+    if (f.name && f.name !== 'You') {
+      try { await AsyncStorage.setItem('lifecode.user_name', f.name); } catch {}
+    }
+    const r = await saveProfile({
+      display_name: f.name || undefined,
+      age: f.age, weight_kg: f.weight_kg, height_cm: f.height_cm,
+      gender, goal, sport: f.sport || null,
+    });
+    if (!r.ok) Alert.alert('Could not save profile', r.error || 'Check your connection and try again.');
   }
 
   const avatarLetter = (name?.[0] || 'A').toUpperCase();
@@ -467,46 +590,44 @@ User text: "${text}"`;
         {/* Settings — grouped sections */}
         <Text style={[s.eyebrow, { marginLeft: 4, marginTop: 4, marginBottom: 8 }]}>ACCOUNT</Text>
         <View style={[s.card, { padding: 0, paddingHorizontal: 20 }]}>
-          <SettingsRow icon="user"   bg="grad-morning"  label="Edit profile"   chevron isFirst />
-          <SettingsRow icon="chat"   bg={colors.ink}    label="Email"          value={email || '—'} chevron />
-          <SettingsRow icon="track"  bg={colors.ink}    label="Lifecode code"  value={codeRevealed ? 'A6F2K' : '• • • • •'} onPress={() => setCodeRevealed(v => !v)} />
-          <SettingsRow icon="sparkle" bg="grad-recovery" label="Subscription" value="Pro" chevron isLast />
+          <SettingsRow icon="user"    bg="grad-morning"  label="Edit profile"    chevron onPress={() => setEditOpen(true)} isFirst />
+          <SettingsRow icon="chat"    bg={colors.ink}    label="Email"           value={email || '—'} />
+          <SettingsRow icon="shield"  bg={colors.ink}    label="Change password" chevron onPress={() => setPassOpen(true)} />
+          <SettingsRow icon="sparkle" bg="grad-recovery" label="Subscription"    value="Pro" isLast />
         </View>
 
         <Text style={[s.eyebrow, { marginLeft: 4, marginTop: 18, marginBottom: 8 }]}>PREFERENCES</Text>
         <View style={[s.card, { padding: 0, paddingHorizontal: 20 }]}>
-          <SettingsRow icon="dumbbell" bg={colors.ink} label="Weight units"  value={weightUnit} onPress={() => setWeightUnit(weightUnit === 'kg' ? 'lb' : 'kg')} isFirst />
-          <SettingsRow icon="dumbbell" bg={colors.ink} label="Height units"  value={heightUnit} onPress={() => setHeightUnit(heightUnit === 'cm' ? 'ft' : 'cm')} />
-          <SettingsRow icon="chat"     bg={colors.ink} label="Language"      value="English" chevron isLast />
+          <SettingsRow icon="dumbbell" bg={colors.ink} label="Weight units"  value={prefs.weightUnit} onPress={() => setPref({ weightUnit: prefs.weightUnit === 'kg' ? 'lb' : 'kg' })} isFirst />
+          <SettingsRow icon="dumbbell" bg={colors.ink} label="Height units"  value={prefs.heightUnit} onPress={() => setPref({ heightUnit: prefs.heightUnit === 'cm' ? 'ft' : 'cm' })} />
+          <SettingsRow icon="chat"     bg={colors.ink} label="Language"      value="English" isLast />
         </View>
 
         <Text style={[s.eyebrow, { marginLeft: 4, marginTop: 18, marginBottom: 8 }]}>NOTIFICATIONS</Text>
         <View style={[s.card, { padding: 0, paddingHorizontal: 20 }]}>
-          <SettingsRow icon="bell"     bg="grad-morning"  label="Push notifications" toggle={pushEnabled} onToggle={() => setPushEnabled(v => !v)} isFirst />
-          <SettingsRow icon="sparkle"  bg={colors.ink}    label="Morning reminder"   value={morningTime}  chevron />
-          <SettingsRow icon="moon"     bg="grad-recovery" label="Recovery reminder"  value={recoveryTime} chevron />
-          <SettingsRow icon="clock"    bg={colors.ink}    label="Daily summary"      value={summaryTime}  chevron isLast />
+          <SettingsRow icon="bell"     bg="grad-morning"  label="Push notifications" toggle={prefs.pushEnabled} onToggle={() => setPref({ pushEnabled: !prefs.pushEnabled })} isFirst />
+          <SettingsRow icon="sparkle"  bg={colors.ink}    label="Morning reminder"   value={prefs.morningTime}  chevron onPress={() => setTimeEdit({ key: 'morningTime', label: 'Morning reminder' })} />
+          <SettingsRow icon="moon"     bg="grad-recovery" label="Recovery reminder"  value={prefs.recoveryTime} chevron onPress={() => setTimeEdit({ key: 'recoveryTime', label: 'Recovery reminder' })} />
+          <SettingsRow icon="clock"    bg={colors.ink}    label="Daily summary"      value={prefs.summaryTime}  chevron onPress={() => setTimeEdit({ key: 'summaryTime', label: 'Daily summary' })} isLast />
         </View>
 
         <Text style={[s.eyebrow, { marginLeft: 4, marginTop: 18, marginBottom: 8 }]}>PRIVACY</Text>
         <View style={[s.card, { padding: 0, paddingHorizontal: 20 }]}>
-          <SettingsRow icon="users"  bg={colors.ink} label="Share progress with friends" toggle={shareEnabled} onToggle={() => setShareEnabled(v => !v)} isFirst />
-          <SettingsRow icon="flame"  bg={colors.ink} label="Show on leaderboard"         toggle={leaderboardVisible} onToggle={() => setLeaderboardVisible(v => !v)} />
-          <SettingsRow icon="shield" bg={colors.ink} label="Data &amp; permissions"      chevron isLast />
+          <SettingsRow icon="users"  bg={colors.ink} label="Share progress with friends" toggle={prefs.shareEnabled} onToggle={() => setPref({ shareEnabled: !prefs.shareEnabled })} isFirst />
+          <SettingsRow icon="flame"  bg={colors.ink} label="Show on leaderboard"         toggle={prefs.leaderboardVisible} onToggle={() => setPref({ leaderboardVisible: !prefs.leaderboardVisible })} isLast />
         </View>
 
         <Text style={[s.eyebrow, { marginLeft: 4, marginTop: 18, marginBottom: 8 }]}>SUPPORT</Text>
         <View style={[s.card, { padding: 0, paddingHorizontal: 20 }]}>
-          <SettingsRow icon="chat"    bg={colors.ink} label="Help center"  chevron isFirst />
-          <SettingsRow icon="send"    bg={colors.ink} label="Contact us"   chevron />
-          <SettingsRow icon="heart"   bg={colors.ink} label="Rate the app" chevron isLast />
+          <SettingsRow icon="chat"    bg={colors.ink} label="Help center"  chevron onPress={() => Linking.openURL('https://lifecodenutrition.com/contact').catch(() => {})} isFirst />
+          <SettingsRow icon="send"    bg={colors.ink} label="Contact us"   chevron onPress={() => Linking.openURL('mailto:lifecodenutrition@gmail.com').catch(() => {})} isLast />
         </View>
 
         <Text style={[s.eyebrow, { marginLeft: 4, marginTop: 18, marginBottom: 8 }]}>ABOUT</Text>
         <View style={[s.card, { padding: 0, paddingHorizontal: 20 }]}>
           <SettingsRow icon="sparkle" bg={colors.ink} label="App version"     value="1.0.0" isFirst />
-          <SettingsRow icon="shield"  bg={colors.ink} label="Terms of Service" chevron />
-          <SettingsRow icon="shield"  bg={colors.ink} label="Privacy Policy"   chevron isLast />
+          <SettingsRow icon="shield"  bg={colors.ink} label="Terms of Service" chevron onPress={() => Linking.openURL('https://lifecodenutrition.com/about').catch(() => {})} />
+          <SettingsRow icon="shield"  bg={colors.ink} label="Privacy Policy"   chevron onPress={() => Linking.openURL('https://lifecodenutrition.com/about').catch(() => {})} isLast />
         </View>
 
         <View style={s.dangerCard}>
@@ -514,7 +635,7 @@ User text: "${text}"`;
             <Text style={s.dangerText}>Sign out</Text>
           </TouchableOpacity>
           <View style={s.dangerDivider} />
-          <TouchableOpacity style={s.dangerRow} activeOpacity={0.6}>
+          <TouchableOpacity onPress={confirmResetData} style={s.dangerRow} activeOpacity={0.6}>
             <Text style={s.dangerTextRed}>Reset all data</Text>
           </TouchableOpacity>
         </View>
@@ -528,6 +649,25 @@ User text: "${text}"`;
           onClose={() => setSheet(null)}
           onSave={saveWorkout}
           onDelete={deleteWorkout}
+        />
+      )}
+
+      {editOpen && (
+        <EditProfileSheet
+          initial={{ name, age, weightKg, heightCm, sport }}
+          onClose={() => setEditOpen(false)}
+          onSave={handleProfileSave}
+        />
+      )}
+
+      {passOpen && <PasswordSheet onClose={() => setPassOpen(false)} />}
+
+      {timeEdit && (
+        <TimeSheet
+          label={timeEdit.label}
+          initial={prefs[timeEdit.key]}
+          onClose={() => setTimeEdit(null)}
+          onSave={t => { setPref({ [timeEdit.key]: t } as Partial<Prefs>); setTimeEdit(null); }}
         />
       )}
     </SafeAreaView>
@@ -680,6 +820,177 @@ function WorkoutSheet({ initial, onClose, onSave, onDelete }: { initial: Workout
           </View>
         </View>
       </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
+// ── Edit Profile sheet ──
+function EditProfileSheet({ initial, onClose, onSave }: {
+  initial: { name: string; age: number | null; weightKg: number | null; heightCm: number | null; sport: string };
+  onClose: () => void;
+  onSave: (f: { name: string; age: number | null; weight_kg: number | null; height_cm: number | null; sport: string }) => void;
+}) {
+  const [name, setName]     = useState(initial.name === 'You' ? '' : initial.name);
+  const [age, setAge]       = useState(initial.age ? String(initial.age) : '');
+  const [weight, setWeight] = useState(initial.weightKg ? String(initial.weightKg) : '');
+  const [height, setHeight] = useState(initial.heightCm ? String(initial.heightCm) : '');
+  const [sport, setSport]   = useState(initial.sport || '');
+
+  return (
+    <Modal transparent visible animationType="fade" onRequestClose={onClose}>
+      <Pressable style={ws.backdrop} onPress={onClose} />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={ws.kavWrap} pointerEvents="box-none">
+        <View style={ws.sheet}>
+          <View style={ws.handle} />
+          <Text style={ws.title}>Edit profile</Text>
+
+          <Text style={ws.fieldLbl}>NAME</Text>
+          <TextInput value={name} onChangeText={setName} placeholder="Your name"
+            placeholderTextColor={colors.ink3} autoCapitalize="words" style={ws.input} />
+
+          <Text style={ws.fieldLbl}>AGE</Text>
+          <TextInput value={age} onChangeText={v => setAge(v.replace(/\D/g, ''))} placeholder="e.g. 24"
+            placeholderTextColor={colors.ink3} keyboardType="numeric" maxLength={3} style={ws.input} />
+
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <View style={{ flex: 1 }}>
+              <Text style={ws.fieldLbl}>WEIGHT (KG)</Text>
+              <TextInput value={weight} onChangeText={setWeight} placeholder="e.g. 80"
+                placeholderTextColor={colors.ink3} keyboardType="decimal-pad" maxLength={5} style={ws.input} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={ws.fieldLbl}>HEIGHT (CM)</Text>
+              <TextInput value={height} onChangeText={v => setHeight(v.replace(/\D/g, ''))} placeholder="e.g. 182"
+                placeholderTextColor={colors.ink3} keyboardType="numeric" maxLength={3} style={ws.input} />
+            </View>
+          </View>
+
+          <Text style={ws.fieldLbl}>SPORT</Text>
+          <TextInput value={sport} onChangeText={setSport} placeholder="e.g. Boxing, marathon..."
+            placeholderTextColor={colors.ink3} style={ws.input} />
+
+          <View style={ws.actions}>
+            <TouchableOpacity style={ws.delBtn} onPress={onClose}>
+              <Text style={ws.delText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[ws.saveBtn, { flex: 1 }]}
+              onPress={() => onSave({
+                name: name.trim(),
+                age: parseInt(age) || null,
+                weight_kg: parseFloat(weight) || null,
+                height_cm: parseInt(height) || null,
+                sport: sport.trim(),
+              })}
+            >
+              <Text style={ws.saveText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
+// ── Change Password sheet ──
+function PasswordSheet({ onClose }: { onClose: () => void }) {
+  const [pass, setPass]       = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [saving, setSaving]   = useState(false);
+  const [error, setError]     = useState('');
+
+  async function save() {
+    if (pass.length < 8) { setError('Password must be at least 8 characters.'); return; }
+    if (pass !== confirm) { setError('Passwords do not match.'); return; }
+    setSaving(true);
+    setError('');
+    // Expo Go can drop the in-memory session — restore from cached tokens first.
+    await ensureSession();
+    const { error: err } = await supabase.auth.updateUser({ password: pass });
+    setSaving(false);
+    if (err) { setError(err.message || 'Could not update password.'); return; }
+    onClose();
+    Alert.alert('Password updated', 'Use your new password next time you sign in.');
+  }
+
+  return (
+    <Modal transparent visible animationType="fade" onRequestClose={onClose}>
+      <Pressable style={ws.backdrop} onPress={onClose} />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={ws.kavWrap} pointerEvents="box-none">
+        <View style={ws.sheet}>
+          <View style={ws.handle} />
+          <Text style={ws.title}>Change password</Text>
+
+          <Text style={ws.fieldLbl}>NEW PASSWORD</Text>
+          <TextInput value={pass} onChangeText={v => { setPass(v); setError(''); }} placeholder="Min. 8 characters"
+            placeholderTextColor={colors.ink3} secureTextEntry autoCapitalize="none" style={ws.input} />
+
+          <Text style={ws.fieldLbl}>CONFIRM PASSWORD</Text>
+          <TextInput value={confirm} onChangeText={v => { setConfirm(v); setError(''); }} placeholder="Repeat password"
+            placeholderTextColor={colors.ink3} secureTextEntry autoCapitalize="none" style={ws.input} />
+
+          {!!error && <Text style={s.workoutError}>{error}</Text>}
+
+          <View style={ws.actions}>
+            <TouchableOpacity style={ws.delBtn} onPress={onClose}>
+              <Text style={ws.delText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[ws.saveBtn, { flex: 1 }, saving && { opacity: 0.5 }]} onPress={save} disabled={saving}>
+              {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={ws.saveText}>Update password</Text>}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
+// ── Reminder time sheet (15-min steps, persisted to prefs) ──
+function TimeSheet({ label, initial, onClose, onSave }: {
+  label: string; initial: string; onClose: () => void; onSave: (t: string) => void;
+}) {
+  const [time, setTime] = useState(initial);
+
+  function adj(delta: number) {
+    const [h, m] = time.split(':').map(Number);
+    let total = h * 60 + m + delta;
+    if (total < 0) total += 24 * 60;
+    if (total >= 24 * 60) total -= 24 * 60;
+    setTime(`${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`);
+  }
+
+  return (
+    <Modal transparent visible animationType="fade" onRequestClose={onClose}>
+      <Pressable style={ws.backdrop} onPress={onClose} />
+      <View style={ws.kavWrap} pointerEvents="box-none">
+        <View style={ws.sheet}>
+          <View style={ws.handle} />
+          <Text style={ws.title}>{label}</Text>
+
+          <Text style={ws.fieldLbl}>TIME</Text>
+          <View style={ws.timeRow}>
+            <Text style={ws.timeVal}>{time}</Text>
+            <View style={ws.timeCtrl}>
+              <TouchableOpacity onPress={() => adj(-15)} style={ws.timeBtn}>
+                <Icon name="minus" size={14} color={colors.ink} strokeWidth={2.5} />
+              </TouchableOpacity>
+              <Text style={ws.timeStep}>15 MIN</Text>
+              <TouchableOpacity onPress={() => adj(15)} style={ws.timeBtn}>
+                <Icon name="plus" size={14} color={colors.ink} strokeWidth={2.5} />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={ws.actions}>
+            <TouchableOpacity style={ws.delBtn} onPress={onClose}>
+              <Text style={ws.delText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[ws.saveBtn, { flex: 1 }]} onPress={() => onSave(time)}>
+              <Text style={ws.saveText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
     </Modal>
   );
 }

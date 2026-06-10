@@ -86,9 +86,9 @@ export default function OnboardingScreen() {
       }
 
       if (!uid) {
-        setError('Session lost. Please re-enter your activation code.');
+        setError('Session lost. Please sign in again.');
         setSaving(false);
-        router.replace('/activate');
+        router.replace('/login');
         return;
       }
 

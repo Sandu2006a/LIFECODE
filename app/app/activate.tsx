@@ -216,7 +216,9 @@ export default function ActivateScreen() {
           }
         </TouchableOpacity>
 
-        <Text style={s.hint}>No code yet? Visit our website to register.</Text>
+        <TouchableOpacity onPress={() => router.replace('/login')} activeOpacity={0.6}>
+          <Text style={s.hint}>No code? <Text style={s.hintBold}>Sign in with email &amp; password →</Text></Text>
+        </TouchableOpacity>
 
       </View>
     </SafeAreaView>
@@ -250,6 +252,7 @@ const s = StyleSheet.create({
   btnText: { fontFamily: fonts.sansSemiBold, fontSize: 16, color: '#fff' },
 
   hint:     { fontFamily: fonts.sans, fontSize: 13, color: colors.ink3, textAlign: 'center' },
+  hintBold: { fontFamily: fonts.sansSemiBold, color: colors.ink2 },
 
   welcomeBg:    { flex: 1, alignItems: 'flex-start', justifyContent: 'center', paddingHorizontal: 36 },
   welcomeBox:   { width: '100%' },

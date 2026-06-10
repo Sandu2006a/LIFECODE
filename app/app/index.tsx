@@ -7,8 +7,8 @@ import { getCachedTokens } from '../src/lib/auth-cache';
 
 // Auth gate.
 //  • Valid session → /(tabs).  We never re-ask for onboarding data once the user
-//    has a session — they activated a code, that's enough.
-//  • No session    → /activate.
+//    has a session — they signed in, that's enough.
+//  • No session    → /login (email + password; /activate still reachable from there).
 export default function Index() {
   useEffect(() => {
     (async () => {
@@ -22,7 +22,7 @@ export default function Index() {
           }
         }
         if (!session) {
-          router.replace('/activate');
+          router.replace('/login');
           return;
         }
         // Session exists → trust the user. Mark device as known and route in.
@@ -33,7 +33,7 @@ export default function Index() {
         } catch {}
         router.replace('/(tabs)');
       } catch {
-        router.replace('/activate');
+        router.replace('/login');
       }
     })();
   }, []);

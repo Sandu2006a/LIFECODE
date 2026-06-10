@@ -142,6 +142,28 @@ export async function saveProfileName(name: string): Promise<{ ok: boolean; erro
   }
 }
 
+// Full profile update from the Edit Profile sheet. Same server route as
+// onboarding — RLS blocks direct app writes, service role on the server doesn't.
+export async function saveProfile(fields: {
+  display_name?: string; age?: number | null; gender?: string | null;
+  weight_kg?: number | null; height_cm?: number | null;
+  goal?: string | null; sport?: string | null;
+}): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const { userId } = await ensureSession();
+    if (!userId) return { ok: false, error: 'not authenticated' };
+    const res = await authFetch('/api/save-profile', {
+      method: 'POST',
+      body: JSON.stringify({ user_id: userId, ...fields }),
+    });
+    const json = await readJsonSafe(res);
+    if (!res.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
+    return { ok: true };
+  } catch (e: any) {
+    return { ok: false, error: e.message || 'network error' };
+  }
+}
+
 // Same architecture as scanMeal: call Gemini directly for the slow analysis
 // step, then post-save with pre-computed nutrients so /api/meal doesn't have
 // to call Gemini itself (which is what was timing out → 'HTML on /api/meal').
