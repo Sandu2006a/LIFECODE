@@ -163,7 +163,7 @@ function ReviewCard({ review }) {
   );
 }
 
-const INITIAL_VISIBLE = 3;
+const INITIAL_VISIBLE = 6;
 
 export default function ReviewsSection() {
   const sectionRef = useRef(null);
