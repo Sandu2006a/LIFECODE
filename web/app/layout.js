@@ -1,6 +1,7 @@
 import { Barlow_Condensed, Inter } from 'next/font/google';
 import './globals.css';
 import CookieBanner from '@/components/legal/CookieBanner';
+import { Analytics } from '@vercel/analytics/next';
 
 const barlowCondensed = Barlow_Condensed({
   subsets: ['latin'],
@@ -152,6 +153,7 @@ export default function RootLayout({ children }) {
         />
         {children}
         <CookieBanner />
+        <Analytics />
       </body>
     </html>
   );
